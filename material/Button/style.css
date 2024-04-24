@@ -1,0 +1,7 @@
+.MUI_Button {
+    background-color: rgba(0, 0, 0, 0);
+    transition: ease-in-out 2s;
+}
+.MUI_Button:hover {
+    background-color: rgba(150, 0, 0, 0.8);
+}

@@ -1,19 +1,8 @@
 "use client";
 
-import { createContext, useContext, type ButtonHTMLAttributes } from "react";
-import { randomString } from "../../utils";
-
-type CssProps = Partial<React.CSSProperties> &
-  Partial<{
-    "&hover": React.CSSProperties;
-  }>;
-
-type MuiElementProps = {
-  variant?: string;
-  sx?: CssProps;
-  children?: string | number | JSX.Element;
-};
-
+import { type ButtonHTMLAttributes } from "react";
+import { createStyle, type CssProps } from "../../style";
+import { type MuiElementProps } from "../common";
 type MuiButtonProps = {
   variant?: "text" | "contained" | "outlined";
   sx?: {
@@ -21,44 +10,20 @@ type MuiButtonProps = {
     label: {
       color: CssProps["color"];
       size: CssProps["fontSize"];
-      font: CssProps["fontFamily"];
+      fontFamily: CssProps["fontFamily"];
     };
   };
 } & MuiElementProps;
-
-function ConvertToSx(sx: CssProps, id: string) {
-  const bypass = "abcdefghijklmnopqrstuvwxyz1234567890";
-  // specialKeys
-  const keys = Object.keys(sx).filter((k) => !bypass.includes(k[0]));
-  let specialSX = "";
-  return id;
-}
-
-class StyleContexter {
-  private ids: Record<string, string> = {};
-  set(id: string, content: string) {
-    if (typeof this.ids[id] == "undefined") this.ids[id] = content;
-    else this.ids[id] = this.ids[id] + content;
-  }
-  log() {
-    console.log(this.ids);
-  }
-}
-
-const StyleContext = createContext(new StyleContexter());
 
 function Button({
   variant,
   sx,
   children,
   ...props
-}: MuiButtonProps & ButtonHTMLAttributes<any>) {
-  const style = useContext(StyleContext);
+}: MuiButtonProps & Omit<ButtonHTMLAttributes<any>, "style">) {
   let styleData: CssProps = {};
   const ButtonClass = "MUI_Button";
-  const ButtonID = randomString(10);
-  style.set(`${ButtonID}_${ButtonClass}`, "backgroundColor: red");
-  style.log();
+
   switch (variant) {
     case "text":
     case undefined:
@@ -72,10 +37,16 @@ function Button({
       };
       break;
   }
+  const {id, MuiStyle } = createStyle({
+    className: ButtonClass,
+    defaultStyle: "background-color: red",
+    currentStyle: ""
+  });
 
   return (
     <>
-      <button {...props} className={ButtonClass}>
+      <MuiStyle />
+      <button {...props} className={[ButtonClass, id].join(" ")} suppressHydrationWarning>
         {typeof children == "string" ? children.toUpperCase() : children}
       </button>
     </>
