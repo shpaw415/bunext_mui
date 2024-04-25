@@ -27,26 +27,22 @@ function Button({
   switch (variant) {
     case "text":
     case undefined:
-      styleData = {
-        backgroundColor: "rgba(0,0,0,0)",
-        transition: "ease-in-out",
-        transitionDelay: "2s",
-        "&hover": {
-          color: "red",
-        },
-      };
+      styleData = {};
       break;
   }
-  const {id, MuiStyle } = createStyle({
+  const ButtonStyle = createStyle({
     className: ButtonClass,
-    defaultStyle: "background-color: red",
-    currentStyle: ""
+    currentStyle: styleData,
   });
 
   return (
     <>
-      <MuiStyle />
-      <button {...props} className={[ButtonClass, id].join(" ")} suppressHydrationWarning>
+      <ButtonStyle.MuiStyle />
+      <button
+        {...props}
+        className={[ButtonClass, ButtonStyle.id].join(" ")}
+        suppressHydrationWarning
+      >
         {typeof children == "string" ? children.toUpperCase() : children}
       </button>
     </>
