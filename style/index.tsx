@@ -4,12 +4,15 @@ import { randomString } from "../utils";
 
 export type CssProps =
   | Partial<React.CSSProperties> &
-      Partial<{
-        ":hover": Partial<React.CSSProperties>;
-        ":active": Partial<React.CSSProperties>;
-        ":link": Partial<React.CSSProperties>;
-        ":visited": Partial<React.CSSProperties>;
-      }>;
+      Partial<
+        | {
+            ":hover": Partial<React.CSSProperties>;
+            ":active": Partial<React.CSSProperties>;
+            ":link": Partial<React.CSSProperties>;
+            ":visited": Partial<React.CSSProperties>;
+          }
+        | { [key: string]: string }
+      >;
 
 /** return id has a className and the JSX function to add to the element  */
 export function createStyle({
@@ -47,12 +50,12 @@ function styleToString(style: CssProps | Partial<React.CSSProperties>) {
 }
 
 function toSx(cssValues: CssProps, selector: string) {
-  const bypass = "abcdefghijklmnopqrstuvwxyz1234567890";
+  const bypass = "abcdefghijklmnopqrstuvwxyz1234567890-";
   const specialKeys = (Object.keys(cssValues) as Array<keyof CssProps>).filter(
-    (e) => !bypass.includes(e[0])
+    (e) => !bypass.includes((e as any)[0])
   );
   const normalKeys = (Object.keys(cssValues) as Array<keyof CssProps>).filter(
-    (e) => bypass.includes(e[0])
+    (e) => bypass.includes((e as any)[0])
   );
   const cssNormalVals = Object.assign(
     {},
