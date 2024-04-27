@@ -14,16 +14,25 @@ export type CssProps =
         | { [key: string]: string }
       >;
 
-/** return id has a className and the JSX function to add to the element  */
+/**
+ * return id has a className and the JSX function to add to the element
+ * use <!ID!> to the custom css to replace it to the current id
+ * */
 export function createStyle({
   className,
   currentStyle,
+  customCss,
 }: {
   className: string;
   currentStyle: CssProps;
+  customCss?: string;
 }) {
   const id = `${randomString(10, Array.from("1234567890"))}_${className}`;
-  const style = MuiStyle(toSx(currentStyle, `.${id}`));
+  const style = MuiStyle(
+    [toSx(currentStyle, `.${id}`), customCss?.replaceAll("<!ID!>", id)]
+      .filter((e) => typeof e != "undefined")
+      .join("\n")
+  );
 
   return {
     id: id,

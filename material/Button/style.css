@@ -1,7 +1,23 @@
 .MUI_Button {
-    background-color: rgba(0, 0, 0, 0);
-    transition: ease-in-out 2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  --webkit-tap-highlight-color: transparent;
+  background-color: transparent;
+  outline: 0px;
+  border: 1px solid rgba(211, 47, 47, 0.5);
+  margin: 0px;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  text-decoration: none;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.75;
 }
 .MUI_Button:hover {
-    background-color: rgba(150, 0, 0, 0.8);
 }
