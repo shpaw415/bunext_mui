@@ -1,5 +1,5 @@
 {
-  "name": "mui",
+  "name": "bunext_material",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
@@ -8,12 +8,9 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0",
-    "react-dom": "18.2.0",
-    "react": "18.2.0",
-    "@bunpmjs/bunext": "0.2.45^",
+    "react-dom": "latest",
+    "react": "latest",
+    "@bunpmjs/bunext": "0.2.5^",
     "@material-design-icons/svg": "^0.14.13"
-  },
-  "dependencies": {
-    "@mui/icons-material": "latest"
   }
 }

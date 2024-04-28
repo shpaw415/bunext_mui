@@ -2,7 +2,7 @@
 
 import { type ButtonHTMLAttributes } from "react";
 import { createStyle, type CssProps } from "../../style";
-import { type MuiElementProps } from "../common";
+import { MuiClass, type MuiElementProps } from "../common";
 import { Ripple, RippleCss } from "../style/ripple";
 type MuiButtonProps = {
   variant?: "text" | "contained" | "outlined";
@@ -90,6 +90,7 @@ function disableMode(
   };
   switch (variant) {
     case "contained":
+    case undefined:
       return {
         ...commonDisabled,
         color: "rgba(135, 135, 135, 0.3)",
@@ -110,7 +111,6 @@ function disableMode(
         },
       };
     case "text":
-    case undefined:
       return {
         ...commonDisabled,
         color: "rgba(255, 255, 255, 0.3)",
@@ -214,8 +214,6 @@ function Button({
   ...props
 }: MuiButtonProps & Omit<ButtonHTMLAttributes<any>, "style">) {
   let styleData: CssProps = {};
-  const ButtonClass = "MUI_Button" as const;
-
   const commonStyle: Partial<CssProps> = {
     display: "inline-flex",
     alignItems: "center",
@@ -246,7 +244,6 @@ function Button({
 
   switch (variant) {
     case "text":
-    case undefined:
       styleData = {
         ...commonStyle,
         color: "rgb(33, 150, 243)",
@@ -259,6 +256,7 @@ function Button({
       };
       break;
     case "contained":
+    case undefined:
       styleData = {
         ...commonStyle,
         transition:
@@ -300,7 +298,7 @@ function Button({
   };
 
   const ButtonStyle = createStyle({
-    className: ButtonClass,
+    className: MuiClass.Button,
     currentStyle: { ...styleData, ...sx },
     customCss: `
     ${RippleCss}
@@ -321,7 +319,7 @@ function Button({
           if (props.onClick) props.onClick(e);
           if (href) window.location.replace(href);
         }}
-        className={[ButtonClass, ButtonStyle.id, "ripple"].join(" ")}
+        className={[MuiClass.Button, ButtonStyle.id, "ripple"].join(" ")}
         suppressHydrationWarning
       >
         {startIcon && (
