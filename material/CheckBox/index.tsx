@@ -1,3 +1,4 @@
+"use client";
 import type { MuiElementProps } from "../common";
 import Check from "@material-design-icons/svg/filled/done.svg";
 type MuiCheckBox = {

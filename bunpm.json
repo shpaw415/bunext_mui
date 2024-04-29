@@ -1,0 +1,10 @@
+{
+  "version": "0.0.1",
+  "include": [
+    "material",
+    "style",
+    "utils",
+    "README.md",
+    "tsconfig.json"
+  ]
+}

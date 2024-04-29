@@ -1,4 +1,5 @@
 {
+  "version": "0.0.1",
   "name": "bunext_material",
   "module": "index.ts",
   "type": "module",
@@ -10,7 +11,7 @@
     "typescript": "^5.0.0",
     "react-dom": "latest",
     "react": "latest",
-    "@bunpmjs/bunext": "0.2.5^",
+    "@bunpmjs/bunext": "latest",
     "@material-design-icons/svg": "^0.14.13"
   }
 }
