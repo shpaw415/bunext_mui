@@ -8,10 +8,10 @@
     "@types/react": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0",
+    "typescript": "latest",
     "react-dom": "latest",
     "react": "latest",
     "@bunpmjs/bunext": "latest",
-    "@material-design-icons/svg": "^0.14.13"
+    "@material-design-icons/svg": "latest"
   }
 }
