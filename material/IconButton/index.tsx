@@ -1,16 +1,19 @@
 "use client";
 
 import type { ButtonHTMLAttributes } from "react";
-import { createStyle, type CssProps } from "../../style";
+import { createStyle, styleToString, type CssProps } from "../../style";
 import { MuiClass, type MuiElementProps } from "../common";
 import { Ripple, RippleCss } from "../style/ripple";
 
 type MuiIconButtonProps = {
-  Icon: () => React.FunctionComponent<React.SVGAttributes<SVGElement>>;
+  Icon:
+    | React.FunctionComponent<React.SVGAttributes<SVGElement>>
+    | (() => React.ReactNode);
   size?: "small" | "medium" | "large" | number;
   href?: string;
   color?: React.CSSProperties["color"];
   disabled?: boolean;
+  IconSx?: React.CSSProperties;
 } & MuiElementProps;
 
 function svgColor(disabled?: boolean, color?: string) {
@@ -36,6 +39,7 @@ function IconButton({
   disabled,
   color,
   size,
+  IconSx,
   ...props
 }: MuiIconButtonProps & Omit<ButtonHTMLAttributes<any>, "style">) {
   const commonStyle: CssProps = {
@@ -80,7 +84,8 @@ function IconButton({
     customCss: `
     ${RippleCss}
     .<!ID!> > svg {
-        fill: ${svgColor(disabled, color)}
+        fill: ${svgColor(disabled, color)};
+        ${IconSx && styleToString(IconSx)}
         }`,
   });
   return (
@@ -96,7 +101,7 @@ function IconButton({
           if (props.href) window.location.replace(props.href);
         }}
       >
-        {(Icon as any)({})}
+        <Icon />
       </button>
     </>
   );

@@ -6,8 +6,8 @@ import { MuiClass, type MuiElementProps } from "../common";
 import { Ripple, RippleCss } from "../style/ripple";
 type MuiButtonProps = {
   variant?: "text" | "contained" | "outlined";
-  startIcon?: () => React.FunctionComponent<React.SVGAttributes<SVGElement>>;
-  endIcon?: () => React.FunctionComponent<React.SVGAttributes<SVGElement>>;
+  StartIcon?: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
+  EndIcon?: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   size?: "small" | "medium" | "large";
   href?: string;
   color?: "error" | "success";
@@ -207,8 +207,8 @@ function Button({
   children,
   disabled,
   size,
-  startIcon,
-  endIcon,
+  StartIcon,
+  EndIcon,
   href,
   color,
   ...props
@@ -322,25 +322,25 @@ function Button({
         className={[MuiClass.Button, ButtonStyle.id, "ripple"].join(" ")}
         suppressHydrationWarning
       >
-        {startIcon && (
+        {StartIcon && (
           <div
             style={{
               margin: "0 8px 0 -4px",
               display: "inherit",
             }}
           >
-            {(startIcon as any)({})}
+            <StartIcon />
           </div>
         )}
         {children}
-        {endIcon && (
+        {EndIcon && (
           <div
             style={{
               display: "inherit",
               margin: "0px -4px 0px 8px",
             }}
           >
-            {(endIcon as any)({})}
+            <EndIcon />
           </div>
         )}
       </button>

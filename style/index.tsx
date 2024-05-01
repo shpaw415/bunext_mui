@@ -1,5 +1,6 @@
 "use client";
 
+import { createContext, useContext } from "react";
 import { randomString } from "../utils";
 
 export type CssProps =
@@ -13,6 +14,28 @@ export type CssProps =
           }
         | { [key: string]: string }
       >;
+
+type MuiStyleControlType = {
+  id: string;
+  className: string;
+  currentStyle: CssProps;
+  customStyle?: string;
+  MuiStyle: () => JSX.Element;
+};
+export class MuiStyleControl {
+  public id = "";
+  public className = "";
+  public currentStyle: CssProps = {};
+  public customStyle = "";
+  public MuiStyle: () => JSX.Element;
+
+  constructor(props: MuiStyleControlType) {
+    this.id = props.id;
+    this.className = props.className;
+    this.currentStyle = props.currentStyle;
+    this.MuiStyle = props.MuiStyle;
+  }
+}
 
 /**
  * return id has a className and the JSX function to add to the element
@@ -34,13 +57,10 @@ export function createStyle({
       .join("\n")
   );
 
-  return {
-    id: id,
-    MuiStyle: style,
-  };
+  return new MuiStyleControl({ id, MuiStyle: style, className, currentStyle });
 }
 
-function styleToString(style: CssProps | Partial<React.CSSProperties>) {
+export function styleToString(style: CssProps | Partial<React.CSSProperties>) {
   return (Object.keys(style) as Array<keyof Partial<React.CSSProperties>>)
     .reduce(
       (acc, key) =>
@@ -91,9 +111,10 @@ function toSx(cssValues: CssProps, selector: string) {
   return [normalCssValue, ...(specialCssValue as string[])].join("\n");
 }
 
-function MuiStyle(StyleText: string) {
+function MuiStyle(StyleText: string, id?: string) {
   return () => (
     <style
+      id={id}
       type="text/css"
       suppressHydrationWarning
       dangerouslySetInnerHTML={{
