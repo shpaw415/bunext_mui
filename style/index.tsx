@@ -43,16 +43,21 @@ export class MuiStyleControl {
  * */
 export function createStyle({
   className,
+  defaultStyle,
   currentStyle,
   customCss,
 }: {
   className: string;
+  defaultStyle: CssProps;
   currentStyle: CssProps;
   customCss?: string;
 }) {
   const id = `${randomString(10, Array.from("1234567890"))}_${className}`;
   const style = MuiStyle(
-    [toSx(currentStyle, `.${id}`), customCss?.replaceAll("<!ID!>", id)]
+    [
+      toSx({ ...defaultStyle, ...currentStyle }, `.${id}`),
+      customCss?.replaceAll("<!ID!>", id),
+    ]
       .filter((e) => typeof e != "undefined")
       .join("\n")
   );
@@ -123,3 +128,13 @@ function MuiStyle(StyleText: string, id?: string) {
     />
   );
 }
+
+export const MuiColors = createContext({
+  primary: "rgb(33, 150, 243)",
+  secondary: "#555a64",
+  disabled: "rgba(255, 255, 255, 0.3)",
+  radio: {
+    success: "rgb(102, 187, 106)",
+    error: "rgb(216, 27, 96)",
+  },
+});

@@ -5,10 +5,13 @@ import MuiBase from "../../utils/base";
 
 type MuiText = {} & MuiElementProps;
 
-export function Text({ children }: MuiText) {
+export default function Text({ children, sx }: MuiText) {
   const Style = createStyle({
     className: "MUI_Text",
-    currentStyle: {},
+    defaultStyle: {},
+    currentStyle: {
+      ...sx,
+    },
     customCss: `
     .<!ID!> > * {
     margin: 0px;

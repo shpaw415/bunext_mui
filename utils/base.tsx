@@ -2,7 +2,7 @@
 
 import { Ripple, RippleCss } from "../material/style/ripple";
 import { createStyle, type MuiStyleControl } from "../style";
-
+import React from "react";
 type MuiBase =
   | ({
       MuiStyle: MuiStyleControl;
@@ -42,12 +42,13 @@ export default function MuiBase({
   if (ripple)
     RippleStyle = createStyle({
       className: "RippleStyle",
+      defaultStyle: {},
       currentStyle: {},
       customCss: RippleCss,
     });
 
   return (
-    <>
+    <React.Fragment>
       {RippleStyle && <RippleStyle.MuiStyle />}
       <MuiStyle.MuiStyle />
       <Element.type
@@ -69,6 +70,6 @@ export default function MuiBase({
       >
         {children}
       </Element.type>
-    </>
+    </React.Fragment>
   );
 }
