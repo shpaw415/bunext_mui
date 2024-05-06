@@ -4,6 +4,8 @@ import { type ButtonHTMLAttributes } from "react";
 import { createStyle, type CssProps } from "../../style";
 import { MuiClass, type MuiElementProps } from "../common";
 import { Ripple, RippleCss } from "../style/ripple";
+import MuiBase from "../../utils/base";
+import { Svg } from "../../utils/svg";
 type MuiButtonProps = {
   variant?: "text" | "contained" | "outlined";
   StartIcon?: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
@@ -299,6 +301,7 @@ function Button({
 
   const ButtonStyle = createStyle({
     className: MuiClass.Button,
+    defaultStyle: {},
     currentStyle: { ...styleData, ...sx },
     customCss: `
     ${RippleCss}
@@ -309,42 +312,41 @@ function Button({
   });
 
   return (
-    <>
-      <ButtonStyle.MuiStyle />
-      <button
-        {...props}
-        disabled={disabled}
-        onClick={(e) => {
-          Ripple(e);
-          if (props.onClick) props.onClick(e);
-          if (href) window.location.replace(href);
-        }}
-        className={[MuiClass.Button, ButtonStyle.id, "ripple"].join(" ")}
-        suppressHydrationWarning
-      >
-        {StartIcon && (
-          <div
-            style={{
+    <MuiBase
+      MuiStyle={ButtonStyle}
+      element="button"
+      {...props}
+      ripple
+      onClick={() => {
+        if (href) window.location.replace(href);
+      }}
+    >
+      {StartIcon && (
+        <Svg
+          sx={{
+            box: {
               margin: "0 8px 0 -4px",
               display: "inherit",
-            }}
-          >
-            <StartIcon />
-          </div>
-        )}
-        {children}
-        {EndIcon && (
-          <div
-            style={{
+            },
+            svg: {},
+          }}
+          svg={<StartIcon />}
+        />
+      )}
+      {children}
+      {EndIcon && (
+        <Svg
+          sx={{
+            box: {
               display: "inherit",
               margin: "0px -4px 0px 8px",
-            }}
-          >
-            <EndIcon />
-          </div>
-        )}
-      </button>
-    </>
+            },
+            svg: {},
+          }}
+          svg={<EndIcon />}
+        />
+      )}
+    </MuiBase>
   );
 }
 

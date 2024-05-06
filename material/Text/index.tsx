@@ -9,9 +9,7 @@ export default function Text({ children, sx }: MuiText) {
   const Style = createStyle({
     className: "MUI_Text",
     defaultStyle: {},
-    currentStyle: {
-      ...sx,
-    },
+    currentStyle: sx,
     customCss: `
     .<!ID!> > * {
     margin: 0px;

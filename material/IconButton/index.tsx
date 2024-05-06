@@ -4,6 +4,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { createStyle, styleToString, type CssProps } from "../../style";
 import { MuiClass, type MuiElementProps } from "../common";
 import { Ripple, RippleCss } from "../style/ripple";
+import MuiBase from "../../utils/base";
 
 type MuiIconButtonProps = {
   Icon:
@@ -80,6 +81,7 @@ function IconButton({
 
   const Style = createStyle({
     className: MuiClass.IconButton,
+    defaultStyle: commonStyle,
     currentStyle: currentStyle,
     customCss: `
     ${RippleCss}
@@ -89,21 +91,16 @@ function IconButton({
         }`,
   });
   return (
-    <>
-      <Style.MuiStyle />
-      <button
-        suppressHydrationWarning
-        className={["ripple", Style.id, MuiClass.IconButton].join(" ")}
-        disabled={disabled}
-        onClick={(e) => {
-          Ripple(e);
-          if (props.onClick) props.onClick(e);
-          if (props.href) window.location.replace(props.href);
-        }}
-      >
-        <Icon />
-      </button>
-    </>
+    <MuiBase
+      MuiStyle={Style}
+      element="button"
+      ripple
+      onClick={() => {
+        if (props.href) window.location.replace(props.href);
+      }}
+    >
+      <Icon />
+    </MuiBase>
   );
 }
 

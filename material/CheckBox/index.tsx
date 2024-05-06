@@ -5,7 +5,7 @@ import { Svg } from "../../utils/svg";
 import Check from "@material-design-icons/svg/outlined/check.svg";
 import MuiBase from "../../utils/base";
 import { useState, type InputHTMLAttributes } from "react";
-import { Text } from "../Text";
+import Text from "../Text";
 
 type HTMLElement = HTMLInputElement;
 
@@ -42,7 +42,7 @@ export default function CheckBox({
 
   const Style = createStyle({
     className: MuiClass.CheckBox,
-    currentStyle: {
+    defaultStyle: {
       display: "inline-flex",
       alignItems: "center",
       justifyContent: "center",
@@ -69,14 +69,14 @@ export default function CheckBox({
 
   const WrapperStyle = createStyle({
     className: "MUI_Checkbox_wrapper",
-    currentStyle: {
+    defaultStyle: {
       display: "flex",
       flexDirection: "row",
       alignItems: "center",
       width: "fit-content",
       height: "fit-content",
-      ...sx,
     },
+    currentStyle: sx,
   });
   const currentScale = sizeMode(size);
   const disabeledColor = "rgba(255, 255, 255, 0.3)";

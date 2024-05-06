@@ -80,9 +80,6 @@ export default function FloatingButton({
     letterSpacing: "0.02857em",
     textTransform: "uppercase",
     minHeight: "36px",
-    transition: `background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, transform ${
-      animationDelay || 225
-    }ms`,
     borderRadius: "50%",
     padding: "0px",
     minWidth: "0px",
@@ -96,16 +93,19 @@ export default function FloatingButton({
     ":hover": {
       backgroundColor: "rgb(23, 105, 170)",
     },
-    ...setTextEnable(isTextEnable),
-    ...setDisabled(Boolean(disabled)),
-    ...sx,
     transform: `scale(${state})`,
   };
 
   const WrapperStyle = createStyle({
     className: "MUI_FloatingButton_Wrapper",
+    defaultStyle: defaultStyle,
     currentStyle: {
-      ...defaultStyle,
+      transition: `background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, transform ${
+        animationDelay || 225
+      }ms`,
+      ...setTextEnable(isTextEnable),
+      ...setDisabled(Boolean(disabled)),
+      ...sx,
     },
     customCss: `
     .<!ID!> > svg {

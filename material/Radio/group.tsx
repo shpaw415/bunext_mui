@@ -5,6 +5,7 @@ import Radio from ".";
 import MuiBase from "../../utils/base";
 import Text from "../Text";
 import { useState } from "react";
+import { Expect } from "../../utils";
 
 type RadioGroupProps = MuiElementProps & {
   label?: string;
@@ -76,17 +77,4 @@ export default function RadioGroup({
       <MuiBase MuiStyle={GroupStyle}>{NewElements}</MuiBase>
     </MuiBase>
   );
-}
-
-function Expect(
-  Element: React.ReactNode,
-  TestingElements: React.ReactNode | React.ReactNode[]
-) {
-  if (Array.isArray(TestingElements)) {
-    for (const i of TestingElements) {
-      if ((i as any).type != (Element as any).type) return false;
-    }
-    return true;
-  }
-  return (TestingElements as any).type == (Element as any).type;
 }

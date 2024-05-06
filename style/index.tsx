@@ -49,7 +49,7 @@ export function createStyle({
 }: {
   className: string;
   defaultStyle: CssProps;
-  currentStyle: CssProps;
+  currentStyle?: CssProps;
   customCss?: string;
 }) {
   const id = `${randomString(10, Array.from("1234567890"))}_${className}`;
@@ -61,6 +61,8 @@ export function createStyle({
       .filter((e) => typeof e != "undefined")
       .join("\n")
   );
+
+  if (!currentStyle) currentStyle = {};
 
   return new MuiStyleControl({ id, MuiStyle: style, className, currentStyle });
 }

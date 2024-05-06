@@ -1,4 +1,5 @@
 import { createStyle } from "../../style";
+import MuiBase from "../../utils/base";
 import { MuiClass, type MuiElementProps } from "../common";
 
 type MuiButtonGroupProps = {
@@ -8,12 +9,13 @@ type MuiButtonGroupProps = {
 function ButtonGroup({ children, orientation }: MuiButtonGroupProps) {
   const Style = createStyle({
     className: MuiClass.ButtonGroup,
-    currentStyle: {
+    defaultStyle: {
       display: "inline-flex",
       borderRadius: "4px",
-      overflow: "hidden",
       boxShadow:
         "rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px",
+    },
+    currentStyle: {
       ...(orientation == "vertical"
         ? {
             flexDirection: "column",
@@ -29,10 +31,9 @@ function ButtonGroup({ children, orientation }: MuiButtonGroupProps) {
   });
   return (
     <>
-      <div className={[MuiClass.ButtonGroup, Style.id].join(" ")}>
+      <MuiBase MuiStyle={Style} ripple>
         {children}
-      </div>
-      <Style.MuiStyle />
+      </MuiBase>
     </>
   );
 }
