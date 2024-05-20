@@ -65,10 +65,10 @@ export function createStyle({
   const id = `${randomString(10, Array.from("1234567890"))}_${className}`;
   const style = MuiStyle(
     [
-      toSx(defaultStyle, `.${className}`),
+      toSx(defaultStyle, `.${id}`), // className
       toSx(currentStyle || {}, `.${id}`),
       customCss?.replaceAll("<!ID!>", id),
-      defaultCustomCss?.replaceAll("<!ID!>", className),
+      defaultCustomCss?.replaceAll("<!ID!>", id), // className
     ]
       .filter((e) => typeof e != "undefined")
       .join("\n")
