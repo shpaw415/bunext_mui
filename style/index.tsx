@@ -4,21 +4,27 @@ import { createContext, useContext } from "react";
 import { randomString } from "../utils";
 
 export type CssProps =
-  | Partial<React.CSSProperties> &
+  | (Partial<React.CSSProperties> &
       Partial<
         | {
             ":hover": Partial<React.CSSProperties>;
             ":active": Partial<React.CSSProperties>;
             ":link": Partial<React.CSSProperties>;
             ":visited": Partial<React.CSSProperties>;
+            ":not": Partial<React.CSSProperties>;
+            ":before": Partial<React.CSSProperties>;
+            ":after": Partial<React.CSSProperties>;
+            ":focus": Partial<React.CSSProperties>;
           }
-        | { [key: string]: string }
-      >;
+        | { [key: string]: Partial<React.CSSProperties> }
+      >)
+  | { [key: string]: string };
 
 type MuiStyleControlType = {
   id: string;
   className: string;
   currentStyle: CssProps;
+  defaultStyle: CssProps;
   customStyle?: string;
   MuiStyle: () => JSX.Element;
 };
@@ -26,6 +32,7 @@ export class MuiStyleControl {
   public id = "";
   public className = "";
   public currentStyle: CssProps = {};
+  public defaultStyle: CssProps = {};
   public customStyle = "";
   public MuiStyle: () => JSX.Element;
 
@@ -34,6 +41,7 @@ export class MuiStyleControl {
     this.className = props.className;
     this.currentStyle = props.currentStyle;
     this.MuiStyle = props.MuiStyle;
+    this.defaultStyle = props.defaultStyle;
   }
 }
 
@@ -46,17 +54,21 @@ export function createStyle({
   defaultStyle,
   currentStyle,
   customCss,
+  defaultCustomCss,
 }: {
   className: string;
   defaultStyle: CssProps;
   currentStyle?: CssProps;
   customCss?: string;
+  defaultCustomCss?: string;
 }) {
   const id = `${randomString(10, Array.from("1234567890"))}_${className}`;
   const style = MuiStyle(
     [
-      toSx({ ...defaultStyle, ...currentStyle }, `.${id}`),
+      toSx(defaultStyle, `.${className}`),
+      toSx(currentStyle || {}, `.${id}`),
       customCss?.replaceAll("<!ID!>", id),
+      defaultCustomCss?.replaceAll("<!ID!>", className),
     ]
       .filter((e) => typeof e != "undefined")
       .join("\n")
@@ -64,7 +76,13 @@ export function createStyle({
 
   if (!currentStyle) currentStyle = {};
 
-  return new MuiStyleControl({ id, MuiStyle: style, className, currentStyle });
+  return new MuiStyleControl({
+    id,
+    MuiStyle: style,
+    className,
+    currentStyle,
+    defaultStyle,
+  });
 }
 
 export function styleToString(style: CssProps | Partial<React.CSSProperties>) {
@@ -82,14 +100,23 @@ export function styleToString(style: CssProps | Partial<React.CSSProperties>) {
         ";",
       ""
     )
+    .trim()
     .replaceAll(";", ";\n");
 }
 
 function toSx(cssValues: CssProps, selector: string) {
   const bypass = "abcdefghijklmnopqrstuvwxyz1234567890-";
+
   const specialKeys = (Object.keys(cssValues) as Array<keyof CssProps>).filter(
     (e) => !bypass.includes((e as any)[0])
   );
+  const cssSpecialVals = Object.assign(
+    {},
+    ...specialKeys.map((n) => {
+      return { [n]: cssValues[n] };
+    })
+  ) as unknown as CssProps;
+
   const normalKeys = (Object.keys(cssValues) as Array<keyof CssProps>).filter(
     (e) => bypass.includes((e as any)[0])
   );
@@ -103,13 +130,6 @@ function toSx(cssValues: CssProps, selector: string) {
   let normalCssValue = "";
   if (normalKeys.length != 0)
     normalCssValue = `${selector} {\n${styleToString(cssNormalVals)}\n}`;
-
-  const cssSpecialVals = Object.assign(
-    {},
-    ...specialKeys.map((n) => {
-      return { [n]: cssValues[n] };
-    })
-  ) as unknown as CssProps;
 
   const specialCssValue = specialKeys.map(
     (e) => `${selector}${e} {\n${styleToString((cssSpecialVals as any)[e])} \n}`
@@ -139,4 +159,6 @@ export const MuiColors = createContext({
     success: "rgb(102, 187, 106)",
     error: "rgb(216, 27, 96)",
   },
+  error: "rgb(244, 67, 54)",
+  success: "rgb(102, 187, 106)",
 });

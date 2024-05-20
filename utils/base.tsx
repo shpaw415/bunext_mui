@@ -2,7 +2,8 @@
 
 import { Ripple, RippleCss } from "../material/style/ripple";
 import { createStyle, type MuiStyleControl } from "../style";
-import React from "react";
+import React, { forwardRef } from "react";
+
 type MuiBase =
   | ({
       MuiStyle: MuiStyleControl;
@@ -19,23 +20,82 @@ type MuiBase =
     } & React.DetailedHTMLProps<
       React.ButtonHTMLAttributes<HTMLButtonElement>,
       HTMLButtonElement
+    >)
+  | ({
+      MuiStyle: MuiStyleControl;
+      element: "fieldset";
+      ripple?: boolean;
+    } & React.DetailedHTMLProps<
+      React.ButtonHTMLAttributes<HTMLFieldSetElement>,
+      HTMLFieldSetElement
+    >)
+  | ({
+      MuiStyle: MuiStyleControl;
+      element: "input";
+      ripple?: boolean;
+    } & React.DetailedHTMLProps<
+      React.ButtonHTMLAttributes<HTMLInputElement>,
+      HTMLInputElement
+    >)
+  | ({
+      MuiStyle: MuiStyleControl;
+      element: "label";
+      ripple?: boolean;
+    } & React.DetailedHTMLProps<
+      React.ButtonHTMLAttributes<HTMLLabelElement>,
+      HTMLLabelElement
+    >)
+  | ({
+      MuiStyle: MuiStyleControl;
+      element: "legend";
+      ripple?: boolean;
+    } & React.DetailedHTMLProps<
+      React.ButtonHTMLAttributes<HTMLLegendElement>,
+      HTMLLegendElement
+    >)
+  | ({
+      MuiStyle: MuiStyleControl;
+      element: "p";
+      ripple?: boolean;
+    } & React.DetailedHTMLProps<
+      React.ButtonHTMLAttributes<HTMLParagraphElement>,
+      HTMLParagraphElement
+    >)
+  | ({
+      MuiStyle: MuiStyleControl;
+      element: "textarea";
+      ripple?: boolean;
+    } & React.DetailedHTMLProps<
+      React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+      HTMLTextAreaElement
     >);
 
-export default function MuiBase({
-  children,
-  MuiStyle,
-  className,
-  element,
-  ripple,
-  onClick,
-  ...props
-}: MuiBase) {
-  let Element = <div />;
-  switch (element) {
+function setType(elTag: MuiBase["element"]) {
+  switch (elTag) {
     case "button":
-      Element = <button />;
-      break;
+      return <button />;
+    case "fieldset":
+      return <fieldset />;
+    case "input":
+      return <input />;
+    case "label":
+      return <label />;
+    case "div":
+    case undefined:
+      return <div />;
+    case "legend":
+      return <legend />;
+    case "p":
+      return <p />;
+    case "textarea":
+      return <textarea />;
   }
+}
+
+const MuiBase = forwardRef<any, MuiBase>((_props: MuiBase, ref) => {
+  const { ripple, element, MuiStyle, className, onClick, children, ...props } =
+    _props;
+  const Element = setType(element);
 
   let RippleStyle;
 
@@ -67,9 +127,12 @@ export default function MuiBase({
           onClick && onClick(e);
           ripple && Ripple(e);
         }}
+        ref={ref}
       >
         {children}
       </Element.type>
     </React.Fragment>
   );
-}
+});
+
+export default MuiBase;
