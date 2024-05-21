@@ -317,8 +317,9 @@ function Button({
       element="button"
       {...props}
       ripple
-      onClick={() => {
+      onClick={(e) => {
         if (href) window.location.replace(href);
+        if (props.onClick) props.onClick(e);
       }}
     >
       {StartIcon && (
