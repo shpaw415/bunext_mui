@@ -38,7 +38,9 @@ export default function CheckBox({
   sx,
   ...props
 }: MuiCheckBox & Omit<InputHTMLAttributes<any>, "style">) {
-  const [selected, setSelect] = useState(Boolean(checked));
+  const [selected, setSelect] = useState(
+    Boolean(checked || props.defaultChecked)
+  );
 
   const Style = createStyle({
     className: MuiClass.CheckBox,
@@ -128,7 +130,8 @@ export default function CheckBox({
         <Svg svg={<Check />} sx={currentStyle} />
         <input
           type="checkbox"
-          checked={typeof checked != "undefined" ? checked : selected}
+          checked={selected}
+          onChange={props.onChange || (() => {})}
           style={{
             height: "100%",
             width: "100%",
