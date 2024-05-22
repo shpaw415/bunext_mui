@@ -31,9 +31,7 @@ function ButtonGroup({ children, orientation }: MuiButtonGroupProps) {
   });
   return (
     <>
-      <MuiBase MuiStyle={Style} ripple>
-        {children}
-      </MuiBase>
+      <MuiBase MuiStyle={Style}>{children}</MuiBase>
     </>
   );
 }
