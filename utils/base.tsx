@@ -1,8 +1,8 @@
 "use client";
 
 import { Ripple, RippleCss } from "../material/style/ripple";
-import { createStyle, type MuiStyleControl } from "../style";
-import React, { forwardRef } from "react";
+import { MuiStyleContext, type MuiStyleControl } from "../style";
+import React, { forwardRef, useContext } from "react";
 
 type MuiBase =
   | ({
@@ -97,41 +97,36 @@ const MuiBase = forwardRef<any, MuiBase>((_props: MuiBase, ref) => {
     _props;
   const Element = setType(element);
 
-  let RippleStyle;
+  const StyleContext = useContext(MuiStyleContext);
 
-  if (ripple)
-    RippleStyle = createStyle({
-      className: "RippleStyle",
-      defaultStyle: {},
-      currentStyle: {},
-      customCss: RippleCss,
-    });
+  StyleContext.createStyle({
+    className: "RippleStyle",
+    defaultStyle: {},
+    currentStyle: {},
+    customCss: RippleCss,
+  });
 
   return (
-    <React.Fragment>
-      {RippleStyle && <RippleStyle.MuiStyle />}
-      <MuiStyle.MuiStyle />
-      <Element.type
-        suppressHydrationWarning
-        className={[
-          MuiStyle.id,
-          MuiStyle.className,
-          className,
-          ripple ? "ripple" : undefined,
-        ].join(" ")}
-        style={{
-          overflow: ripple ? "hidden" : undefined,
-        }}
-        {...props}
-        onClick={(e: any) => {
-          onClick && onClick(e);
-          ripple && Ripple(e);
-        }}
-        ref={ref}
-      >
-        {children}
-      </Element.type>
-    </React.Fragment>
+    <Element.type
+      suppressHydrationWarning
+      className={[
+        MuiStyle.id,
+        MuiStyle.className,
+        className,
+        ripple ? "ripple" : undefined,
+      ].join(" ")}
+      style={{
+        overflow: ripple ? "hidden" : undefined,
+      }}
+      {...props}
+      onClick={(e: any) => {
+        onClick && onClick(e);
+        ripple && Ripple(e);
+      }}
+      ref={ref}
+    >
+      {children}
+    </Element.type>
   );
 });
 

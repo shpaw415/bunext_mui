@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext } from "react";
+import { createContext, useContext, useState } from "react";
 import { randomString } from "../utils";
 
 export type CssProps =
@@ -45,130 +45,138 @@ export class MuiStyleControl {
   }
 }
 
-let StyleIds: string[] = [];
+class _MuiStyleContext {
+  styleElement: JSX.Element;
+  ids: string[] = [];
+  content: { default: string[]; current: Record<string, string> } = {
+    default: [],
+    current: {},
+  };
+  private update?: React.Dispatch<React.SetStateAction<string>>;
 
-function getStyleElement() {
-  const StyleElement = document.querySelector("#MUI_Default_Style");
-  if (!StyleElement) {
-    const NewStyleElement: HTMLStyleElement = document.createElement("style");
-    NewStyleElement.setAttribute("id", "MUI_Default_Style");
-    document.querySelector("head")?.appendChild(NewStyleElement);
-    return NewStyleElement;
-  } else return StyleElement;
-}
-
-/**
- * return id has a className and the JSX function to add to the element
- * use <!ID!> to the custom css to replace it to the current id
- * */
-export function createStyle({
-  className,
-  defaultStyle,
-  currentStyle,
-  customCss,
-  defaultCustomCss,
-}: {
-  className: string;
-  defaultStyle: CssProps;
-  currentStyle?: CssProps;
-  customCss?: string;
-  defaultCustomCss?: string;
-}) {
-  const StyleElement = getStyleElement();
-  const id = `${randomString(10, Array.from("1234567890"))}_${className}`;
-
-  if (!StyleIds.includes(className)) {
-    StyleIds.push(className);
-    StyleElement.innerHTML = `${StyleElement.innerHTML}\n${[
-      sxToCss(defaultStyle, `.${className}`),
-      defaultCustomCss?.replaceAll("<!ID!>", className),
-    ]
-      .filter((e) => e != undefined)
-      .join("\n")}`;
+  constructor() {
+    this.styleElement = this.MuiStyle();
   }
 
-  const style = MuiStyle(
-    [sxToCss(currentStyle || {}, `.${id}`), customCss?.replaceAll("<!ID!>", id)]
-      .filter((e) => e != undefined)
-      .join("\n")
-  );
+  sxToCss(cssValues: CssProps, selector: string) {
+    const bypass = "abcdefghijklmnopqrstuvwxyz1234567890-";
 
-  if (!currentStyle) currentStyle = {};
+    const specialKeys = (
+      Object.keys(cssValues) as Array<keyof CssProps>
+    ).filter((e) => !bypass.includes((e as any)[0]));
+    const cssSpecialVals = Object.assign(
+      {},
+      ...specialKeys.map((n) => {
+        return { [n]: cssValues[n] };
+      })
+    ) as unknown as CssProps;
 
-  return new MuiStyleControl({
-    id,
-    MuiStyle: style,
+    const normalKeys = (Object.keys(cssValues) as Array<keyof CssProps>).filter(
+      (e) => bypass.includes((e as any)[0])
+    );
+    const cssNormalVals = Object.assign(
+      {},
+      ...normalKeys.map((n) => {
+        return { [n]: cssValues[n] };
+      })
+    ) as unknown as CssProps;
+
+    let normalCssValue = "";
+    if (normalKeys.length != 0)
+      normalCssValue = `${selector} {\n${this.styleToString(cssNormalVals)}\n}`;
+
+    const specialCssValue = specialKeys.map(
+      (e) =>
+        `${selector}${e} {\n${this.styleToString(
+          (cssSpecialVals as any)[e]
+        )} \n}`
+    );
+
+    return [normalCssValue, ...(specialCssValue as string[])].join("\n");
+  }
+
+  styleToString(style: CssProps | Partial<React.CSSProperties>) {
+    return (Object.keys(style) as Array<keyof Partial<React.CSSProperties>>)
+      .reduce(
+        (acc, key) =>
+          "\t" +
+          acc +
+          key
+            .split(/(?=[A-Z])/)
+            .join("-")
+            .toLowerCase() +
+          ":" +
+          style[key] +
+          ";",
+        ""
+      )
+      .trim()
+      .replaceAll(";", ";\n");
+  }
+  private _update() {
+    if (!this.update) return;
+    this.update(
+      [...this.content.default, ...Object.values(this.content.current)].join(
+        "\n"
+      )
+    );
+  }
+
+  /**
+   * return id has a className and the JSX function to add to the element
+   * use <!ID!> to the custom css to replace it to the current id
+   * */
+  createStyle({
     className,
-    currentStyle,
     defaultStyle,
-  });
+    currentStyle,
+    customCss,
+    defaultCustomCss,
+  }: {
+    className: string;
+    defaultStyle: CssProps;
+    currentStyle?: CssProps;
+    customCss?: string;
+    defaultCustomCss?: string;
+  }) {
+    const id = `${randomString(10, Array.from("1234567890"))}_${className}`;
+
+    if (!this.ids.includes(className)) {
+      this.ids.push(className);
+      this.content.default.push(
+        ...[
+          this.sxToCss(defaultStyle, `.${className}`),
+          defaultCustomCss?.replaceAll("<!ID!>", className),
+        ].filter((e) => e != undefined)
+      );
+    }
+
+    this.content.current[id] = [
+      this.sxToCss(currentStyle || {}, `.${id}`),
+      customCss?.replaceAll("<!ID!>", id),
+    ]
+      .filter((e) => e != undefined)
+      .join("\n");
+
+    this._update();
+  }
+
+  private MuiStyle() {
+    const [data, setData] = useState("");
+    this.update = setData;
+    return (
+      <style
+        type="text/css"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: data,
+        }}
+      />
+    );
+  }
 }
 
-export function styleToString(style: CssProps | Partial<React.CSSProperties>) {
-  return (Object.keys(style) as Array<keyof Partial<React.CSSProperties>>)
-    .reduce(
-      (acc, key) =>
-        "\t" +
-        acc +
-        key
-          .split(/(?=[A-Z])/)
-          .join("-")
-          .toLowerCase() +
-        ":" +
-        style[key] +
-        ";",
-      ""
-    )
-    .trim()
-    .replaceAll(";", ";\n");
-}
-
-function sxToCss(cssValues: CssProps, selector: string) {
-  const bypass = "abcdefghijklmnopqrstuvwxyz1234567890-";
-
-  const specialKeys = (Object.keys(cssValues) as Array<keyof CssProps>).filter(
-    (e) => !bypass.includes((e as any)[0])
-  );
-  const cssSpecialVals = Object.assign(
-    {},
-    ...specialKeys.map((n) => {
-      return { [n]: cssValues[n] };
-    })
-  ) as unknown as CssProps;
-
-  const normalKeys = (Object.keys(cssValues) as Array<keyof CssProps>).filter(
-    (e) => bypass.includes((e as any)[0])
-  );
-  const cssNormalVals = Object.assign(
-    {},
-    ...normalKeys.map((n) => {
-      return { [n]: cssValues[n] };
-    })
-  ) as unknown as CssProps;
-
-  let normalCssValue = "";
-  if (normalKeys.length != 0)
-    normalCssValue = `${selector} {\n${styleToString(cssNormalVals)}\n}`;
-
-  const specialCssValue = specialKeys.map(
-    (e) => `${selector}${e} {\n${styleToString((cssSpecialVals as any)[e])} \n}`
-  );
-
-  return [normalCssValue, ...(specialCssValue as string[])].join("\n");
-}
-
-function MuiStyle(StyleText: string, id?: string) {
-  return () => (
-    <style
-      id={id}
-      type="text/css"
-      suppressHydrationWarning
-      dangerouslySetInnerHTML={{
-        __html: StyleText,
-      }}
-    />
-  );
-}
+export const MuiStyleContext = createContext(new _MuiStyleContext());
 
 export const MuiColors = createContext({
   primary: "rgb(33, 150, 243)",
@@ -181,3 +189,7 @@ export const MuiColors = createContext({
   error: "rgb(244, 67, 54)",
   success: "rgb(102, 187, 106)",
 });
+
+export function MuiBaseStyle() {
+  return useContext(MuiStyleContext).styleElement;
+}
