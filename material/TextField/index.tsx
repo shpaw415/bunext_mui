@@ -61,7 +61,6 @@ function InputModer({
     if (!props.multiline) return;
     (textAreaRef as any).current.style.height = "auto";
     const reductedHeight = textAreaRef.current?.scrollHeight as number;
-    console.log(reductedHeight);
     if (
       typeof props.multiline != "boolean" &&
       typeof props.multiline?.maxRows == "number" &&

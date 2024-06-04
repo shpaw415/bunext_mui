@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext } from "react";
 import { randomString } from "../utils";
 
 export type CssProps =
@@ -45,6 +45,18 @@ export class MuiStyleControl {
   }
 }
 
+let StyleIds: string[] = [];
+
+function getStyleElement() {
+  const StyleElement = document.querySelector("#MUI_Default_Style");
+  if (!StyleElement) {
+    const NewStyleElement: HTMLStyleElement = document.createElement("style");
+    NewStyleElement.setAttribute("id", "MUI_Default_Style");
+    document.querySelector("head")?.appendChild(NewStyleElement);
+    return NewStyleElement;
+  } else return StyleElement;
+}
+
 /**
  * return id has a className and the JSX function to add to the element
  * use <!ID!> to the custom css to replace it to the current id
@@ -62,15 +74,22 @@ export function createStyle({
   customCss?: string;
   defaultCustomCss?: string;
 }) {
+  const StyleElement = getStyleElement();
   const id = `${randomString(10, Array.from("1234567890"))}_${className}`;
-  const style = MuiStyle(
-    [
-      toSx(defaultStyle, `.${id}`), // className
-      toSx(currentStyle || {}, `.${id}`),
-      customCss?.replaceAll("<!ID!>", id),
-      defaultCustomCss?.replaceAll("<!ID!>", id), // className
+
+  if (!StyleIds.includes(className)) {
+    StyleIds.push(className);
+    StyleElement.innerHTML = `${StyleElement.innerHTML}\n${[
+      sxToCss(defaultStyle, `.${className}`),
+      defaultCustomCss?.replaceAll("<!ID!>", className),
     ]
-      .filter((e) => typeof e != "undefined")
+      .filter((e) => e != undefined)
+      .join("\n")}`;
+  }
+
+  const style = MuiStyle(
+    [sxToCss(currentStyle || {}, `.${id}`), customCss?.replaceAll("<!ID!>", id)]
+      .filter((e) => e != undefined)
       .join("\n")
   );
 
@@ -104,7 +123,7 @@ export function styleToString(style: CssProps | Partial<React.CSSProperties>) {
     .replaceAll(";", ";\n");
 }
 
-function toSx(cssValues: CssProps, selector: string) {
+function sxToCss(cssValues: CssProps, selector: string) {
   const bypass = "abcdefghijklmnopqrstuvwxyz1234567890-";
 
   const specialKeys = (Object.keys(cssValues) as Array<keyof CssProps>).filter(
