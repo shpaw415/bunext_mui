@@ -20,30 +20,13 @@ export type CssProps =
       >)
   | { [key: string]: string };
 
-type MuiStyleControlType = {
+export type MuiStyleControl = {
   id: string;
   className: string;
   currentStyle: CssProps;
   defaultStyle: CssProps;
   customStyle?: string;
-  MuiStyle: () => JSX.Element;
 };
-export class MuiStyleControl {
-  public id = "";
-  public className = "";
-  public currentStyle: CssProps = {};
-  public defaultStyle: CssProps = {};
-  public customStyle = "";
-  public MuiStyle: () => JSX.Element;
-
-  constructor(props: MuiStyleControlType) {
-    this.id = props.id;
-    this.className = props.className;
-    this.currentStyle = props.currentStyle;
-    this.MuiStyle = props.MuiStyle;
-    this.defaultStyle = props.defaultStyle;
-  }
-}
 
 class _MuiStyleContext {
   styleElement: JSX.Element;
@@ -159,6 +142,14 @@ class _MuiStyleContext {
       .join("\n");
 
     this._update();
+    return {
+      id,
+      className,
+      defaultStyle,
+      currentStyle,
+      customCss,
+      defaultCustomCss,
+    } as MuiStyleControl;
   }
 
   private MuiStyle() {
