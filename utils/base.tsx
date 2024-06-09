@@ -2,7 +2,7 @@
 
 import { Ripple, RippleCss } from "../material/style/ripple";
 import { MuiStyleContext, type MuiStyleControl } from "../style";
-import React, { forwardRef, useContext } from "react";
+import { forwardRef, useContext } from "react";
 
 type MuiBase =
   | ({

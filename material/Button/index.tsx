@@ -222,7 +222,7 @@ function Button({
     justifyContent: "center",
     position: "relative",
     boxSizing: "border-box",
-    "--webkit-tap-highlight-color": "transparent",
+    "-webkit-tap-highlight-color": "transparent",
     backgroundColor: "transparent",
     outline: "0px",
     border: "0px",

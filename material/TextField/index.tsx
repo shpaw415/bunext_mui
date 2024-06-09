@@ -2,7 +2,7 @@
 
 import { type MuiElementProps } from "../common";
 import MuiBase from "../../utils/base";
-import { createStyle, MuiColors, MuiStyleControl } from "../../style";
+import { MuiColors, type MuiStyleControl, MuiStyleContext } from "../../style";
 import {
   useContext,
   useEffect,
@@ -56,6 +56,7 @@ function InputModer({
   currentValue?: string | number;
 }) {
   const [val, setVal] = useState("");
+  const styleContext = useContext(MuiStyleContext);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const resizeTextArea = () => {
     if (!props.multiline) return;
@@ -76,7 +77,7 @@ function InputModer({
 
   const { readOnly, required, multiline, helpText, ..._props } = props;
   if (multiline) {
-    const _MuiStyle = createStyle({
+    const _MuiStyle = styleContext.createStyle({
       className: "MUI_Input_Multiline_Input",
       defaultStyle: {
         ...MuiStyle.defaultStyle,
@@ -148,7 +149,8 @@ function HelperText({
   data?: string;
   color?: CSSProperties["color"];
 }) {
-  const Style = createStyle({
+  const context = useContext(MuiStyleContext);
+  const Style = context.createStyle({
     className: "MUI_Input_Helper_Text",
     defaultStyle: {
       color: "rgba(255, 255, 255, 0.7)",
@@ -177,9 +179,10 @@ function Outlined({ label, ...props }: Omit<TextFieldProps, "variant">) {
   const [hasValue, setValue] = useState(
     Boolean(props.defaultValue && props.defaultValue.toString().length > 0)
   );
+  const styleContext = useContext(MuiStyleContext);
   const DefaultColors = useContext(MuiColors);
 
-  const WrapperStyle = createStyle({
+  const WrapperStyle = styleContext.createStyle({
     className: "MUI_Select_Wrapper",
     defaultStyle: {
       display: "inline-flex",
@@ -194,7 +197,7 @@ function Outlined({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const LabelStyle = createStyle({
+  const LabelStyle = styleContext.createStyle({
     className: "MUI_Select_Element_Label",
     defaultStyle: {
       color: "rgba(255, 255, 255, 0.7)",
@@ -248,7 +251,7 @@ function Outlined({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const fieldSet = createStyle({
+  const fieldSet = styleContext.createStyle({
     className: "MUI_InputText_fieldSet",
     defaultStyle: {
       textAlign: "left",
@@ -284,7 +287,7 @@ function Outlined({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const boxStyle = createStyle({
+  const boxStyle = styleContext.createStyle({
     className: "MUI_InputText_Box",
     defaultStyle: {
       fontFamily: "Roboto, Helvetica, Arial, sans-serif",
@@ -309,7 +312,7 @@ function Outlined({ label, ...props }: Omit<TextFieldProps, "variant">) {
     `,
   });
 
-  const Input = createStyle({
+  const Input = styleContext.createStyle({
     className: "MUI_InputText_Tag",
     defaultStyle: {
       font: "inherit",
@@ -337,7 +340,7 @@ function Outlined({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const legendStyle = createStyle({
+  const legendStyle = styleContext.createStyle({
     className: "MUI_InputText_FieldSet_Legend",
     defaultStyle: {
       float: "unset",
@@ -349,7 +352,7 @@ function Outlined({ label, ...props }: Omit<TextFieldProps, "variant">) {
       fontSize: "0.75em",
       visibility: "hidden",
       maxWidth: "0.01px",
-      WebkitTransition: "max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms",
+      "-WebkitTransition": "max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms",
       transition: "max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms",
       whiteSpace: "nowrap",
       ">span": {
@@ -415,14 +418,16 @@ function Filled({ label, ...props }: Omit<TextFieldProps, "variant">) {
   const [hasValue, setValue] = useState(
     Boolean(props.defaultValue && props.defaultValue.toString().length > 0)
   );
+  const styleContext = useContext(MuiStyleContext);
+
   const DefaultColors = useContext(MuiColors);
 
-  const WrapperStyle = createStyle({
+  const WrapperStyle = styleContext.createStyle({
     className: "MUI_InputText_Filled_Wrapper",
     defaultStyle: {
       display: "inline-flex",
-      WebkitFlexDirection: "column",
-      MsFlexDirection: "column",
+      "-WebkitFlexDirection": "column",
+      msFlexDirection: "column",
       flexDirection: "column",
       position: "relative",
       minWidth: "0",
@@ -433,7 +438,7 @@ function Filled({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const LabelStyle = createStyle({
+  const LabelStyle = styleContext.createStyle({
     className: "MUI_InputText_Filled_Label",
     defaultStyle: {
       color: "rgba(255, 255, 255, 0.7)",
@@ -477,7 +482,7 @@ function Filled({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const BoxStyle = createStyle({
+  const BoxStyle = styleContext.createStyle({
     className: "MUI_InputText_Filled_Box",
     defaultStyle: {
       fontFamily: "Roboto, Helvetica, Arial, sans-serif",
@@ -489,7 +494,7 @@ function Filled({ label, ...props }: Omit<TextFieldProps, "variant">) {
       boxSizing: "border-box",
       cursor: "text",
       display: "inline-flex",
-      WebkitBoxAlign: "center",
+      "-WebkitBoxAlign": "center",
       alignItems: "center",
       position: "relative",
       backgroundColor: "rgba(255, 255, 255, 0.09)",
@@ -510,7 +515,7 @@ function Filled({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const InputStyle = createStyle({
+  const InputStyle = styleContext.createStyle({
     className: "MUI_InputText_Filled_Input",
     defaultStyle: {
       font: "inherit",
@@ -534,7 +539,7 @@ function Filled({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const animationStyle = createStyle({
+  const animationStyle = styleContext.createStyle({
     className: "MUI_InputText_Filled_Animation",
     defaultStyle: {
       borderBottom: "1px solid rgba(255, 255, 255, 0.7)",
@@ -601,14 +606,16 @@ function Standard({ label, ...props }: Omit<TextFieldProps, "variant">) {
   const [hasValue, setValue] = useState(
     Boolean(props.defaultValue && props.defaultValue.toString().length > 0)
   );
+  const styleContext = useContext(MuiStyleContext);
+
   const DefaultColors = useContext(MuiColors);
 
-  const WrapperStyle = createStyle({
+  const WrapperStyle = styleContext.createStyle({
     className: "MUI_InputText_Standard_Wrapper",
     defaultStyle: {
       display: "inline-flex",
-      WebkitFlexDirection: "column",
-      MsFlexDirection: "column",
+      "-WebkitFlexDirection": "column",
+      msFlexDirection: "column",
       flexDirection: "column",
       position: "relative",
       minWidth: "0",
@@ -619,7 +626,7 @@ function Standard({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const labelStyle = createStyle({
+  const labelStyle = styleContext.createStyle({
     className: "MUI_InputText_Standard_Label",
     defaultStyle: {
       color: "rgba(255, 255, 255, 0.7)",
@@ -661,7 +668,7 @@ function Standard({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const animationStyle = createStyle({
+  const animationStyle = styleContext.createStyle({
     className: "MUI_InputText_Standard_Animation",
     defaultStyle: {
       borderBottom: `2px solid ${DefaultColors.primary}`,
@@ -683,7 +690,7 @@ function Standard({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const animationWrapper = createStyle({
+  const animationWrapper = styleContext.createStyle({
     className: "MUI_InputText_Standard_Animation_Wrapper",
     defaultStyle: {
       backgroundColor: "rgba(255, 255, 255, 0.7)",
@@ -705,7 +712,7 @@ function Standard({ label, ...props }: Omit<TextFieldProps, "variant">) {
     },
   });
 
-  const boxStyle = createStyle({
+  const boxStyle = styleContext.createStyle({
     className: "MUI_InputText_Standard_Box",
     defaultStyle: {
       fontFamily: "Roboto, Helvetica, Arial, sans-serif",
@@ -730,7 +737,7 @@ function Standard({ label, ...props }: Omit<TextFieldProps, "variant">) {
     `,
   });
 
-  const InputStyle = createStyle({
+  const InputStyle = styleContext.createStyle({
     className: "MUI_InputText_Standard_Input",
     defaultStyle: {
       font: "inherit",
@@ -742,7 +749,7 @@ function Standard({ label, ...props }: Omit<TextFieldProps, "variant">) {
       background: "none",
       height: "1.4375em",
       margin: "0px",
-      WebkitTapHighlightColor: "transparent",
+      "-WebkitTapHighlightColor": "transparent",
       display: "block",
       minWidth: "0px",
       width: "100%",

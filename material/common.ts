@@ -1,7 +1,5 @@
 "use client";
 
-import { type CssProps } from "../style";
-
 export type MuiElementProps = {
   variant?: string;
   sx?: Partial<CssProps>;
@@ -14,3 +12,20 @@ export const MuiClass = {
   ButtonGroup: "MUI_ButtonGroup",
   CheckBox: "MUI_CheckBox",
 };
+
+export type CssProps =
+  | (Partial<React.CSSProperties> &
+      Partial<
+        | {
+            ":hover": Partial<React.CSSProperties>;
+            ":active": Partial<React.CSSProperties>;
+            ":link": Partial<React.CSSProperties>;
+            ":visited": Partial<React.CSSProperties>;
+            ":not": Partial<React.CSSProperties>;
+            ":before": Partial<React.CSSProperties>;
+            ":after": Partial<React.CSSProperties>;
+            ":focus": Partial<React.CSSProperties>;
+          }
+        | { [key: string]: Partial<React.CSSProperties> }
+      >)
+  | { [key: string]: string };

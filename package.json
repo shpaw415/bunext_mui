@@ -9,8 +9,6 @@
   },
   "peerDependencies": {
     "typescript": "latest",
-    "react-dom": "latest",
-    "react": "latest",
     "@bunpmjs/bunext": "latest",
     "@material-design-icons/svg": "latest"
   }

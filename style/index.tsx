@@ -29,17 +29,13 @@ export type MuiStyleControl = {
 };
 
 class _MuiStyleContext {
-  styleElement: JSX.Element;
   ids: string[] = [];
   content: { default: string[]; current: Record<string, string> } = {
     default: [],
     current: {},
   };
-  private update?: React.Dispatch<React.SetStateAction<string>>;
-
-  constructor() {
-    this.styleElement = this.MuiStyle();
-  }
+  update?: React.Dispatch<React.SetStateAction<string>>;
+  timeout?: Timer;
 
   sxToCss(cssValues: CssProps, selector: string) {
     const bypass = "abcdefghijklmnopqrstuvwxyz1234567890-";
@@ -98,11 +94,17 @@ class _MuiStyleContext {
   }
   private _update() {
     if (!this.update) return;
-    this.update(
-      [...this.content.default, ...Object.values(this.content.current)].join(
-        "\n"
-      )
-    );
+    const self = this;
+    if (this.timeout) clearTimeout(this.timeout);
+    this.timeout = setTimeout(() => {
+      if (!self.update) return;
+      self.update(
+        [...this.content.default, ...Object.values(this.content.current)].join(
+          "\n"
+        )
+      );
+      self.timeout = undefined;
+    }, 10);
   }
 
   /**
@@ -151,20 +153,22 @@ class _MuiStyleContext {
       defaultCustomCss,
     } as MuiStyleControl;
   }
+}
 
-  private MuiStyle() {
-    const [data, setData] = useState("");
-    this.update = setData;
-    return (
-      <style
-        type="text/css"
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{
-          __html: data,
-        }}
-      />
-    );
-  }
+export function MuiStyle() {
+  const [data, setData] = useState("");
+  const muiStyleClass = useContext(MuiStyleContext);
+  muiStyleClass.update = setData;
+  return (
+    <style
+      type="text/css"
+      suppressHydrationWarning
+      suppressContentEditableWarning
+      dangerouslySetInnerHTML={{
+        __html: data,
+      }}
+    />
+  );
 }
 
 export const MuiStyleContext = createContext(new _MuiStyleContext());
@@ -180,7 +184,3 @@ export const MuiColors = createContext({
   error: "rgb(244, 67, 54)",
   success: "rgb(102, 187, 106)",
 });
-
-export function MuiBaseStyle() {
-  return useContext(MuiStyleContext).styleElement;
-}
