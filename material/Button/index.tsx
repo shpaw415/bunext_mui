@@ -1,7 +1,7 @@
 "use client";
 
-import { type ButtonHTMLAttributes } from "react";
-import { createStyle, type CssProps } from "../../style";
+import { useContext, type ButtonHTMLAttributes } from "react";
+import { MuiStyleContext, type CssProps } from "../../style";
 import { MuiClass, type MuiElementProps } from "../common";
 import { Ripple, RippleCss } from "../style/ripple";
 import MuiBase from "../../utils/base";
@@ -215,6 +215,7 @@ function Button({
   color,
   ...props
 }: MuiButtonProps & Omit<ButtonHTMLAttributes<any>, "style">) {
+  const styleContext = useContext(MuiStyleContext);
   let styleData: CssProps = {};
   const commonStyle: Partial<CssProps> = {
     display: "inline-flex",
@@ -299,7 +300,7 @@ function Button({
     ...sizeMode(variant, size),
   };
 
-  const ButtonStyle = createStyle({
+  const ButtonStyle = styleContext.createStyle({
     className: MuiClass.Button,
     defaultStyle: {},
     currentStyle: { ...styleData, ...sx },

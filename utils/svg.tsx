@@ -1,5 +1,6 @@
 "use client";
-import { createStyle, styleToString, type CssProps } from "../style";
+import { useContext } from "react";
+import { MuiStyleContext, type CssProps } from "../style";
 import MuiBase from "./base";
 type SvgModType = {
   sx: {
@@ -9,7 +10,8 @@ type SvgModType = {
   svg: JSX.Element;
 };
 export function Svg({ sx, svg, ...props }: SvgModType) {
-  const Style = createStyle({
+  const styleContext = useContext(MuiStyleContext);
+  const Style = styleContext.createStyle({
     className: "MUI_SVG_Wrapper",
     currentStyle: {
       transform: `scale(${sx.box.scale ? sx.box.scale : 1})`,
@@ -20,7 +22,7 @@ export function Svg({ sx, svg, ...props }: SvgModType) {
     defaultStyle: {},
     customCss: `
         .<!ID!> > svg {
-          ${styleToString(sx.svg)}
+          ${styleContext.styleToString(sx.svg)}
         }
         `,
   });
