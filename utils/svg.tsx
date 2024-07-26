@@ -1,31 +1,43 @@
 "use client";
-import { useContext } from "react";
-import { MuiStyleContext, type CssProps } from "../style";
+import {
+  MuiBaseStyleUtils,
+  useStyle,
+  type MuiBaseStyleUtilsProps,
+} from "../style";
 import MuiBase from "./base";
+
 type SvgModType = {
-  sx: {
-    svg: CssProps;
-    box: CssProps;
-  };
-  svg: JSX.Element;
+  id: string;
+  children: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
 };
-export function Svg({ sx, svg, ...props }: SvgModType) {
-  const styleContext = useContext(MuiStyleContext);
-  const Style = styleContext.createStyle({
-    className: "MUI_SVG_Wrapper",
-    currentStyle: {
-      transform: `scale(${sx.box.scale ? sx.box.scale : 1})`,
-      height: "fit-content",
-      width: "fit-content",
-      ...sx.box,
-    },
-    defaultStyle: {},
-    customCss: `
-        .<!ID!> > svg {
-          ${styleContext.styleToString(sx.svg)}
-        }
-        `,
+
+class SvgManager extends MuiBaseStyleUtils<"svg", ""> {
+  constructor(props: MuiBaseStyleUtilsProps<"svg">) {
+    super(props);
+
+    if (this.alreadyExists()) return;
+    this.makeDefault();
+  }
+
+  private makeDefault() {
+    this.makeDefaultStyle({
+      commonStyle: {
+        height: "fit-content",
+        width: "fit-content",
+        ":customStyle": `.<!ID> > svg {  }`,
+      },
+      svg: {},
+    });
+  }
+}
+
+export function Svg({ id, children, ...props }: SvgModType) {
+  const style = useStyle();
+  const Manager = new SvgManager({
+    ...style,
+    currentVariant: "svg",
+    staticClassName: "MUI_Svg",
   });
 
-  return <MuiBase MuiStyle={Style}>{svg}</MuiBase>;
+  return <MuiBase>{children as any}</MuiBase>;
 }

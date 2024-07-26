@@ -1,16 +1,17 @@
 export function Ripple(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
   let ripple = document.createElement("span");
-  ripple.classList.add("ripple");
+  ripple.classList.add("ripple", "rippleElement");
   e.currentTarget.appendChild(ripple);
-  let x = e.clientX - e.currentTarget.offsetLeft;
-  let y = e.clientY - e.currentTarget.offsetTop;
+  const rectData = e.currentTarget.getBoundingClientRect();
+  let x = e.clientX - rectData.left;
+  let y = e.clientY - rectData.top;
   ripple.style.left = `${x}px`;
   ripple.style.top = `${y}px`;
   setTimeout(() => ripple.remove(), 300);
 }
 
 export const RippleCss = `
-.ripple span {
+.ripple span.rippleElement {
     position: absolute;
     border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.3);

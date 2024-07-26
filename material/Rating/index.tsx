@@ -1,13 +1,16 @@
 "use client";
 
 import { type MuiElementProps } from "../common";
-import MuiBase from "../../utils/base";
-import { createStyle, type CssProps } from "../../style";
-import { Svg } from "../../utils/svg";
+import {
+  MuiBaseStyleUtils,
+  useStyle,
+  type MuiBaseStyleUtilsProps,
+} from "../../style";
 import FilledStar from "@material-design-icons/svg/outlined/star.svg";
 import UnfilledStar from "@material-design-icons/svg/filled/star_border.svg";
 import StarHalf from "@material-design-icons/svg/outlined/star_half.svg";
 import { useState } from "react";
+
 type RatingProps = MuiElementProps & {
   readOnly?: boolean;
   rating?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
@@ -22,6 +25,74 @@ type RatingProps = MuiElementProps & {
     setValue: React.Dispatch<React.SetStateAction<number>>
   ) => void;
 };
+
+type Variants = "default";
+type SuffixTypes = "disabled" | "readOnly";
+
+class RatingWrapperManager extends MuiBaseStyleUtils<Variants, SuffixTypes> {
+  constructor(props: MuiBaseStyleUtilsProps<Variants>) {
+    super(props);
+    if (this.alreadyExists()) return;
+    this.makeDefault();
+  }
+  private makeDefault() {
+    this.makeDefaultStyle({
+      commonStyle: {
+        display: "flex",
+        flexDirection: "row",
+      },
+      default: {},
+    });
+  }
+}
+
+class StarManager extends MuiBaseStyleUtils<Variants, SuffixTypes> {
+  constructor(props: MuiBaseStyleUtilsProps<Variants>) {
+    super(props);
+    if (this.alreadyExists()) return;
+    this.makeDefault();
+    this.makeReadOnly();
+    this.makeDisabled();
+  }
+  private makeDefault() {
+    this.makeDefaultStyle({
+      commonStyle: {
+        transition: "ease-in-out 200ms",
+        backgroundColor: "transparent",
+        ":hover": {
+          transform: "scale(1.3)",
+        },
+        ":customStyle": `.<!ID!> > svg { fill: rgb(250, 175, 0); }`,
+      },
+      default: {},
+    });
+  }
+  private makeDisabled() {
+    this.makeStyleFor({
+      suffix: "disabled",
+      commonStyle: {
+        opacity: 0.38,
+        transform: "none",
+      },
+      variants: {
+        default: {},
+      },
+    });
+  }
+  private makeReadOnly() {
+    this.makeStyleFor({
+      suffix: "readOnly",
+      commonStyle: {
+        ":hover": {
+          transform: "none",
+        },
+      },
+      variants: {
+        default: {},
+      },
+    });
+  }
+}
 
 export default function Rating({
   readOnly,
@@ -38,32 +109,19 @@ export default function Rating({
   const [currentSelectedStars, setSelectedStar] = useState(
     defaultRating || rating || 0
   );
-  const StarWrapperStyle = createStyle({
-    className: "MUI_Rating_Star_Wrapper",
-    defaultStyle: {
-      display: "flex",
-      flexDirection: "row",
-    },
-    currentStyle: {},
+  const _style = useStyle();
+
+  const StarWrapperStyle = new RatingWrapperManager({
+    staticClassName: "MUI_Rating_Star_Wrapper",
+    currentVariant: "default",
+    ..._style,
   });
 
-  const StartStyle = createStyle({
-    className: "MUI_Rating_Star",
-    defaultStyle: {},
-    currentStyle: {},
+  const StartStyle = new StarManager({
+    staticClassName: "MUI_Rating_Star",
+    currentVariant: "default",
+    ..._style,
   });
-
-  const svgStarSx: CssProps = {
-    fill: "rgb(250, 175, 0)",
-  };
-  const svgBoxSx: CssProps = {
-    transition: "ease-in-out 200ms",
-    backgroundColor: "transparent",
-    opacity: disabled ? 0.38 : 1,
-    ":hover": {
-      transform: readOnly || disabled ? "" : "scale(1.3)",
-    },
-  };
 
   const MouseIsOverHalf = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const { left, width } = (e.target as any).getBoundingClientRect() as {
@@ -96,8 +154,8 @@ export default function Rating({
     minValue: number;
     maxValue: number;
   }) => (
-    <MuiBase
-      MuiStyle={StartStyle}
+    <div
+      className={StartStyle.createClassNames()}
       onMouseEnter={() => {
         if (readOnly || rating || disabled) return;
         setUnsetain(minValue);
@@ -124,24 +182,12 @@ export default function Rating({
         setSelectedStar(MouseIsOverHalf(e) ? maxValue : minValue);
       }}
     >
-      <Svg
-        svg={
-          <StarImg
-            min={minValue}
-            max={maxValue}
-            current={currentStarUnsertain}
-          />
-        }
-        sx={{
-          svg: svgStarSx,
-          box: svgBoxSx,
-        }}
-      />
-    </MuiBase>
+      <StarImg min={minValue} max={maxValue} current={currentStarUnsertain} />
+    </div>
   );
   return (
-    <MuiBase
-      MuiStyle={StarWrapperStyle}
+    <div
+      className={StarWrapperStyle.createClassNames()}
       onMouseLeave={() => {
         if (rating || readOnly || disabled) return;
         setUnsetain(currentSelectedStars);
@@ -162,6 +208,6 @@ export default function Rating({
         }}
         value={currentSelectedStars}
       />
-    </MuiBase>
+    </div>
   );
 }

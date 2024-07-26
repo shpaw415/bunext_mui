@@ -1,9 +1,12 @@
 "use client";
 
+import type { ReactElement } from "react";
+
 export type MuiElementProps = {
   variant?: string;
   sx?: Partial<CssProps>;
-  children?: React.ReactNode;
+  id?: string;
+  children?: ReactElement | string;
 };
 
 export const MuiClass = {

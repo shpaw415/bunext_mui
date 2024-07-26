@@ -1,9 +1,17 @@
 "use client";
 
-import { useContext, type ButtonHTMLAttributes } from "react";
-import { MuiStyleContext, type CssProps } from "../../style";
-import { MuiClass, type MuiElementProps } from "../common";
-import { Ripple, RippleCss } from "../style/ripple";
+import {
+  forwardRef,
+  type ButtonHTMLAttributes,
+  type HTMLAttributes,
+} from "react";
+import {
+  _MuiStyleContext,
+  MuiBaseStyleUtils,
+  type MuiTheme,
+  useStyle,
+} from "../../style";
+import { type MuiElementProps } from "../common";
 import MuiBase from "../../utils/base";
 import { Svg } from "../../utils/svg";
 type MuiButtonProps = {
@@ -13,242 +21,47 @@ type MuiButtonProps = {
   size?: "small" | "medium" | "large";
   href?: string;
   color?: "error" | "success";
-} & MuiElementProps;
+  disabled?: boolean;
+} & HTMLAttributes<HTMLButtonElement>;
 
-function sizeMode(
-  type: MuiButtonProps["variant"],
-  size: MuiButtonProps["size"]
-): Partial<CssProps> {
-  switch (type) {
-    case "contained":
-    case undefined:
-      switch (size) {
-        case "small":
-          return {
-            padding: "4px 10px",
-            fontSize: "0.815rem",
-          };
-        case "medium":
-          return {
-            padding: "6px 16px",
-            fontSize: "0.875rem",
-          };
-        case "large":
-        case undefined:
-          return {
-            padding: "8px 22px",
-            fontSize: "0.9375rem",
-          };
-      }
-    case "outlined":
-      switch (size) {
-        case "small":
-          return {
-            padding: "3px 9px",
-            fontSize: "0.8125rem",
-          };
-        case "medium":
-          return {
-            padding: "5px 15px",
-            fontSize: "0.875rem",
-          };
-        case "large":
-        case undefined:
-          return {
-            padding: "7px 21px",
-            fontSize: "0.9375rem",
-          };
-      }
+type ButtonSuffix =
+  | "error"
+  | "success"
+  | "size_small"
+  | "size_medium"
+  | "size_large"
+  | "disabled";
 
-    case "text":
-      switch (size) {
-        case "small":
-          return {
-            padding: "4px 5px",
-            fontSize: "0.8125rem",
-          };
-        case "medium":
-          return {
-            padding: "6px 8px",
-            fontSize: "0.875rem",
-          };
-        case "large":
-        case undefined:
-          return {
-            padding: "8px 11px",
-            fontSize: "0.9375rem",
-          };
-      }
+class ButtonStyleManager extends MuiBaseStyleUtils<
+  MuiButtonProps["variant"],
+  ButtonSuffix
+> {
+  constructor({
+    theme,
+    styleContext,
+    variant,
+  }: {
+    theme: MuiTheme;
+    styleContext: _MuiStyleContext;
+    variant: MuiButtonProps["variant"];
+  }) {
+    super({
+      theme,
+      styleContext,
+      staticClassName: "MUI_Button",
+      currentVariant: variant || "contained",
+    });
+    if (this.alreadyExists()) return;
+    this._makeDefault();
+    this.makeError();
+    this.makeSuccess();
+    this.makeSize();
+    this.makeDisable();
   }
-}
-function disableMode(
-  disabled: boolean,
-  variant: MuiButtonProps["variant"]
-): Partial<CssProps> {
-  if (!disabled) return {};
-  const commonDisabled: Partial<CssProps> = {
-    PointerEvent: "none",
-    cursor: "default",
-  };
-  switch (variant) {
-    case "contained":
-    case undefined:
-      return {
-        ...commonDisabled,
-        color: "rgba(135, 135, 135, 0.3)",
-        boxShadow: "none",
-        backgroundColor: "rgba(255, 255, 255, 0.12)",
-        ":hover": {
-          backgroundColor: "rgba(135, 135, 135, 0.12)",
-        },
-      };
-    case "outlined":
-      return {
-        ...commonDisabled,
-        color: "rgba(135, 135, 135, 0.3)",
-        border: "1px solid rgba(255, 255, 255, 0.12)",
-        ":hover": {
-          textDecoration: "none",
-          backgroundColor: "rgba(33, 150, 243, 0.08)",
-        },
-      };
-    case "text":
-      return {
-        ...commonDisabled,
-        color: "rgba(255, 255, 255, 0.3)",
-      };
-  }
-}
-function ErrorMode(
-  errored: boolean,
-  variant: MuiButtonProps["variant"]
-): Partial<CssProps> {
-  if (!errored) return {};
-  const errorColor: Partial<CssProps> = {
-    color: "#d32f2f",
-  };
-  switch (variant) {
-    case "contained":
-    case undefined:
-      return {
-        backgroundColor: "#d32f2f",
-        ":hover": {
-          backgroundColor: "#c62828",
-          boxShadow:
-            "0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)",
-        },
-      };
-    case "outlined":
-      return {
-        ...errorColor,
-        border: "1px solid rgba(211, 47, 47, 0.5)",
-        ":hover": {
-          backgroundColor: "rgba(211, 47, 47, 0.04)",
-          border: "1px solid #d32f2f",
-        },
-      };
-    case "text":
-      return {
-        ...errorColor,
-        ":hover": {
-          backgroundColor: "rgba(211, 47, 47, 0.04)",
-        },
-      };
-  }
-}
-function SuccessMode(
-  success: boolean,
-  variant: MuiButtonProps["variant"]
-): Partial<CssProps> {
-  if (!success) return {};
-  switch (variant) {
-    case "contained":
-    case undefined:
-      return {
-        backgroundColor: "#2e7d32",
-        color: "#fff",
-        ":hover": {
-          backgroundColor: "#1b5e20",
-          boxShadow:
-            "0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)",
-        },
-      };
-    case "outlined":
-      return {
-        color: "#2e7d32",
-        border: "1px solid rgba(46, 125, 50, 0.5)",
-        ":hover": {
-          border: "1px solid #2e7d32",
-          backgroundColor: "rgba(46, 125, 50, 0.04)",
-        },
-      };
-    case "text":
-      return {
-        color: "#2e7d32",
-        ":hover": {
-          backgroundColor: "rgba(46, 125, 50, 0.04)",
-        },
-      };
-  }
-}
-function svgColor(variant: MuiButtonProps["variant"], error: boolean): string {
-  switch (variant) {
-    case "contained":
-    case undefined:
-      return error ? "#d32f2f" : "white";
-    case "outlined":
-      return error ? "#d32f2f" : "rgb(33, 150, 243)";
-    case "text":
-      return error ? "#d32f2f" : "rgb(33, 150, 243)";
-  }
-}
 
-function Button({
-  variant,
-  sx,
-  children,
-  disabled,
-  size,
-  StartIcon,
-  EndIcon,
-  href,
-  color,
-  ...props
-}: MuiButtonProps & Omit<ButtonHTMLAttributes<any>, "style">) {
-  const styleContext = useContext(MuiStyleContext);
-  let styleData: CssProps = {};
-  const commonStyle: Partial<CssProps> = {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-    boxSizing: "border-box",
-    "-webkit-tap-highlight-color": "transparent",
-    backgroundColor: "transparent",
-    outline: "0px",
-    border: "0px",
-    margin: "0px",
-    cursor: "pointer",
-    userSelect: "none",
-    verticalAlign: "middle",
-    appearance: "none",
-    textDecoration: "none",
-    fontFamily: "Roboto, Helvetica, Arial, sans-serif",
-    fontWeight: 500,
-    fontSize: "0.875rem",
-    lineHeight: "1.75",
-    letterSpacing: "0.02857em",
-    textTransform: "uppercase",
-    minWidth: "64px",
-    borderRadius: "4px",
-    overflow: "hidden",
-    height: "fit-content",
-  };
-
-  switch (variant) {
-    case "text":
-      styleData = {
-        ...commonStyle,
+  private _makeDefault() {
+    this.makeDefaultStyle({
+      text: {
         color: "rgb(33, 150, 243)",
         transition:
           "background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
@@ -256,12 +69,9 @@ function Button({
           textDecoration: "none",
           backgroundColor: "rgba(33, 150, 243, 0.08)",
         },
-      };
-      break;
-    case "contained":
-    case undefined:
-      styleData = {
-        ...commonStyle,
+        padding: "6px 8px",
+      },
+      contained: {
         transition:
           "background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
         color: "rgb(255, 255, 255)",
@@ -274,11 +84,9 @@ function Button({
           boxShadow:
             "rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px",
         },
-      };
-      break;
-    case "outlined":
-      styleData = {
-        ...commonStyle,
+        padding: "6px 16px",
+      },
+      outlined: {
         transition:
           "background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
         border: "1px solid rgba(33, 150, 243, 0.5)",
@@ -288,68 +96,268 @@ function Button({
           backgroundColor: "rgba(33, 150, 243, 0.08)",
           border: "1px solid rgb(33, 150, 243)",
         },
-      };
-      break;
+        padding: "5px 15px",
+      },
+      commonStyle: {
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+        boxSizing: "border-box",
+        "-webkit-tap-highlight-color": "transparent",
+        backgroundColor: "transparent",
+        outline: "0px",
+        border: "0px",
+        margin: "0px",
+        cursor: "pointer",
+        userSelect: "none",
+        verticalAlign: "middle",
+        appearance: "none",
+        textDecoration: "none",
+        fontFamily: "Roboto, Helvetica, Arial, sans-serif",
+        fontWeight: 500,
+        fontSize: "0.875rem",
+        lineHeight: "1.75",
+        letterSpacing: "0.02857em",
+        textTransform: "uppercase",
+        minWidth: "64px",
+        borderRadius: "4px",
+        overflow: "hidden",
+        height: "fit-content",
+      },
+    });
   }
 
-  styleData = {
-    ...styleData,
-    ...ErrorMode(color == "error", variant),
-    ...SuccessMode(color == "success", variant),
-    ...disableMode(Boolean(disabled), variant),
-    ...sizeMode(variant, size),
-  };
+  private makeError() {
+    this.makeStyleFor({
+      suffix: "error",
+      variants: {
+        contained: {
+          backgroundColor: "#d32f2f",
+          ":customStyle": "<!ID!>",
+          ":hover": {
+            backgroundColor: "#c62828",
+            boxShadow:
+              "0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)",
+          },
+        },
+        outlined: {
+          border: "1px solid rgba(211, 47, 47, 0.5)",
+          ":hover": {
+            backgroundColor: "rgba(211, 47, 47, 0.04)",
+            border: "1px solid #d32f2f",
+          },
+          color: this.theme.error[this.theme.theme],
+        },
+        text: {
+          ":hover": {
+            backgroundColor: "rgba(211, 47, 47, 0.04)",
+          },
+          color: this.theme.error[this.theme.theme],
+        },
+      },
+    });
+  }
 
-  const ButtonStyle = styleContext.createStyle({
-    className: MuiClass.Button,
-    defaultStyle: {},
-    currentStyle: { ...styleData, ...sx },
-    customCss: `
-    ${RippleCss}
-    .<!ID!> > div > svg {
-      fill: ${svgColor(variant, Boolean(color == "error"))};
-    }
-  `,
-  });
+  private makeSuccess() {
+    this.makeStyleFor({
+      suffix: "success",
+      variants: {
+        contained: {
+          backgroundColor: "#2e7d32",
+          color: "#fff",
+          ":hover": {
+            backgroundColor: "#1b5e20",
+            boxShadow:
+              "0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)",
+          },
+        },
+        outlined: {
+          color: "#2e7d32",
+          border: "1px solid rgba(46, 125, 50, 0.5)",
+          ":hover": {
+            border: "1px solid #2e7d32",
+            backgroundColor: "rgba(46, 125, 50, 0.04)",
+          },
+        },
+        text: {
+          color: "#2e7d32",
+          ":hover": {
+            backgroundColor: "rgba(46, 125, 50, 0.04)",
+          },
+        },
+      },
+    });
+  }
 
-  return (
-    <MuiBase
-      MuiStyle={ButtonStyle}
-      element="button"
-      {...props}
-      ripple
-      onClick={(e) => {
-        if (href) window.location.replace(href);
-        if (props.onClick) props.onClick(e);
-      }}
-    >
-      {StartIcon && (
-        <Svg
-          sx={{
-            box: {
+  private makeDisable() {
+    this.makeStyleFor({
+      suffix: "disabled",
+      variants: {
+        text: {
+          color: "rgba(255, 255, 255, 0.3)",
+        },
+        contained: {
+          color: "rgba(135, 135, 135, 0.3)",
+          boxShadow: "none",
+          backgroundColor: "rgba(255, 255, 255, 0.12)",
+          ":hover": {
+            backgroundColor: "rgba(135, 135, 135, 0.12)",
+          },
+        },
+        outlined: {
+          color: "rgba(135, 135, 135, 0.3)",
+          border: "1px solid rgba(255, 255, 255, 0.12)",
+          ":hover": {
+            textDecoration: "none",
+            backgroundColor: "rgba(33, 150, 243, 0.08)",
+          },
+        },
+      },
+      commonStyle: {
+        cursor: "default",
+        PointerEvent: "none",
+      },
+    });
+  }
+
+  private makeSize() {
+    const contained = {
+      small: {
+        padding: "4px 10px",
+        fontSize: "0.815rem",
+      },
+      medium: {
+        padding: "6px 16px",
+        fontSize: "0.875rem",
+      },
+      large: {
+        padding: "8px 22px",
+        fontSize: "0.9375rem",
+      },
+    };
+    const outlined = {
+      small: {
+        padding: "3px 9px",
+        fontSize: "0.8125rem",
+      },
+      medium: {
+        padding: "5px 15px",
+        fontSize: "0.875rem",
+      },
+      large: {
+        padding: "7px 21px",
+        fontSize: "0.9375rem",
+      },
+    };
+    const text = {
+      small: {
+        padding: "4px 5px",
+        fontSize: "0.8125rem",
+      },
+      medium: {
+        padding: "6px 8px",
+        fontSize: "0.875rem",
+      },
+      large: {
+        padding: "8px 11px",
+        fontSize: "0.9375rem",
+      },
+    };
+
+    this.makeStyleFor({
+      suffix: "size_small",
+      variants: {
+        contained: contained.small,
+        outlined: outlined.small,
+        text: text.small,
+      },
+    });
+    this.makeStyleFor({
+      suffix: "size_medium",
+      variants: {
+        contained: contained.medium,
+        outlined: outlined.medium,
+        text: text.medium,
+      },
+    });
+    this.makeStyleFor({
+      suffix: "size_large",
+      variants: {
+        contained: contained.large,
+        outlined: outlined.large,
+        text: text.large,
+      },
+    });
+  }
+}
+
+const Button = forwardRef<HTMLButtonElement, MuiButtonProps>(
+  (
+    {
+      variant,
+      children,
+      disabled,
+      size,
+      StartIcon,
+      EndIcon,
+      href,
+      color,
+      ...props
+    },
+    ref
+  ) => {
+    const style = useStyle();
+
+    const styleManager = new ButtonStyleManager({
+      theme: style.theme,
+      styleContext: style.styleContext,
+      variant,
+    });
+
+    styleManager.setProps([
+      disabled ? "disabled" : undefined,
+      size ? `size_${size}` : undefined,
+      color,
+    ]);
+
+    return (
+      <MuiBase
+        element="button"
+        ref={ref}
+        className={styleManager.createClassNames()}
+        {...props}
+        ripple
+        onClick={(e) => {
+          if (href) window.location.replace(href);
+          if (props.onClick) props.onClick(e);
+        }}
+      >
+        {StartIcon && (
+          <div
+            style={{
               margin: "0 8px 0 -4px",
               display: "inherit",
-            },
-            svg: {},
-          }}
-          svg={<StartIcon />}
-        />
-      )}
-      {children}
-      {EndIcon && (
-        <Svg
-          sx={{
-            box: {
+            }}
+          >
+            <StartIcon />
+          </div>
+        )}
+        {children}
+        {EndIcon && (
+          <div
+            style={{
               display: "inherit",
               margin: "0px -4px 0px 8px",
-            },
-            svg: {},
-          }}
-          svg={<EndIcon />}
-        />
-      )}
-    </MuiBase>
-  );
-}
+            }}
+          >
+            <EndIcon />
+          </div>
+        )}
+      </MuiBase>
+    );
+  }
+);
+Button.displayName = "Button";
 
 export default Button;

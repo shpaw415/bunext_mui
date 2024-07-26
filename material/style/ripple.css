@@ -1,4 +1,4 @@
-.ripple span {
+.ripple span.rippleElement {
   position: absolute;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.3);

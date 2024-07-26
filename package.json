@@ -8,8 +8,6 @@
     "@types/react": "latest"
   },
   "peerDependencies": {
-    "typescript": "latest",
-    "@bunpmjs/bunext": "latest",
     "@material-design-icons/svg": "latest"
   }
 }

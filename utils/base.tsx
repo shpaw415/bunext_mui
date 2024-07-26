@@ -1,12 +1,10 @@
 "use client";
 
-import { Ripple, RippleCss } from "../material/style/ripple";
-import { MuiStyleContext, type MuiStyleControl } from "../style";
-import { forwardRef, useContext } from "react";
+import { Ripple } from "../material/style/ripple";
+import { forwardRef } from "react";
 
 type MuiBase =
   | ({
-      MuiStyle: MuiStyleControl;
       element?: "div";
       ripple?: boolean;
     } & React.DetailedHTMLProps<
@@ -14,7 +12,6 @@ type MuiBase =
       HTMLDivElement
     >)
   | ({
-      MuiStyle: MuiStyleControl;
       element: "button";
       ripple?: boolean;
     } & React.DetailedHTMLProps<
@@ -22,7 +19,6 @@ type MuiBase =
       HTMLButtonElement
     >)
   | ({
-      MuiStyle: MuiStyleControl;
       element: "fieldset";
       ripple?: boolean;
     } & React.DetailedHTMLProps<
@@ -30,7 +26,6 @@ type MuiBase =
       HTMLFieldSetElement
     >)
   | ({
-      MuiStyle: MuiStyleControl;
       element: "input";
       ripple?: boolean;
     } & React.DetailedHTMLProps<
@@ -38,7 +33,6 @@ type MuiBase =
       HTMLInputElement
     >)
   | ({
-      MuiStyle: MuiStyleControl;
       element: "label";
       ripple?: boolean;
     } & React.DetailedHTMLProps<
@@ -46,7 +40,6 @@ type MuiBase =
       HTMLLabelElement
     >)
   | ({
-      MuiStyle: MuiStyleControl;
       element: "legend";
       ripple?: boolean;
     } & React.DetailedHTMLProps<
@@ -54,7 +47,6 @@ type MuiBase =
       HTMLLegendElement
     >)
   | ({
-      MuiStyle: MuiStyleControl;
       element: "p";
       ripple?: boolean;
     } & React.DetailedHTMLProps<
@@ -62,7 +54,6 @@ type MuiBase =
       HTMLParagraphElement
     >)
   | ({
-      MuiStyle: MuiStyleControl;
       element: "textarea";
       ripple?: boolean;
     } & React.DetailedHTMLProps<
@@ -93,30 +84,16 @@ function setType(elTag: MuiBase["element"]) {
 }
 
 const MuiBase = forwardRef<any, MuiBase>((_props: MuiBase, ref) => {
-  const { ripple, element, MuiStyle, className, onClick, children, ...props } =
-    _props;
+  const { ripple, element, className, onClick, children, ...props } = _props;
   const Element = setType(element);
-
-  const StyleContext = useContext(MuiStyleContext);
-
-  StyleContext.createStyle({
-    className: "RippleStyle",
-    defaultStyle: {},
-    currentStyle: {},
-    customCss: RippleCss,
-  });
 
   return (
     <Element.type
       suppressHydrationWarning
-      className={[
-        MuiStyle.id,
-        MuiStyle.className,
-        className,
-        ripple ? "ripple" : undefined,
-      ].join(" ")}
+      className={[className, ripple ? "ripple" : ""].join(" ")}
       style={{
         overflow: ripple ? "hidden" : undefined,
+        ...props.style,
       }}
       {...props}
       onClick={(e: any) => {
@@ -129,5 +106,7 @@ const MuiBase = forwardRef<any, MuiBase>((_props: MuiBase, ref) => {
     </Element.type>
   );
 });
+
+MuiBase.displayName = "MuiBase";
 
 export default MuiBase;

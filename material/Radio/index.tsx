@@ -2,39 +2,238 @@
 
 import { type MuiElementProps } from "../common";
 import MuiBase from "../../utils/base";
-import { createStyle, MuiColors, type CssProps } from "../../style";
-import Text from "../Text";
-import { useContext, useRef } from "react";
+import {
+  useStyle,
+  MuiBaseStyleUtils,
+  type MuiBaseStyleUtilsProps,
+} from "../../style";
+import Text from "../Typography";
+import { useRef } from "react";
+
 type RadioButtonProps = {
   checked?: boolean;
-  label?:
-    | {
-        display?: "top" | "right" | "bottom" | "left";
-        content: string;
-      }
-    | string;
+  label?: string;
+  labelDirection?: "top" | "right" | "bottom" | "left";
   disabled?: boolean;
   color?: "error" | "success";
 } & MuiElementProps;
 
-function setLabelDirection(label: RadioButtonProps["label"]): CssProps {
-  if (typeof label == "string") return {};
-  switch (label?.display) {
-    case "top":
-      return {
+type Variants = "default";
+type SuffixType =
+  | "selected"
+  | "disabled"
+  | "success"
+  | "error"
+  | "label_top"
+  | "label_bottom"
+  | "label_right"
+  | "label_left";
+
+class RadioButtonFrameManager extends MuiBaseStyleUtils<Variants, SuffixType> {
+  constructor(props: MuiBaseStyleUtilsProps<Variants>) {
+    super(props);
+    if (this.alreadyExists()) return;
+
+    this.makeDefault();
+  }
+
+  private makeDefault() {
+    this.makeDefaultStyle({
+      commonStyle: {
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+        boxSizing: "border-box",
+        backgroundColor: "transparent",
+        outline: "0px",
+        border: "0px",
+        margin: "0px",
+        cursor: "inherit",
+        userSelect: "none",
+        verticalAlign: "middle",
+        appearance: "none",
+        textDecoration: "none",
+        padding: "9px",
+        borderRadius: "50%",
+        ":hover": {
+          backgroundColor: "rgba(33, 150, 243, 0.08)",
+        },
+      },
+      default: {},
+    });
+  }
+}
+
+class RadioWrapperManager extends MuiBaseStyleUtils<Variants, SuffixType> {
+  constructor(props: MuiBaseStyleUtilsProps<Variants>) {
+    super(props);
+    if (this.alreadyExists()) return;
+
+    this.makeDefault();
+    this.makeDisabled();
+  }
+
+  private makeDefault() {
+    this.makeDefaultStyle({
+      commonStyle: {
+        display: "inline-flex",
+        alignItems: "center",
+        cursor: "pointer",
+        userSelect: "none",
+      },
+      default: {},
+    });
+  }
+
+  private makeDisabled() {
+    this.makeStyleFor({
+      suffix: "disabled",
+      commonStyle: {
+        cursor: "default",
+        borderColor: this.theme.disabled[this.theme.theme],
+      },
+      variants: { default: {} },
+    });
+  }
+  private makeLabelDirection() {
+    this.makeStyleFor({
+      suffix: "label_top",
+      commonStyle: {
         flexDirection: "column-reverse",
-      };
-    case "right":
-    case undefined:
-      return {};
-    case "bottom":
-      return {
+      },
+      variants: { default: {} },
+    });
+    this.makeStyleFor({
+      suffix: "label_bottom",
+      commonStyle: {
         flexDirection: "column",
-      };
-    case "left":
-      return {
+      },
+      variants: { default: {} },
+    });
+    this.makeStyleFor({
+      suffix: "label_left",
+      commonStyle: {
         flexDirection: "row-reverse",
-      };
+      },
+      variants: { default: {} },
+    });
+  }
+}
+
+class RadioFrameRadioManager extends MuiBaseStyleUtils<Variants, SuffixType> {
+  constructor(props: MuiBaseStyleUtilsProps<Variants>) {
+    super(props);
+    if (this.alreadyExists()) return;
+
+    this.makeDefault();
+    this.makeChecked();
+    this.makeDisabled();
+  }
+
+  private makeDefault() {
+    this.makeDefaultStyle({
+      commonStyle: {
+        borderRadius: "50%",
+        transition: "ease-in-out 200ms",
+        cursor: "inherit",
+        border: `2px solid ${this.theme.primary[this.theme.theme]}`,
+        padding: "8px",
+      },
+      default: {},
+    });
+  }
+
+  private makeChecked() {
+    this.makeStyleFor({
+      suffix: "selected",
+      commonStyle: {
+        padding: "3px",
+      },
+      variants: { default: {} },
+    });
+  }
+
+  private makeDisabled() {
+    this.makeStyleFor({
+      suffix: "disabled",
+      commonStyle: {
+        border: `2px solid ${this.theme.disabled[this.theme.theme]}`,
+      },
+      variants: { default: {} },
+    });
+  }
+}
+
+class RadioInnerManager extends MuiBaseStyleUtils<Variants, SuffixType> {
+  constructor(props: MuiBaseStyleUtilsProps<Variants>) {
+    super(props);
+    if (this.alreadyExists()) return;
+
+    this.makeDefault();
+    this.makeSelected();
+    this.makeDisabled();
+  }
+
+  private makeDefault() {
+    this.makeDefaultStyle({
+      commonStyle: {
+        borderRadius: "50%",
+        transition: "ease-in-out 200ms",
+        cursor: "inherit",
+        width: "0px",
+        height: "0px",
+        backgroundColor: this.theme.primary[this.theme.theme],
+      },
+      default: {},
+    });
+  }
+  private makeSelected() {
+    this.makeStyleFor({
+      suffix: "selected",
+      commonStyle: {
+        width: "10px",
+        height: "10px",
+      },
+      variants: { default: {} },
+    });
+  }
+  private makeDisabled() {
+    this.makeStyleFor({
+      suffix: "disabled",
+      commonStyle: {
+        backgroundColor: this.theme.disabled[this.theme.theme],
+      },
+      variants: { default: {} },
+    });
+  }
+}
+
+class RadioTextManager extends MuiBaseStyleUtils<Variants, SuffixType> {
+  constructor(props: MuiBaseStyleUtilsProps<Variants>) {
+    super(props);
+    if (this.alreadyExists()) return;
+
+    this.makeDefault();
+  }
+
+  private makeDefault() {
+    const setColor = () => {
+      switch (this.theme.theme) {
+        case "dark":
+          return "white";
+        case "light":
+          return "black";
+      }
+    };
+
+    this.makeDefaultStyle({
+      commonStyle: {
+        color: setColor(),
+        cursor: "inherit",
+      },
+      default: {},
+    });
   }
 }
 
@@ -45,116 +244,57 @@ export default function Radio({
   disabled,
   onClick,
   color,
+  labelDirection,
+  defaultChecked,
   ...props
 }: RadioButtonProps &
   React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
   >) {
-  const Color = useContext(MuiColors);
+  const style = useStyle();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  if (disabled) checked = false;
+  const classNamesSeted: Array<SuffixType | undefined> = [
+    checked ? "selected" : undefined,
+    color,
+    disabled ? "disabled" : undefined,
+    labelDirection ? `label_${labelDirection || "right"}` : undefined,
+  ];
 
-  const setColor = (type: RadioButtonProps["color"]) => {
-    switch (type) {
-      case "success":
-        return Color.radio.success;
-      case "error":
-        return Color.radio.error;
-      default:
-        return Color.primary;
-    }
-  };
+  const ButtonFrameStyle = new RadioButtonFrameManager({
+    ...style,
+    currentVariant: "default",
+    staticClassName: "MUI_RadioButton_frame",
+  }).setProps(classNamesSeted);
 
-  const ButtonFrameStyle = createStyle({
-    className: "MUI_RadioButton",
-    defaultStyle: {
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-      boxSizing: "border-box",
-      backgroundColor: "transparent",
-      outline: "0px",
-      border: "0px",
-      margin: "0px",
-      cursor: "inherit",
-      userSelect: "none",
-      verticalAlign: "middle",
-      appearance: "none",
-      textDecoration: "none",
-      padding: "9px",
-      borderRadius: "50%",
-      ":hover": {
-        backgroundColor: "rgba(33, 150, 243, 0.08)",
-      },
-    },
-    currentStyle: {
-      ...(disabled
-        ? {
-            ":hover": {},
-          }
-        : {}),
-      ...sx,
-    },
-  });
+  const WrapperStyle = new RadioWrapperManager({
+    ...style,
+    currentVariant: "default",
+    staticClassName: "MUI_RadioButton_wrapper",
+  }).setProps(classNamesSeted);
 
-  const frameRadio = createStyle({
-    className: "MUI_radio_frame",
-    defaultStyle: {
-      borderRadius: "50%",
-      transition: "ease-in-out 200ms",
-      cursor: "inherit",
-    },
-    currentStyle: {
-      border: `2px solid ${setColor(color)}`,
-      ...(disabled
-        ? {
-            border: `2px solid ${Color.disabled}`,
-          }
-        : {}),
-      padding: checked ? "3px" : "8px",
-    },
-  });
+  const frameRadio = new RadioFrameRadioManager({
+    ...style,
+    currentVariant: "default",
+    staticClassName: "MUI_RadioFrame_frame",
+  }).setProps(classNamesSeted);
 
-  const innerRadio = createStyle({
-    className: "MUI_radio_inner",
-    defaultStyle: {
-      borderRadius: "50%",
-      transition: "ease-in-out 200ms",
-      cursor: "inherit",
-    },
-    currentStyle: {
-      ...(checked
-        ? { width: "10px", height: "10px" }
-        : { width: "0px", height: "0px" }),
-      backgroundColor: disabled ? Color.disabled : setColor(color),
-    },
-  });
+  const innerRadio = new RadioInnerManager({
+    ...style,
+    currentVariant: "default",
+    staticClassName: "MUI_Radio_Inner",
+  }).setProps(classNamesSeted);
 
-  const WrapperStyle = createStyle({
-    className: "MUI_Wrapper_RadioBtn",
-    defaultStyle: {
-      display: "inline-flex",
-      alignItems: "center",
-      cursor: "pointer",
-      userSelect: "none",
-    },
-    currentStyle: {
-      ...(disabled
-        ? {
-            borderColor: Color.disabled,
-            cursor: "default",
-          }
-        : {}),
-      ...setLabelDirection(label),
-    },
-  });
+  const TextManager = new RadioTextManager({
+    ...style,
+    currentVariant: "default",
+    staticClassName: "MUI_Radio_Label",
+  }).setProps(classNamesSeted);
 
   return (
     <MuiBase
-      MuiStyle={WrapperStyle}
+      className={WrapperStyle.createClassNames()}
       onClick={(e) => {
         const data = {
           ...e,
@@ -163,16 +303,16 @@ export default function Radio({
         onClick && onClick(data as any);
       }}
     >
-      <MuiBase MuiStyle={ButtonFrameStyle} ripple>
-        <MuiBase MuiStyle={frameRadio}>
-          <MuiBase MuiStyle={innerRadio} />
-        </MuiBase>
+      <MuiBase className={ButtonFrameStyle.createClassNames()} ripple>
+        <div className={frameRadio.createClassNames()}>
+          <div className={innerRadio.createClassNames()} />
+        </div>
         <input
           suppressHydrationWarning
           type="checkbox"
           checked={checked}
           ref={inputRef}
-          onChange={() => {}}
+          onChange={props.onChange || (() => {})}
           style={{
             position: "absolute",
             top: 0,
@@ -186,22 +326,7 @@ export default function Radio({
           {...props}
         />
       </MuiBase>
-      {label && (
-        <Text
-          sx={{
-            ...(disabled
-              ? {
-                  color: Color.disabled,
-                }
-              : {
-                  color: color == undefined ? "white" : setColor(color),
-                }),
-            cursor: "inherit",
-          }}
-        >
-          {typeof label == "string" ? label : label.content}
-        </Text>
-      )}
+      {label && <Text className={TextManager.createClassNames()}>{label}</Text>}
     </MuiBase>
   );
 }
