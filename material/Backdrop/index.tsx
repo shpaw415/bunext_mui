@@ -6,9 +6,7 @@ import {
 } from "../../style";
 import { type HTMLAttributes } from "react";
 
-type MuiBackdropProps = {
-  onClick?: () => void;
-} & HTMLAttributes<HTMLDivElement>;
+type MuiBackdropProps = {} & HTMLAttributes<HTMLDivElement>;
 
 type Variant = "default";
 type SuffixType = "";
@@ -38,7 +36,7 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-function Backdrop(props: MuiBackdropProps) {
+function Backdrop(props: HTMLAttributes<HTMLDivElement>) {
   const _style = useStyle();
   const root = new Root({
     ..._style,

@@ -26,6 +26,13 @@ export type CssProps =
       >)
   | { [key: string]: string };
 
+type MediaQueryNames = "sm" | "md" | "lg";
+type MediaQueryValues = {
+  lg: 1200;
+  md: 600;
+  sm: 425;
+};
+
 export type MuiStyleControl = {
   className: string;
   defaultStyle: CssProps;
@@ -160,6 +167,7 @@ export class _MuiStyleContext {
       alreadyCreated,
     } as MuiStyleControl;
   }
+  mediaQueryToString() {}
   removeID(id: string) {
     const founded = this.ids.findIndex((e) => e == id);
     if (founded == -1) return;
@@ -210,6 +218,8 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
       this.sxProps = sxProps as any;
     }
   }
+
+  protected createMediaQuery(maxWidth: number, style: CssProps) {}
 
   protected makeDefaultStyle(
     data: Partial<

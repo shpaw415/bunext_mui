@@ -83,7 +83,7 @@ class Title extends MuiBaseStyleUtils<Variants, SuffixType> {
   private makeDefault() {
     this.makeDefaultStyle({
       commonStyle: {
-        padding: "16px 24px",
+        padding: "16px 24px !important",
         flex: "0 0 auto",
       },
     });
@@ -187,13 +187,12 @@ export default function Dialog({ children, ...props }: MuiDialogProps) {
         <Paper>
           <div ref={ref}>
             {props.title && (
-              <Typography>
-                <h2
-                  className={title.createClassNames()}
-                  style={{ color: title.fromTheme() }}
-                >
-                  {props.title}
-                </h2>
+              <Typography
+                variant="h2"
+                className={title.createClassNames()}
+                style={{ color: title.fromTheme() }}
+              >
+                {props.title}
               </Typography>
             )}
             <div className={contentRoot.createClassNames()}>

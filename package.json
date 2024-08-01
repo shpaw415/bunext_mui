@@ -9,5 +9,8 @@
   },
   "peerDependencies": {
     "@material-design-icons/svg": "latest"
+  },
+  "scripts": {
+    "build": "bun src/build.ts"
   }
 }

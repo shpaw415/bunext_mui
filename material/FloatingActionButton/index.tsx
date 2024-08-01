@@ -7,7 +7,7 @@ import {
   type CssProps,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 
 type Variants = "default";
 type SuffixType =
@@ -45,15 +45,6 @@ class FloatingButtonManager extends MuiBaseStyleUtils<Variants, SuffixType> {
   }
 
   private makeDefault() {
-    const setSvgFill = () => {
-      switch (this.theme.theme) {
-        case "dark":
-          return "white";
-        case "light":
-          return "black";
-      }
-    };
-
     this.makeDefaultStyle({
       commonStyle: {
         display: "inline-flex",
@@ -87,6 +78,7 @@ class FloatingButtonManager extends MuiBaseStyleUtils<Variants, SuffixType> {
         width: "auto",
         height: "48px",
         zIndex: "1050",
+        overflow: "hidden",
         boxShadow:
           "rgba(0, 0, 0, 0.2) 0px 3px 5px -1px, rgba(0, 0, 0, 0.14) 0px 6px 10px 0px, rgba(0, 0, 0, 0.12) 0px 1px 18px 0px",
         color: "rgba(0, 0, 0, 0.87)",
@@ -94,7 +86,6 @@ class FloatingButtonManager extends MuiBaseStyleUtils<Variants, SuffixType> {
         ":hover": {
           backgroundColor: "rgba(224, 224, 224, 0.5)",
         },
-        ":customStyle": `.<!ID!> > svg { fill: ${setSvgFill()}; margin-right: 0px }`,
       },
       default: {},
     });
@@ -233,68 +224,66 @@ class FloatingButtonManager extends MuiBaseStyleUtils<Variants, SuffixType> {
   }
 }
 
-export default function FloatingButton({
-  children,
-  sx,
-  disabled,
-  onClick,
-  color,
-  size,
-  animateOnClick,
-  ...props
-}: FloatingButtonProps &
-  React.DetailedHTMLProps<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  >) {
-  const [state, setState] = useState<1 | 0>(1);
-  const style = useStyle();
-  const manager = new FloatingButtonManager({
-    ...style,
-    sxProps: sx
-      ? {
-          id: props.id,
-          sx,
-        }
-      : undefined,
-    staticClassName: "MUI_FloatingButton",
-    currentVariant: "default",
-  });
-
-  let Icon = children;
-  let Text = "";
-  if (Array.isArray(children)) {
-    if (typeof children[0] == "string") Text = children[0];
-    else Icon = children[0];
-    if (typeof children[1] == "string") Text = children[1];
-    else Icon = children[1];
-  }
-
-  const isTextEnable = Text.length > 0;
-
-  manager.setProps([
-    disabled ? "disabled" : undefined,
-    isTextEnable ? "text-enabled" : undefined,
-    state == 0 ? "animate_small" : "animate_large",
-    color ? `color_${color}` : undefined,
-    size ? `size_${size}` : undefined,
-  ]);
-
-  return (
-    <MuiBase
-      element="button"
-      {...props}
-      className={manager.createClassNames()}
-      ripple={disabled ? false : true}
-      onClick={(e) => {
-        onClick && onClick(e);
-        if (disabled || !animateOnClick) return;
-        setState(state == 1 ? 0 : 1);
-        setTimeout(() => setState(state), 225);
-      }}
+const FloatingButton = forwardRef<
+  HTMLButtonElement,
+  FloatingButtonProps &
+    React.DetailedHTMLProps<
+      React.ButtonHTMLAttributes<HTMLButtonElement>,
+      HTMLButtonElement
     >
-      {Icon}
-      {Text}
-    </MuiBase>
-  );
-}
+>(
+  (
+    { children, sx, disabled, onClick, color, size, animateOnClick, ...props },
+    ref
+  ) => {
+    const [state, setState] = useState<1 | 0>(1);
+    const style = useStyle();
+    const manager = new FloatingButtonManager({
+      ...style,
+      staticClassName: "MUI_FloatingButton",
+      currentVariant: "default",
+    });
+
+    let Icon = children;
+    let Text = "";
+    if (Array.isArray(children)) {
+      if (typeof children[0] == "string") Text = children[0];
+      else Icon = children[0];
+      if (typeof children[1] == "string") Text = children[1];
+      else Icon = children[1];
+    }
+
+    const isTextEnable = Text.length > 0;
+
+    manager.setProps([
+      disabled ? "disabled" : undefined,
+      isTextEnable ? "text-enabled" : undefined,
+      state == 0 ? "animate_small" : "animate_large",
+      color ? `color_${color}` : undefined,
+      size ? `size_${size}` : undefined,
+    ]);
+
+    return (
+      <MuiBase
+        element="button"
+        {...props}
+        ref={ref}
+        className={manager.createClassNames()}
+        ripple={disabled ? false : true}
+        onClick={(e) => {
+          onClick && onClick(e);
+          if (disabled || !animateOnClick) return;
+          setState(state == 1 ? 0 : 1);
+          setTimeout(() => setState(state), 225);
+        }}
+      >
+        {Icon}
+        {Text}
+      </MuiBase>
+    );
+  }
+);
+
+FloatingButton.displayName = "FloatingButton";
+
+export default FloatingButton;

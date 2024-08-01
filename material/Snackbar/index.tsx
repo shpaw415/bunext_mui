@@ -68,8 +68,8 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
     super(props);
     if (this.alreadyExists()) return;
     this.makeDefault();
-    this.makeClosed();
     this.makeSides();
+    this.makeClosed();
   }
   private makeDefault() {
     this.makeDefaultStyle({
@@ -417,7 +417,7 @@ class ActionContainer extends MuiBaseStyleUtils<Variant, SuffixType> {
 
 export default function SnackBar(props: MuiSnackBarProps) {
   const [isInited, setInited] = useState(false);
-  const [isOpen, setOpenState] = useState<boolean>(undefined as any);
+  const [isOpen, setOpenState] = useState<boolean>(props.opened as boolean);
   const ref = useClickAwayListener<HTMLDivElement>(() => {
     if (props.HideOnClickAway === false) return;
     if (isOpen) setOpenState(false);
@@ -426,11 +426,11 @@ export default function SnackBar(props: MuiSnackBarProps) {
   const _style = useStyle();
 
   useEffect(() => {
-    if (!props.autoHideDuration) return;
+    if (!props.autoHideDuration || !isOpen) return;
     setTimeout(() => {
       setOpenState(false);
     }, props.autoHideDuration * 1000);
-  }, []);
+  }, [isOpen]);
 
   if (props.opened && !isOpen && !isInited) {
     setOpenState(true);
@@ -446,8 +446,8 @@ export default function SnackBar(props: MuiSnackBarProps) {
       SuffixType | undefined
     >
   > = {
-    opened: isOpen != undefined && isOpen ? "opened" : undefined,
-    closed: isOpen != undefined && !isOpen ? "closed" : undefined,
+    opened: isOpen === true ? "opened" : undefined,
+    closed: !isOpen ? "closed" : undefined,
     position: props.position ? props.position : "bottom-left",
     topOrBottom: props.position.startsWith("bottom") ? "bottom" : "top",
   };

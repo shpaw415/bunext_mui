@@ -10,16 +10,18 @@ import { cloneElement } from "react";
 type Props = {
   children: JSX.Element[] | JSX.Element;
   Header?: string;
+  disablePadding?: boolean;
 };
 
 type Variant = "default";
-type SuffixType = "selected";
+type SuffixType = "selected" | "noPadding";
 
 class Ul extends MuiBaseStyleUtils<Variant, SuffixType> {
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
     super(props);
     if (this.alreadyExists()) return;
     this.makeDefault();
+    this.makeNoPadding();
   }
   private makeDefault() {
     this.makeDefaultStyle({
@@ -28,6 +30,14 @@ class Ul extends MuiBaseStyleUtils<Variant, SuffixType> {
         margin: "0px",
         padding: "8px 0px",
         position: "relative",
+      },
+    });
+  }
+  private makeNoPadding() {
+    this.makeStyleFor({
+      suffix: "noPadding",
+      commonStyle: {
+        padding: "0px",
       },
     });
   }
@@ -60,14 +70,14 @@ class _Header extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-export default function ListItems({ children, Header }: Props) {
+export default function ListItems({ children, Header, disablePadding }: Props) {
   const _style = useStyle();
 
   const ul = new Ul({
     ..._style,
     staticClassName: "MUI_ListItem_ul",
     currentVariant: "default",
-  });
+  }).setProps([disablePadding ? "noPadding" : undefined]);
 
   let groupedChildren: Array<JSX.Element[] | JSX.Element> = [];
   let currentGroup: JSX.Element[] = [];

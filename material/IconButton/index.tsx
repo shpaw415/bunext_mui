@@ -1,22 +1,20 @@
 "use client";
 
-import type { ButtonHTMLAttributes } from "react";
+import { cloneElement, forwardRef, type ButtonHTMLAttributes } from "react";
 import {
   MuiBaseStyleUtils,
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import { MuiClass, type MuiElementProps } from "../common";
 import MuiBase from "../../utils/base";
 
 type MuiIconButtonProps = {
-  Icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
+  children: JSX.Element;
   size?: "small" | "medium" | "large";
   href?: string;
   color?: "primary" | "secondary";
   disabled?: boolean;
-  IconSx?: React.CSSProperties;
-} & MuiElementProps;
+} & React.HTMLAttributes<HTMLButtonElement>;
 
 type Variants = "default";
 type SuffixTypes =
@@ -27,7 +25,7 @@ type SuffixTypes =
   | "color_primary"
   | "color_secondary";
 
-class IconButtonMainStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
+class Root extends MuiBaseStyleUtils<Variants, SuffixTypes> {
   constructor(props: MuiBaseStyleUtilsProps<Variants>) {
     super(props);
     if (this.alreadyExists()) return;
@@ -37,15 +35,6 @@ class IconButtonMainStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
     this.makeDisabled();
   }
   private makeDefault() {
-    const filledColor = () => {
-      switch (this.theme.theme) {
-        case "light":
-          return "black";
-        case "dark":
-          return "white";
-      }
-    };
-
     this.makeDefaultStyle({
       commonStyle: {
         display: "inline-flex",
@@ -65,18 +54,23 @@ class IconButtonMainStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
         textAlign: "center",
         flex: "0 0 auto",
         fontSize: "1.5rem",
-        padding: "20px",
+        padding: "10px",
         borderRadius: "50%",
         minWidth: "24px",
         minHeight: "24px",
-        color: "#fff",
+        color: this.colorFromTheme({
+          light: "black",
+          dark: "white",
+        }),
+        width: "fit-content",
+        height: "fit-content",
         transition: "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+        overflow: "hidden",
         ":hover": {
           backgroundColor: `rgba(${this.extractColorToRGB(
             this.theme.primary[this.theme.theme]
           )}, 0.08)`,
         },
-        ":customStyle": `.<!ID!> > svg { fill: ${filledColor()} }`,
       },
     });
   }
@@ -89,12 +83,10 @@ class IconButtonMainStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
         ":hover": {
           backgroundColor: "inherit",
         },
-        ":customStyle": `.<!ID!> > svg { fill: ${
-          this.theme.disabled[this.theme.theme]
-        } }`,
-      },
-      variants: {
-        default: {},
+        color: this.colorFromTheme({
+          light: this.theme.disabled.light,
+          dark: this.theme.disabled.dark,
+        }),
       },
     });
   }
@@ -125,71 +117,80 @@ class IconButtonMainStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
     this.makeStyleFor({
       suffix: "color_primary",
       commonStyle: {
-        ":customStyle": `.<!ID!> > svg { fill: ${
-          this.theme.primary[this.theme.theme]
-        } }`,
-      },
-      variants: {
-        default: {},
+        color: this.colorFromTheme({
+          light: this.theme.primary.light,
+          dark: this.theme.primary.dark,
+        }),
       },
     });
     this.makeStyleFor({
       suffix: "color_secondary",
       commonStyle: {
-        ":customStyle": `.<!ID!> > svg { fill: ${
-          this.theme.secondary[this.theme.theme]
-        } }`,
-      },
-      variants: {
-        default: {},
+        color: this.colorFromTheme({
+          light: this.theme.secondary.light,
+          dark: this.theme.secondary.dark,
+        }),
       },
     });
   }
 }
 
-function IconButton({
-  Icon,
-  disabled,
-  color,
-  size,
-  IconSx,
-  onClick,
-  ...props
-}: MuiIconButtonProps & Omit<ButtonHTMLAttributes<any>, "style">) {
-  const uStyle = useStyle();
+class Icon extends MuiBaseStyleUtils<Variants, SuffixTypes> {
+  constructor(props: MuiBaseStyleUtilsProps<Variants>) {
+    super(props);
+    if (this.alreadyExists()) return;
+    this.makeDefault();
+  }
+  private makeDefault() {
+    this.makeDefaultStyle({
+      commonStyle: {
+        fill: "currentcolor",
+      },
+    });
+  }
+}
 
-  const Style = new IconButtonMainStyle({
-    staticClassName: MuiClass.IconButton,
-    ...uStyle,
-    currentVariant: "default",
-  }).setProps([
-    disabled ? "disabled" : undefined,
-    size ? `size_${size}` : undefined,
-    color ? `color_${color}` : undefined,
-  ]);
-  return (
-    <div
-      style={{
-        width: "fit-content",
-        height: "fit-content",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+const IconButton = forwardRef<HTMLButtonElement, MuiIconButtonProps>(
+  ({ children, disabled, color, size, onClick, ...props }, ref) => {
+    const uStyle = useStyle();
+
+    const root = new Root({
+      staticClassName: "MUI_IconButton_Root",
+      ...uStyle,
+      currentVariant: "default",
+    }).setProps([
+      disabled ? "disabled" : undefined,
+      size ? `size_${size}` : undefined,
+      color ? `color_${color}` : undefined,
+    ]);
+
+    const icon = new Icon({
+      staticClassName: "MUI_IconButton_Icon",
+      ...uStyle,
+      currentVariant: "default",
+    });
+
+    return (
       <MuiBase
         element="button"
-        className={Style.createClassNames()}
+        className={root.createClassNames()}
         ripple
         {...props}
+        ref={ref}
         onClick={(...clickprops) => {
           if (props.href) window.location.assign(props.href);
           if (onClick) onClick(...clickprops);
         }}
-      />
-      <Icon />
-    </div>
-  );
-}
+      >
+        {cloneElement<React.HTMLAttributes<HTMLOrSVGElement>>(children, {
+          className:
+            children.props.className ?? "" + ` ${icon.createClassNames()}`,
+        })}
+      </MuiBase>
+    );
+  }
+);
+
+IconButton.displayName = "IconButton";
 
 export default IconButton;

@@ -1,4 +1,12 @@
-import { cloneElement, useCallback, useEffect, useRef, useState } from "react";
+import {
+  cloneElement,
+  createRef,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   MuiBaseStyleUtils,
   useStyle,
@@ -111,6 +119,8 @@ export default function ToolTip({
     setDisplay(false);
   });
 
+  const toolTipRef = createRef<HTMLParagraphElement>();
+
   useMouseUpListener(() => {
     if (
       trigger == "onMouseDown" ||
@@ -118,8 +128,6 @@ export default function ToolTip({
     )
       setDisplay(false);
   });
-
-  const toolTipRef = useRef<HTMLDivElement>(null);
 
   const unTriggerFunction = useCallback(() => setDisplay(false), []);
   const makeCoordinateStyle = useCallback<() => StyleProp>(() => {
@@ -135,18 +143,18 @@ export default function ToolTip({
         basePosition.top -=
           t.offsetHeight + (toolTipRef.current?.offsetHeight || 0) + 5;
         basePosition.left -= t.offsetWidth;
-        basePosition.transform = "translateX(-50%)";
+        basePosition.transform = "translateX(-100%)";
         break;
       case "top":
         basePosition.top -=
           t.offsetHeight + (toolTipRef.current?.offsetHeight || 0) + 5;
         basePosition.left -= t.offsetWidth / 2;
-        basePosition.transform = "translateX(-50%)";
+        basePosition.transform = "translate(-50%, -100%)";
         break;
       case "top-right":
         basePosition.top -=
           t.offsetHeight + (toolTipRef.current?.offsetHeight || 0) + 5;
-        basePosition.transform = "translateX(-50%)";
+        basePosition.transform = "translateX(-100%)";
         break;
       case "right":
         basePosition.transform = "translateY(-50%)";
@@ -157,19 +165,19 @@ export default function ToolTip({
         break;
       case "bottom":
         basePosition.left -= t.offsetWidth / 2;
-        basePosition.transform = "translateX(-50%)";
+        basePosition.transform = "translateX(-100%)";
         basePosition.top += 5;
         break;
       case "bottom-left":
         basePosition.left -= t.offsetWidth;
-        basePosition.transform = "translateX(-50%)";
+        basePosition.transform = "translateX(-100%)";
         basePosition.top += 5;
         break;
       case "left":
         basePosition.left -=
           t.offsetWidth + (toolTipRef.current?.offsetWidth || 0) + 5;
         basePosition.top -= t.offsetHeight / 2;
-        basePosition.transform = "translateY(-50%)";
+        basePosition.transform = "translate(-100%,-50%)";
         break;
     }
 
@@ -232,7 +240,7 @@ export default function ToolTip({
             if (children.props.onMouseEnter) children.props.onMouseEnter(e);
           };
           formatedTrigger.onMouseLeave = (e) => {
-            triggerFunction();
+            unTriggerFunction();
             if (children.props.onMouseLeave) children.props.onMouseLeave(e);
           };
           break;
