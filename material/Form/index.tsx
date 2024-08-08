@@ -4,11 +4,13 @@ import {
   type MuiBaseStyleUtilsProps,
 } from "../../style";
 import { forwardRef } from "react";
+import type { MuiProps } from "../../utils/base";
 
 type MuiFormProps = {
   children: JSX.Element | Array<JSX.Element>;
   maxInputWidth?: string;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLFormElement>;
 type Variant = "default";
 type SuffixType = "";
 
@@ -53,32 +55,36 @@ class FormRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-const Form = forwardRef<HTMLFormElement, MuiFormProps>((props, ref) => {
-  const _style = useStyle();
-  const root = new Root({
-    staticClassName: "MUI_Form_Root",
-    currentVariant: "default",
-    ..._style,
-  });
-  const formRoot = new FormRoot({
-    ..._style,
-    staticClassName: "MUI_Form_Form_Root",
-    currentVariant: "default",
-  });
-  return (
-    <div className={root.createClassNames()}>
-      <form
-        ref={ref}
-        className={formRoot.createClassNames()}
-        style={{
-          gridTemplateColumns: `repeat(auto-fit,minmax(${props.maxInputWidth},1fr))`,
-        }}
-      >
-        {props.children}
-      </form>
-    </div>
-  );
-});
+const Form = forwardRef<HTMLFormElement, MuiFormProps>(
+  ({ className, style, sx, children, ...props }, ref) => {
+    const _style = useStyle(sx, style);
+    const root = new Root({
+      staticClassName: "MUI_Form_Root",
+      currentVariant: "default",
+      ..._style,
+    });
+    const formRoot = new FormRoot({
+      ..._style,
+      staticClassName: "MUI_Form_Form_Root",
+      currentVariant: "default",
+    });
+    return (
+      <div className={root.createClassNames()}>
+        <form
+          ref={ref}
+          className={formRoot.createClassNames() + ` ${className || ""}`}
+          style={{
+            gridTemplateColumns: `repeat(auto-fit,minmax(${props.maxInputWidth},1fr))`,
+            ..._style.styleFromSx,
+          }}
+          {...props}
+        >
+          {children}
+        </form>
+      </div>
+    );
+  }
+);
 
 Form.displayName = "Form";
 

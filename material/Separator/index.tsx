@@ -3,6 +3,7 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
+import type { MuiProps } from "../../utils/base";
 
 type Variant = "default";
 type SuffixType = "";
@@ -25,13 +26,19 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-export default function Divier() {
-  const _style = useStyle();
+export default function Divier({ sx }: MuiProps) {
+  const _style = useStyle(sx);
   const root = new Root({
     ..._style,
     staticClassName: "MUI_Divier_Root",
     currentVariant: "default",
   });
 
-  return <div role="separator" className={root.createClassNames()} />;
+  return (
+    <div
+      role="separator"
+      className={root.createClassNames()}
+      style={_style.styleFromSx}
+    />
+  );
 }

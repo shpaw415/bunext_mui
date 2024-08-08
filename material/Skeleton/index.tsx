@@ -3,13 +3,13 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
+import type { MuiProps } from "../../utils/base";
 
 type MuiSkeletonProps = {
   animation?: "pulse" | "wave" | "none";
   variant?: "text" | "circular" | "rectangular" | "rounded";
-  height?: number;
-  width?: number;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLSpanElement>;
 
 type Variant = MuiSkeletonProps["variant"];
 type SuffixType = MuiSkeletonProps["animation"] | "autoSize";
@@ -20,12 +20,10 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
     if (this.alreadyExists()) return;
     this.makeDefault();
     this.makeAnimations();
+    this.makeAutoSize();
   }
   private makeDefault() {
-    const animations: Record<
-      Exclude<MuiSkeletonProps["animation"], undefined | "none">,
-      string
-    > = {
+    const animations = {
       pulse: this.makeAnimation("MUI-skeleton-pulse", {
         "0%": {
           opacity: 1,
@@ -121,24 +119,27 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
 export default function Skeleton({
   animation,
   variant,
+  sx,
+  style,
+  className,
   ...props
 }: MuiSkeletonProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
   const root = new Root({
     ..._style,
     staticClassName: "MUI_Skeleton_Root",
     currentVariant: variant || "text",
   }).setProps([
     animation ? animation : "pulse",
-    props.height || props.width ? undefined : "autoSize",
+    _style.styleFromSx.height || _style.styleFromSx.width
+      ? undefined
+      : "autoSize",
   ]);
   return (
     <span
-      className={root.createClassNames()}
-      style={{
-        height: props.height,
-        width: props.width,
-      }}
+      className={root.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+      {...props}
     />
   );
 }

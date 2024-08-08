@@ -4,7 +4,7 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import MuiBase from "../../utils/base";
+import MuiBase, { type MuiProps } from "../../utils/base";
 import { forwardRef, useState } from "react";
 
 type SuffixType =
@@ -118,9 +118,9 @@ class SwitchButton extends MuiBaseStyleUtils<"default", SuffixType> {
     this.makeDefaultStyle({
       commonStyle: {
         display: "inline-flex",
-        WebkitBoxAlign: "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
-        WebkitBoxPack: "center",
+        "-WebkitBoxPack": "center",
         justifyContent: "center",
         boxSizing: "border-box",
         "--WebkitTapHighlightColor": "transparent",
@@ -343,110 +343,112 @@ type MuiSwitchProps = Omit<
   label?: string;
   size?: "small";
   color?: "success" | "error";
-};
+} & MuiProps;
 
-const Switch = forwardRef<HTMLInputElement, MuiSwitchProps>((_props, ref) => {
-  const [isChecked, setCheckedState] = useState(
-    _props.defaultChecked || _props.checked || false
-  );
-  const _style = useStyle();
+const Switch = forwardRef<HTMLInputElement, MuiSwitchProps>(
+  ({ sx, style, className, label, ..._props }, ref) => {
+    const [isChecked, setCheckedState] = useState(
+      _props.defaultChecked || _props.checked || false
+    );
+    const _style = useStyle(sx, style);
 
-  const { defaultChecked, size, color, ...props } = _props;
+    const { defaultChecked, size, color, ...props } = _props;
 
-  const setter_checked = isChecked ? "checked" : undefined;
-  const setter_disabled = _props.disabled ? "disabled" : undefined;
-  const setter_size = size ? "size_small" : undefined;
-  const setter_color: "color_error" | "color_success" | undefined = color
-    ? `color_${color}`
-    : undefined;
+    const setter_checked = isChecked ? "checked" : undefined;
+    const setter_disabled = _props.disabled ? "disabled" : undefined;
+    const setter_size = size ? "size_small" : undefined;
+    const setter_color: "color_error" | "color_success" | undefined = color
+      ? `color_${color}`
+      : undefined;
 
-  const wrapper = new WrapperStyleManager({
-    staticClassName: "MUI_Switch_Wrapper",
-    currentVariant: "default",
-    ..._style,
-  });
+    const wrapper = new WrapperStyleManager({
+      staticClassName: "MUI_Switch_Wrapper",
+      currentVariant: "default",
+      ..._style,
+    });
 
-  const switchBtnWrapper = new SwitchBtnWrapperManager({
-    staticClassName: "MUI_Switch_Button_Wrapper",
-    currentVariant: "default",
-    ..._style,
-  }).setProps([setter_checked, setter_disabled]);
+    const switchBtnWrapper = new SwitchBtnWrapperManager({
+      staticClassName: "MUI_Switch_Button_Wrapper",
+      currentVariant: "default",
+      ..._style,
+    }).setProps([setter_checked, setter_disabled]);
 
-  const swithBtn = new SwitchButton({
-    staticClassName: "MUI_Switch_Button",
-    currentVariant: "default",
-    ..._style,
-  });
-  const switchThumb = new SwitchThumbStyleManager({
-    staticClassName: "MUI_Switch_Thumb",
-    currentVariant: "default",
-    ..._style,
-  }).setProps([setter_checked, setter_disabled, setter_size, setter_color]);
+    const swithBtn = new SwitchButton({
+      staticClassName: "MUI_Switch_Button",
+      currentVariant: "default",
+      ..._style,
+    });
+    const switchThumb = new SwitchThumbStyleManager({
+      staticClassName: "MUI_Switch_Thumb",
+      currentVariant: "default",
+      ..._style,
+    }).setProps([setter_checked, setter_disabled, setter_size, setter_color]);
 
-  const switchThumbWrapper = new SwitchThumbWrapperStyleManager({
-    staticClassName: "MUI_Switch_thumb_Wrapper",
-    currentVariant: "default",
-    ..._style,
-  });
+    const switchThumbWrapper = new SwitchThumbWrapperStyleManager({
+      staticClassName: "MUI_Switch_thumb_Wrapper",
+      currentVariant: "default",
+      ..._style,
+    });
 
-  const input = new InputStyleManager({
-    staticClassName: "MUI_Switch_Input",
-    currentVariant: "default",
-    ..._style,
-  });
+    const input = new InputStyleManager({
+      staticClassName: "MUI_Switch_Input",
+      currentVariant: "default",
+      ..._style,
+    });
 
-  const track = new SwitchTrackStyleManager({
-    staticClassName: "MUI_Switch_Track",
-    currentVariant: "default",
-    ..._style,
-  }).setProps([setter_checked, setter_disabled, setter_size, setter_color]);
+    const track = new SwitchTrackStyleManager({
+      staticClassName: "MUI_Switch_Track",
+      currentVariant: "default",
+      ..._style,
+    }).setProps([setter_checked, setter_disabled, setter_size, setter_color]);
 
-  return (
-    <div>
-      <span className={wrapper.createClassNames()}>
-        <MuiBase
-          className={switchBtnWrapper.createClassNames()}
-          ripple
-          onClick={() => {
-            if (props.disabled || props.checked != undefined) return;
-            console.log(props.checked);
-            setCheckedState(!isChecked);
-          }}
-        >
-          <span className={swithBtn.createClassNames()}>
-            <input
-              ref={ref}
-              className={input.createClassNames()}
-              type="checkbox"
-              {...props}
-              checked={props.checked ? props.checked : isChecked}
-              onChange={(e) => {
-                props.onChange && props.onChange(e);
-                if (isChecked != e.currentTarget.checked)
-                  setCheckedState(e.currentTarget.checked);
-              }}
-            />
-            <span className={switchThumb.createClassNames()} />
-            <span className={switchThumbWrapper.createClassNames()} />
-          </span>
-        </MuiBase>
-        <span className={track.createClassNames()} />
-      </span>
-      {props.label && (
-        <span
-          style={{
-            color: props.disabled
-              ? _style.theme.disabled[_style.theme.theme]
-              : "currentcolor",
-          }}
-        >
-          {props.label}
-          {props.required ? "*" : ""}
+    return (
+      <div style={_style.styleFromSx} className={className}>
+        <span className={wrapper.createClassNames()}>
+          <MuiBase
+            className={switchBtnWrapper.createClassNames()}
+            ripple
+            onClick={() => {
+              if (props.disabled || props.checked != undefined) return;
+              console.log(props.checked);
+              setCheckedState(!isChecked);
+            }}
+          >
+            <span className={swithBtn.createClassNames()}>
+              <input
+                ref={ref}
+                className={input.createClassNames()}
+                type="checkbox"
+                {...props}
+                checked={props.checked ? props.checked : isChecked}
+                onChange={(e) => {
+                  props.onChange && props.onChange(e);
+                  if (isChecked != e.currentTarget.checked)
+                    setCheckedState(e.currentTarget.checked);
+                }}
+              />
+              <span className={switchThumb.createClassNames()} />
+              <span className={switchThumbWrapper.createClassNames()} />
+            </span>
+          </MuiBase>
+          <span className={track.createClassNames()} />
         </span>
-      )}
-    </div>
-  );
-});
+        {label && (
+          <span
+            style={{
+              color: props.disabled
+                ? _style.theme.disabled[_style.theme.theme]
+                : "currentcolor",
+            }}
+          >
+            {label}
+            {props.required ? "*" : ""}
+          </span>
+        )}
+      </div>
+    );
+  }
+);
 
 Switch.displayName = "Switch";
 

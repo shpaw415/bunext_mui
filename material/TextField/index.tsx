@@ -1,6 +1,5 @@
 "use client";
 
-import { type MuiElementProps } from "../common";
 import {
   MuiBaseStyleUtils,
   useStyle,
@@ -15,8 +14,9 @@ import {
   useState,
   type ReactElement,
 } from "react";
+import type { MuiProps } from "../../utils/base";
 
-export type TextFieldProps = MuiElementProps & {
+export type TextFieldProps = MuiProps & {
   variant?: "outlined" | "filled" | "standard";
   startIcon?: () => JSX.Element;
   endIcon?: () => JSX.Element;
@@ -83,12 +83,12 @@ class TextFieldStyleManager extends MuiBaseStyleUtils<Variants, SuffixTypes> {
         backgroundColor: "inherit",
       },
       filled: {
-        "--WebkitFlexDirection": "column",
-        msFlexDirection: "column",
+        "-WebkitFlexDirection": "column",
+        "-msFlexDirection": "column",
       },
       standard: {
-        "--WebkitFlexDirection": "column",
-        msFlexDirection: "column",
+        "-WebkitFlexDirection": "column",
+        "-msFlexDirection": "column",
       },
     });
   }
@@ -266,20 +266,20 @@ class InputTextFieldStyleManager extends MuiBaseStyleUtils<
       outlined: {
         background: "inherit",
         padding: "16.5px 14px",
-        "--webkit-text-fill-color": "rgba(255, 255, 255, 0.5)",
+        "-webkit-text-fill-color": "rgba(255, 255, 255, 0.5)",
         ":focus": {
           outline: "0px",
         },
       },
       filled: {
         background: "none",
-        "--WebkitTapHighlightColor": "transparent",
+        "-WebkitTapHighlightColor": "transparent",
         padding: "25px 12px 8px",
       },
       standard: {
         padding: "4px 0px 5px",
         background: "none",
-        "--WebkitTapHighlightColor": "transparent",
+        "-WebkitTapHighlightColor": "transparent",
       },
     });
   }
@@ -289,7 +289,7 @@ class InputTextFieldStyleManager extends MuiBaseStyleUtils<
       commonStyle: {},
       variants: {
         outlined: {
-          "--webkit-text-fill-color": "none",
+          "-webkit-text-fill-color": "none",
         },
         filled: {},
         standard: {},
@@ -368,7 +368,7 @@ class BoxTextFieldStyleManager extends MuiBaseStyleUtils<
         boxSizing: "border-box",
         cursor: "text",
         display: "inline-flex",
-        "--WebkitBoxAlign": "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
         position: "relative",
       },
@@ -744,10 +744,13 @@ const TextField = forwardRef<
     onChange,
     endIcon,
     children,
+    style,
+    sx,
+    className,
     ...props
   } = _props_;
 
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
   const [focused, setFocused] = useState(false);
   const [currentValue, setValue] = useState(
     props.defaultValue?.toString() || ""
@@ -921,7 +924,10 @@ const TextField = forwardRef<
   };
 
   return (
-    <div className={WrapperStyle.createClassNames()}>
+    <div
+      className={WrapperStyle.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+    >
       <label className={LabelStyle.createClassNames()}>{label}</label>
       <div className={BoxStyle.createClassNames()}>
         {variant == "standard" && (

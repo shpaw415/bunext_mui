@@ -5,10 +5,12 @@ import {
   type MuiBaseStyleUtilsProps,
 } from "../../style";
 import { type HTMLAttributes } from "react";
+import type { MuiProps } from "../../utils/base";
 
 type MuiPaperProps = {
   children?: any;
-} & HTMLAttributes<HTMLDivElement>;
+} & HTMLAttributes<HTMLDivElement> &
+  MuiProps;
 
 type Variant = "default";
 type SuffixType = "";
@@ -45,8 +47,8 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-function Paper({ children, className, ...props }: MuiPaperProps) {
-  const _style = useStyle();
+function Paper({ children, className, style, sx, ...props }: MuiPaperProps) {
+  const _style = useStyle(sx, style);
   const root = new Root({
     ..._style,
     staticClassName: "MUI_Paper_Root",
@@ -54,7 +56,11 @@ function Paper({ children, className, ...props }: MuiPaperProps) {
   });
 
   return (
-    <div className={`${root.createClassNames()} ${className || ""}`} {...props}>
+    <div
+      className={`${root.createClassNames()} ${className || ""}`}
+      style={_style.styleFromSx}
+      {...props}
+    >
       {children && children}
     </div>
   );

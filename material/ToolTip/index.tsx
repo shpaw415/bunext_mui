@@ -14,6 +14,7 @@ import {
 } from "../../style";
 import Typography from "../Typography";
 import { useClickAwayListener, useMouseUpListener } from "../../utils";
+import type { MuiProps } from "../../utils/base";
 
 type triggers = "onClick" | "onMouseEnter" | "onFocus" | "onMouseDown";
 
@@ -37,7 +38,8 @@ type ToolTipProps = {
    * auto close after X milliseconde
    */
   autoClose?: number;
-} & React.HTMLAttributes<HTMLParagraphElement>;
+} & React.HTMLAttributes<HTMLParagraphElement> &
+  MuiProps;
 type Variant = "default";
 type SuffixType = ToolTipProps["position"] | "diplay";
 
@@ -104,6 +106,8 @@ export default function ToolTip({
   open,
   autoClose,
   style,
+  sx,
+  className,
   ...props
 }: ToolTipProps) {
   const [displayed, setDisplay] = useState(false);
@@ -275,11 +279,11 @@ export default function ToolTip({
         ref: ref,
       })}
       <Typography
-        className={root.createClassNames()}
+        className={root.createClassNames() + ` ${className || ""}`}
         style={{
           ...coordinate,
           color: root.makeColor(),
-          ...(style ? style : {}),
+          ..._style.styleFromSx,
         }}
         {...(props as any)}
         ref={toolTipRef}

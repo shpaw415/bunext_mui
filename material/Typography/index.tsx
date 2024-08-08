@@ -10,13 +10,15 @@ import {
   forwardRef,
   type HTMLAttributes,
 } from "react";
+import type { MuiProps } from "../../utils/base";
 
 type MuiTypographyProps = {
-  children?: JSX.Element | string;
+  children?: JSX.Element | string | string[];
   variant?: "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "span";
-} & HTMLAttributes<
-  React.ReactElement<Exclude<MuiTypographyProps["variant"], undefined>>
->;
+} & MuiProps &
+  HTMLAttributes<
+    React.ReactElement<Exclude<MuiTypographyProps["variant"], undefined>>
+  >;
 
 type SuffixType = "string" | "Element";
 
@@ -24,10 +26,7 @@ class Root extends MuiBaseStyleUtils<"default", SuffixType> {
   constructor(props: MuiBaseStyleUtilsProps<"default">) {
     super(props);
 
-    if (this.alreadyExists()) {
-      if (props.sxProps) this.makeSx();
-      return;
-    }
+    if (this.alreadyExists()) return;
     this.makeDefault();
     this.makeTypes();
   }
@@ -64,25 +63,27 @@ class Root extends MuiBaseStyleUtils<"default", SuffixType> {
 }
 
 const Typography = forwardRef<HTMLElement, MuiTypographyProps>(
-  ({ children, variant, className, ...props }, ref) => {
-    const style = useStyle();
+  ({ children, variant, className, sx, style, ...props }, ref) => {
+    const _style = useStyle(sx, style);
     const manager = new Root({
-      ...style,
+      ..._style,
       staticClassName: "MUI_Typography_Root",
       currentVariant: "default",
     });
 
-    if (typeof children == "string") {
+    if (typeof children == "string" || Array.isArray(children)) {
       return createElement(variant || "p", {
         ...props,
+        style: _style.styleFromSx,
         children,
-        className: `${className && className} ${manager.createClassNames()}`,
+        className: `${className || ""} ${manager.createClassNames()}`,
         ref,
       });
     } else if (children) {
       return cloneElement(children, {
         ...props,
-        className: `${className && className} ${manager.createClassNames()}`,
+        style: _style.styleFromSx,
+        className: `${className || ""} ${manager.createClassNames()}`,
         ref,
       });
     }

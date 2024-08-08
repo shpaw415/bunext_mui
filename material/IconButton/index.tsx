@@ -1,12 +1,13 @@
 "use client";
 
-import { cloneElement, forwardRef, type ButtonHTMLAttributes } from "react";
+import { cloneElement, forwardRef } from "react";
 import {
+  _MuiStyleContext,
   MuiBaseStyleUtils,
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import MuiBase from "../../utils/base";
+import MuiBase, { type MuiProps } from "../../utils/base";
 
 type MuiIconButtonProps = {
   children: JSX.Element;
@@ -14,7 +15,8 @@ type MuiIconButtonProps = {
   href?: string;
   color?: "primary" | "secondary";
   disabled?: boolean;
-} & React.HTMLAttributes<HTMLButtonElement>;
+} & React.HTMLAttributes<HTMLButtonElement> &
+  MuiProps;
 
 type Variants = "default";
 type SuffixTypes =
@@ -78,7 +80,7 @@ class Root extends MuiBaseStyleUtils<Variants, SuffixTypes> {
     this.makeStyleFor({
       suffix: "disabled",
       commonStyle: {
-        PointerEvent: "none",
+        PointerEvents: "none",
         cursor: "default",
         ":hover": {
           backgroundColor: "inherit",
@@ -151,8 +153,21 @@ class Icon extends MuiBaseStyleUtils<Variants, SuffixTypes> {
 }
 
 const IconButton = forwardRef<HTMLButtonElement, MuiIconButtonProps>(
-  ({ children, disabled, color, size, onClick, ...props }, ref) => {
-    const uStyle = useStyle();
+  (
+    {
+      children,
+      disabled,
+      color,
+      size,
+      onClick,
+      style,
+      sx,
+      className,
+      ...props
+    },
+    ref
+  ) => {
+    const uStyle = useStyle(sx, style);
 
     const root = new Root({
       staticClassName: "MUI_IconButton_Root",
@@ -173,7 +188,7 @@ const IconButton = forwardRef<HTMLButtonElement, MuiIconButtonProps>(
     return (
       <MuiBase
         element="button"
-        className={root.createClassNames()}
+        className={root.createClassNames() + ` ${className || ""}`}
         ripple
         {...props}
         ref={ref}
@@ -181,6 +196,7 @@ const IconButton = forwardRef<HTMLButtonElement, MuiIconButtonProps>(
           if (props.href) window.location.assign(props.href);
           if (onClick) onClick(...clickprops);
         }}
+        style={uStyle.styleFromSx}
       >
         {cloneElement<React.HTMLAttributes<HTMLOrSVGElement>>(children, {
           className:

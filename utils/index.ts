@@ -1,9 +1,11 @@
 import {
   useEffect,
   useRef,
+  useState,
   type LegacyRef,
   type MutableRefObject,
 } from "react";
+import { MediaQueryValues, type MediaQueryType } from "../style";
 
 const makeRand = () => Math.random().toString(36).slice(2, -1);
 
@@ -98,4 +100,31 @@ export function useMouseMoveListener(callback: (ev: MouseEvent) => void) {
       document.removeEventListener("mousemove", callback);
     };
   }, []);
+}
+
+/**
+ * @param callback the function that will be called when a window resize occure
+ */
+export function useMediaQuery() {
+  const [currentSx, setSxType] = useState<keyof MediaQueryType>(() => {
+    for (const query of Object.keys(MediaQueryValues).reverse() as Array<
+      keyof MediaQueryType
+    >) {
+      if (window.innerWidth >= MediaQueryValues[query]) return query;
+    }
+    return "md";
+  });
+
+  useEffect(() => {
+    window.addEventListener("resize", () => {
+      const w = window.innerWidth;
+      for (const query of Object.keys(MediaQueryValues).reverse() as Array<
+        keyof MediaQueryType
+      >) {
+        if (w >= MediaQueryValues[query]) return setSxType(query);
+      }
+    });
+  }, []);
+
+  return currentSx;
 }

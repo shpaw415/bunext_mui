@@ -239,6 +239,8 @@ class RadioTextManager extends MuiBaseStyleUtils<Variants, SuffixType> {
 
 export default function Radio({
   sx,
+  style,
+  className,
   checked,
   label,
   disabled,
@@ -252,7 +254,7 @@ export default function Radio({
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
   >) {
-  const style = useStyle();
+  const _style = useStyle(sx, style);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const classNamesSeted: Array<SuffixType | undefined> = [
@@ -263,38 +265,38 @@ export default function Radio({
   ];
 
   const ButtonFrameStyle = new RadioButtonFrameManager({
-    ...style,
+    ..._style,
     currentVariant: "default",
     staticClassName: "MUI_RadioButton_frame",
   }).setProps(classNamesSeted);
 
   const WrapperStyle = new RadioWrapperManager({
-    ...style,
+    ..._style,
     currentVariant: "default",
     staticClassName: "MUI_RadioButton_wrapper",
   }).setProps(classNamesSeted);
 
   const frameRadio = new RadioFrameRadioManager({
-    ...style,
+    ..._style,
     currentVariant: "default",
     staticClassName: "MUI_RadioFrame_frame",
   }).setProps(classNamesSeted);
 
   const innerRadio = new RadioInnerManager({
-    ...style,
+    ..._style,
     currentVariant: "default",
     staticClassName: "MUI_Radio_Inner",
   }).setProps(classNamesSeted);
 
   const TextManager = new RadioTextManager({
-    ...style,
+    ..._style,
     currentVariant: "default",
     staticClassName: "MUI_Radio_Label",
   }).setProps(classNamesSeted);
 
   return (
     <MuiBase
-      className={WrapperStyle.createClassNames()}
+      className={WrapperStyle.createClassNames() + ` ${className || ""}`}
       onClick={(e) => {
         const data = {
           ...e,
@@ -302,6 +304,7 @@ export default function Radio({
         };
         onClick && onClick(data as any);
       }}
+      style={_style.styleFromSx}
     >
       <MuiBase className={ButtonFrameStyle.createClassNames()} ripple>
         <div className={frameRadio.createClassNames()}>

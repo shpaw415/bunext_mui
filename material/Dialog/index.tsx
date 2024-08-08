@@ -8,6 +8,7 @@ import Backdrop from "../Backdrop";
 import Paper from "../Paper";
 import Typography from "../Typography";
 import { useClickAwayListener } from "../../utils";
+import type { MuiProps } from "../../utils/base";
 
 type MuiDialogProps = {
   title?: string;
@@ -21,7 +22,8 @@ type MuiDialogProps = {
    * Form
    */
   children?: JSX.Element;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLDivElement>;
 type Variants = "default";
 type SuffixType = "opened" | "closed";
 
@@ -39,9 +41,9 @@ class Container extends MuiBaseStyleUtils<Variants, SuffixType> {
         height: "100%",
         outline: "0px",
         display: "flex",
-        WebkitBoxPack: "center",
+        "-WebkitBoxPack": "center",
         justifyContent: "center",
-        WebkitBoxAlign: "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
       },
     });
@@ -131,10 +133,10 @@ class ActionRoot extends MuiBaseStyleUtils<Variants, SuffixType> {
     this.makeDefaultStyle({
       commonStyle: {
         display: "flex",
-        "--WebkitBoxAlign": "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
         padding: "8px",
-        "--WebkitBoxPack": "end",
+        "-WebkitBoxPack": "end",
         justifyContent: "flex-end",
         flex: "0 0 auto",
       },
@@ -144,8 +146,14 @@ class ActionRoot extends MuiBaseStyleUtils<Variants, SuffixType> {
 /**
  * Dialog with a backdrop that will block user experence for an interaction
  */
-export default function Dialog({ children, ...props }: MuiDialogProps) {
-  const _style = useStyle();
+export default function Dialog({
+  children,
+  sx,
+  style,
+  className,
+  ...props
+}: MuiDialogProps) {
+  const _style = useStyle(sx, style);
   const ref = useClickAwayListener<HTMLDivElement>(() => {
     props.onCloseEvent && props.onCloseEvent();
   });
@@ -181,7 +189,11 @@ export default function Dialog({ children, ...props }: MuiDialogProps) {
   });
 
   return (
-    <div role="presentation" className={root.createClassNames()}>
+    <div
+      role="presentation"
+      className={root.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+    >
       <Backdrop />
       <div className={container.createClassNames()}>
         <Paper>

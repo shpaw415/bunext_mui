@@ -7,6 +7,7 @@ import {
 
 import ExpendIcon from "@material-design-icons/svg/filled/keyboard_arrow_down.svg";
 import { useEffect, useRef } from "react";
+import type { MuiProps } from "../../utils/base";
 
 type AccordionProps = {
   children: string | JSX.Element;
@@ -16,7 +17,8 @@ type AccordionProps = {
   onChange?: () => void;
   actionButtons?: JSX.Element | JSX.Element[];
   expendIcon?: () => JSX.Element;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & React.HTMLAttributes<HTMLDivElement> &
+  MuiProps;
 
 type Variant = "default";
 type SuffixType = "disabled" | "expended";
@@ -278,9 +280,13 @@ export default function Accordion({
   actionButtons,
   onClick,
   className,
+  style,
+  sx,
+  expendIcon,
+  children,
   ...props
 }: AccordionProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -364,19 +370,20 @@ export default function Accordion({
         onChange && onChange();
         onClick && onClick(ev);
       }}
+      style={_style.styleFromSx}
       {...props}
     >
       <div className={root.createClassNames()} role="button" tabIndex={0}>
         <div className={_summary.createClassNames()}>{summary}</div>
         <div className={extendWrapper.createClassNames()}>
-          {props.expendIcon ? props.expendIcon() : <ExpendIcon />}
+          {expendIcon ? expendIcon() : <ExpendIcon />}
         </div>
       </div>
       <div className={contentRoot.createClassNames()} ref={contentRef}>
         <div className={contentWrapper.createClassNames()}>
           <div className={contentWrapperInner.createClassNames()}>
             <div>
-              <div className={content.createClassNames()}>{props.children}</div>
+              <div className={content.createClassNames()}>{children}</div>
               <div className={actions.createClassNames()}>
                 {actionButtons && actionButtons}
               </div>

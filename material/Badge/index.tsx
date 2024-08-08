@@ -5,13 +5,15 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
+import type { MuiProps } from "../../utils/base";
 
 type MUIBadgeProps = {
   variant?: "default" | "dot";
   side?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   children: JSX.Element;
   badgeContent?: string | number;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLSpanElement>;
 
 type Variants = MUIBadgeProps["variant"];
 type SuffixTypes = Exclude<MUIBadgeProps["side"], undefined>;
@@ -46,9 +48,9 @@ class BadgeRoot extends MuiBaseStyleUtils<Variants, SuffixTypes> {
       commonStyle: {
         display: "flex",
         flexFlow: "wrap",
-        "--WebkitBoxPack": "center",
+        "-WebkitBoxPack": "center",
         placeContent: "center",
-        "--WebkitBoxAlign": "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
         position: "absolute",
         boxSizing: "border-box",
@@ -113,8 +115,14 @@ class BadgeRoot extends MuiBaseStyleUtils<Variants, SuffixTypes> {
   }
 }
 
-export default function Badge(props: MUIBadgeProps) {
-  const _style = useStyle();
+export default function Badge({
+  className,
+  sx,
+  style,
+  badgeContent,
+  ...props
+}: MUIBadgeProps) {
+  const _style = useStyle(sx, style);
 
   const currentVariant = props.variant || "default";
 
@@ -130,12 +138,14 @@ export default function Badge(props: MUIBadgeProps) {
     currentVariant: currentVariant,
   }).setProps([props.side ? props.side : "top-right"]);
   return (
-    <span className={root.createClassNames()}>
+    <span
+      className={root.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+      {...props}
+    >
       {props.children}
       <span className={badge.createClassNames()}>
-        {props.badgeContent &&
-          currentVariant == "default" &&
-          props.badgeContent}
+        {badgeContent && currentVariant == "default" && badgeContent}
       </span>
     </span>
   );

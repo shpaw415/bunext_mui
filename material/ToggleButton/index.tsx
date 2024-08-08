@@ -1,4 +1,4 @@
-import MuiBase from "../../utils/base";
+import MuiBase, { type MuiProps } from "../../utils/base";
 import {
   MuiBaseStyleUtils,
   useStyle,
@@ -19,7 +19,8 @@ type ToggleButtonProps = {
   selected?: boolean;
   disabled?: boolean;
   color?: "primary" | "secondary";
-} & HTMLAttributes<HTMLButtonElement>;
+} & HTMLAttributes<HTMLButtonElement> &
+  MuiProps;
 
 class Button extends MuiBaseStyleUtils<Variant, SuffixType> {
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
@@ -43,13 +44,13 @@ class Button extends MuiBaseStyleUtils<Variant, SuffixType> {
         borderTopRightRadius: "0",
         borderBottomRightRadius: "0",
         display: "inline-flex",
-        WebkitBoxAlign: "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
-        WebkitBoxPack: "center",
+        "-WebkitBoxPack": "center",
         justifyContent: "center",
         position: "relative",
         boxSizing: "border-box",
-        WebkitTapHighlightColor: "transparent",
+        "-WebkitTapHighlightColor": "transparent",
         backgroundColor: "transparent",
         outline: "0px",
         margin: "0px",
@@ -188,6 +189,9 @@ export default function ToggleButton({
   children,
   selected,
   color,
+  sx,
+  style,
+  className,
   ...props
 }: ToggleButtonProps) {
   const _style = useStyle();
@@ -212,7 +216,8 @@ export default function ToggleButton({
     <MuiBase
       element="button"
       ripple
-      className={button.createClassNames()}
+      className={button.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
       {...props}
     >
       {typeof children == "string"
@@ -261,7 +266,8 @@ type ToggleButtonGroupProps = {
    */
   selected?: number[];
   color?: ToggleButtonProps["color"];
-} & HTMLAttributes<HTMLDivElement>;
+} & HTMLAttributes<HTMLDivElement> &
+  MuiProps;
 
 export function ToggleButtonGroup({
   children,
@@ -270,9 +276,11 @@ export function ToggleButtonGroup({
   selected,
   className,
   color,
+  style,
+  sx,
   ...props
 }: ToggleButtonGroupProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
 
   const root = new Root({
     ..._style,
@@ -284,6 +292,7 @@ export function ToggleButtonGroup({
     <div
       role="group"
       className={root.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
       {...props}
     >
       {children.flatMap((child, index) => {

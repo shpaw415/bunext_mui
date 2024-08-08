@@ -1,5 +1,6 @@
 "use client";
 
+import type { MuiProps } from "../../utils/base";
 import TextField from "../TextField";
 import React, { forwardRef } from "react";
 type SelectProps = {
@@ -14,11 +15,12 @@ type SelectProps = {
   defaultValue?: string | number;
   helpText?: string;
   readOnly?: boolean;
-} & React.InputHTMLAttributes<HTMLSelectElement>;
+} & React.InputHTMLAttributes<HTMLElement> &
+  MuiProps;
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ children, ...props }, ref) => (
-    <TextField style={{ cursor: "pointer" }} {...(props as any)}>
+  ({ children, variant, startIcon, endIcon, ...props }, ref) => (
+    <TextField style={{ cursor: "pointer" }} {...props}>
       <select disabled={props.readOnly || props.disabled}>{children}</select>
     </TextField>
   )

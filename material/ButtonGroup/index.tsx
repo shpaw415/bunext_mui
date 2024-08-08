@@ -3,12 +3,14 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import MuiBase from "../../utils/base";
+import MuiBase, { type MuiProps } from "../../utils/base";
 import { MuiClass, type MuiElementProps } from "../common";
 
 type MuiButtonGroupProps = {
   orientation?: "vertical" | "horizontal";
-} & MuiElementProps;
+  children: JSX.Element | JSX.Element[];
+} & MuiProps &
+  React.HTMLAttributes<HTMLDivElement>;
 
 class ButtonGroupManager extends MuiBaseStyleUtils<
   "group",
@@ -52,18 +54,29 @@ class ButtonGroupManager extends MuiBaseStyleUtils<
   }
 }
 
-function ButtonGroup({ children, orientation }: MuiButtonGroupProps) {
-  const style = useStyle();
+function ButtonGroup({
+  children,
+  orientation,
+  sx,
+  style,
+  className,
+  ...props
+}: MuiButtonGroupProps) {
+  const _style = useStyle(sx, style);
   const manager = new ButtonGroupManager({
     currentVariant: "group",
     staticClassName: MuiClass.ButtonGroup,
-    ...style,
+    ..._style,
   }).setProps(orientation);
 
   return (
-    <>
-      <MuiBase className={manager.createClassNames()}>{children}</MuiBase>
-    </>
+    <MuiBase
+      className={manager.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+      {...props}
+    >
+      {children}
+    </MuiBase>
   );
 }
 

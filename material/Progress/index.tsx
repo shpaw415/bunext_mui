@@ -3,12 +3,14 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
+import type { MuiProps } from "../../utils/base";
 
 type ProgressProps = {
   variant?: "determinate" | "default";
   color?: "success" | "secondary" | "primary" | "error";
   size?: number;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLDivElement>;
 type Variant = ProgressProps["variant"];
 type SuffixType = ProgressProps["color"];
 
@@ -113,16 +115,23 @@ class Circle extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-export default function Progress({ ...props }: ProgressProps) {
-  const _style = useStyle();
+export default function Progress({
+  style,
+  sx,
+  color,
+  variant,
+  size,
+  ...props
+}: ProgressProps) {
+  const _style = useStyle(sx, style);
 
-  const currentVariant = props.variant || "default";
+  const currentVariant = variant || "default";
 
   const root = new Root({
     ..._style,
     staticClassName: "MUI_Progress_Root",
     currentVariant,
-  }).setProps([props.color || "primary"]);
+  }).setProps([color || "primary"]);
 
   const circle = new Circle({
     ..._style,
@@ -130,10 +139,10 @@ export default function Progress({ ...props }: ProgressProps) {
     currentVariant,
   });
 
-  const SizeStyle = props.size
+  const SizeStyle = size
     ? {
-        width: `${props.size}px`,
-        height: `${props.size}px`,
+        width: `${size}px`,
+        height: `${size}px`,
       }
     : {};
 
@@ -141,7 +150,9 @@ export default function Progress({ ...props }: ProgressProps) {
     <div
       style={{
         display: "flex",
+        ..._style.styleFromSx,
       }}
+      {...props}
     >
       <span className={root.createClassNames()} style={{ ...SizeStyle }}>
         <svg viewBox="22 22 44 44" style={{ display: "block" }}>

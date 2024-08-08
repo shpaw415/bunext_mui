@@ -1,4 +1,4 @@
-import MuiBase from "../../utils/base";
+import MuiBase, { type MuiProps } from "../../utils/base";
 import {
   MuiBaseStyleUtils,
   useStyle,
@@ -11,7 +11,8 @@ type Props = {
   children: JSX.Element[] | JSX.Element;
   Header?: string;
   disablePadding?: boolean;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLElement>;
 
 type Variant = "default";
 type SuffixType = "selected" | "noPadding";
@@ -70,8 +71,15 @@ class _Header extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-export default function ListItems({ children, Header, disablePadding }: Props) {
-  const _style = useStyle();
+export default function ListItems({
+  children,
+  Header,
+  disablePadding,
+  sx,
+  style,
+  ...props
+}: Props) {
+  const _style = useStyle(sx, style);
 
   const ul = new Ul({
     ..._style,
@@ -111,7 +119,7 @@ export default function ListItems({ children, Header, disablePadding }: Props) {
   return groupedChildren.flatMap((elArrayORSeparator, index) => {
     if (Array.isArray(elArrayORSeparator))
       return (
-        <nav key={index}>
+        <nav key={index} style={_style.styleFromSx} {...props}>
           {(groupedChildren[index] as Array<JSX.Element>).flatMap(
             (elArray, index) => {
               return (
@@ -135,7 +143,8 @@ type ListItemsElement = {
   helperText?: string | JSX.Element;
   selected?: boolean;
   inset?: boolean;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & React.HTMLAttributes<HTMLDivElement> &
+  MuiProps;
 
 class Li extends MuiBaseStyleUtils<Variant, SuffixType> {
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
@@ -317,6 +326,8 @@ export function ListItemElement({
   helperText,
   selected,
   inset,
+  sx,
+  style,
   ...props
 }: ListItemsElement) {
   const _style = useStyle();
@@ -358,7 +369,7 @@ export function ListItemElement({
   });
 
   return (
-    <li className={li.createClassNames()}>
+    <li className={li.createClassNames()} style={_style.styleFromSx}>
       <MuiBase
         element="div"
         ripple

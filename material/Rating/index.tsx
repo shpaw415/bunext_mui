@@ -1,6 +1,5 @@
 "use client";
 
-import { type MuiElementProps } from "../common";
 import {
   MuiBaseStyleUtils,
   useStyle,
@@ -10,8 +9,9 @@ import FilledStar from "@material-design-icons/svg/outlined/star.svg";
 import UnfilledStar from "@material-design-icons/svg/filled/star_border.svg";
 import StarHalf from "@material-design-icons/svg/outlined/star_half.svg";
 import { useState } from "react";
+import type { MuiProps } from "../../utils/base";
 
-type RatingProps = MuiElementProps & {
+type RatingProps = MuiProps & {
   readOnly?: boolean;
   rating?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   defaultRating?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
@@ -24,7 +24,7 @@ type RatingProps = MuiElementProps & {
     value: number,
     setValue: React.Dispatch<React.SetStateAction<number>>
   ) => void;
-};
+} & React.HTMLAttributes<HTMLDivElement>;
 
 type Variants = "default";
 type SuffixTypes = "disabled" | "readOnly";
@@ -101,6 +101,9 @@ export default function Rating({
   onChange,
   onClick,
   defaultRating,
+  sx,
+  className,
+  style,
   ...props
 }: RatingProps) {
   const [currentStarUnsertain, setUnsetain] = useState(
@@ -109,7 +112,7 @@ export default function Rating({
   const [currentSelectedStars, setSelectedStar] = useState(
     defaultRating || rating || 0
   );
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
 
   const StarWrapperStyle = new RatingWrapperManager({
     staticClassName: "MUI_Rating_Star_Wrapper",
@@ -187,11 +190,13 @@ export default function Rating({
   );
   return (
     <div
-      className={StarWrapperStyle.createClassNames()}
+      className={StarWrapperStyle.createClassNames() + ` ${className || ""}`}
       onMouseLeave={() => {
         if (rating || readOnly || disabled) return;
         setUnsetain(currentSelectedStars);
       }}
+      style={_style.styleFromSx}
+      {...props}
     >
       <StarElement minValue={1} maxValue={2} />
       <StarElement minValue={3} maxValue={4} />

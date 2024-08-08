@@ -5,6 +5,7 @@ import {
 } from "../../style";
 import { createRef } from "react";
 import CloseSvgImage from "@material-design-icons/svg/filled/close.svg";
+import type { MuiProps } from "../../utils/base";
 
 type MuiChipProps = {
   label: string;
@@ -18,7 +19,8 @@ type MuiChipProps = {
   Icon?: () => JSX.Element;
   avatar?: JSX.Element;
   color?: "success" | "error" | "primary" | "default" | "secondary";
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLDivElement>;
 type Variant = Exclude<MuiChipProps["variant"], undefined>;
 type SuffixType = "clickable" | MuiChipProps["color"];
 
@@ -41,9 +43,9 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
         fontFamily: "Roboto, Helvetica, Arial, sans-serif",
         fontSize: "0.8125rem",
         display: "inline-flex",
-        WebkitBoxAlign: "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
-        WebkitBoxPack: "center",
+        "-WebkitBoxPack": "center",
         justifyContent: "center",
         height: "32px",
         color: this.colorFromTheme({
@@ -435,8 +437,16 @@ class SvgIcon extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-export default function Chip(props: MuiChipProps) {
-  const _style = useStyle();
+export default function Chip({
+  sx,
+  style,
+  className,
+  children,
+  onDelete,
+  deleteIcon,
+  ...props
+}: MuiChipProps) {
+  const _style = useStyle(sx, style);
   const ref = createRef<HTMLDivElement>();
   const currentVariant = props.variant || "filled";
 
@@ -468,17 +478,22 @@ export default function Chip(props: MuiChipProps) {
     props.avatar || (props.Icon && props.Icon());
 
   return (
-    <div className={root.createClassNames()} onClick={props.onClick} ref={ref}>
+    <div
+      className={root.createClassNames() + ` ${className || ""}`}
+      ref={ref}
+      style={_style.styleFromSx}
+      {...props}
+    >
       {Icon && <div className={svgIcon.createClassNames()}>{Icon}</div>}
       <span className={label.createClassNames()}>{props.label}</span>
-      {props.onDelete && (
+      {onDelete && (
         <div
           className={svgClose.createClassNames()}
           onClick={() => {
-            props.onDelete && props.onDelete(ref);
+            onDelete && onDelete(ref);
           }}
         >
-          {props.deleteIcon ? props.deleteIcon() : <CloseSvgImage />}
+          {deleteIcon ? deleteIcon() : <CloseSvgImage />}
         </div>
       )}
     </div>

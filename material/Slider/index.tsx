@@ -14,6 +14,7 @@ import {
 } from "../../style";
 import { useMouseMoveListener, useMouseUpListener } from "../../utils";
 import ToolTip from "../ToolTip";
+import type { MuiProps } from "../../utils/base";
 type Variant = "default";
 type SuffixType = "disabled" | "selected";
 
@@ -32,7 +33,7 @@ type SliderProps = Omit<
   valueLabelDisplay?: "on" | "auto";
   valueLabelFormat?: (value: number) => number;
   valueLabelPosition?: "top" | "bottom";
-};
+} & MuiProps;
 
 class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
@@ -215,6 +216,7 @@ const Slider = forwardRef<HTMLInputElement, SliderProps>(
       step,
       onChange,
       style,
+      sx,
       value,
       defaultValue,
       valueLabelDisplay,
@@ -228,7 +230,7 @@ const Slider = forwardRef<HTMLInputElement, SliderProps>(
     if (defaultValue != undefined && !Array.isArray(defaultValue))
       defaultValue = [defaultValue];
 
-    const _style = useStyle();
+    const _style = useStyle(sx, style);
     const rootRef = useRef<HTMLSpanElement>(null);
     const totalLength = useMemo(
       () => Math.abs(min) + Math.abs(max),
@@ -355,7 +357,7 @@ const Slider = forwardRef<HTMLInputElement, SliderProps>(
     return (
       <span
         className={root.createClassNames() + ` ${className || ""}`}
-        style={style}
+        style={_style.styleFromSx}
         ref={rootRef}
       >
         <span className={rail.createClassNames()} />

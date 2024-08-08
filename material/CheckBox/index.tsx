@@ -1,16 +1,15 @@
 "use client";
-import { type CssProps, type MuiElementProps, MuiClass } from "../common";
+import { MuiClass } from "../common";
 import {
   MuiBaseStyleUtils,
   useStyle,
   type MuiBaseStyleUtilsProps,
+  type SxProps,
 } from "../../style";
 import Check from "@material-design-icons/svg/outlined/check.svg";
-import MuiBase from "../../utils/base";
+import MuiBase, { type MuiProps } from "../../utils/base";
 import { useState, type InputHTMLAttributes } from "react";
-import Text from "../Typography";
-
-type HTMLElement = HTMLInputElement;
+import Typography from "../Typography";
 
 type MuiCheckBox = {
   label?: string;
@@ -18,12 +17,8 @@ type MuiCheckBox = {
   disabeled?: boolean;
   checked?: boolean;
   color?: React.CSSProperties["color"];
-  sx?: {
-    wrapper?: Partial<CssProps>;
-    checkbox?: Partial<CssProps>;
-    label?: Partial<CssProps>;
-  };
-} & MuiElementProps;
+} & MuiProps &
+  React.HTMLAttributes<HTMLInputElement>;
 
 type CheckBoxModes =
   | "size_small"
@@ -219,6 +214,7 @@ export default function CheckBox({
   size,
   color,
   sx,
+  style,
   defaultChecked,
   ...props
 }: MuiCheckBox & Omit<InputHTMLAttributes<any>, "style" | "size">) {
@@ -227,12 +223,7 @@ export default function CheckBox({
   if (checked === true && !_checked) setChecked(true);
   else if (checked === false && _checked) setChecked(false);
 
-  const style = useStyle();
-  const MainManager = new CheckBoxManager({
-    ...style,
-    staticClassName: MuiClass.CheckBox,
-    currentVariant: "default",
-  });
+  const _style = useStyle(sx, style);
 
   const setDisabled = (): CheckBoxModes | undefined => {
     if (disabeled && _checked) return "disabled_checked";
@@ -246,15 +237,17 @@ export default function CheckBox({
     _checked ? "checked" : undefined,
   ] as any;
 
-  MainManager.setProps(_props);
+  const MainManager = new CheckBoxManager({
+    ..._style,
+    staticClassName: MuiClass.CheckBox,
+    currentVariant: "default",
+  }).setProps(_props);
 
   const WrapperManager = new WrapperStyleManager({
     staticClassName: "MUI_Checkbox_wrapper",
     currentVariant: "default",
-    ...style,
-  });
-
-  WrapperManager.setProps(_props);
+    ..._style,
+  }).setProps(_props);
 
   return (
     <div
@@ -262,7 +255,9 @@ export default function CheckBox({
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
+        ..._style.styleFromSx,
       }}
+      {...props}
     >
       <MuiBase className={MainManager.createClassNames()}>
         <MuiBase
@@ -291,9 +286,9 @@ export default function CheckBox({
         </MuiBase>
       </MuiBase>
       {label && (
-        <Text sx={{ marginLeft: "5px" }} id="__MUI_Checkbox_Label__">
-          {label} {props.required && "*"}
-        </Text>
+        <Typography sx={{ marginLeft: "5px" }} id="__MUI_Checkbox_Label__">
+          {label + props.required ? "*" : ""}
+        </Typography>
       )}
     </div>
   );

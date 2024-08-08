@@ -5,7 +5,7 @@ import {
   type MuiBaseStyleUtilsProps,
 } from "../../style";
 import Typography from "../Typography";
-import MuiBase from "../../utils/base";
+import MuiBase, { type MuiProps } from "../../utils/base";
 import { useCallback, useEffect, useState } from "react";
 type MenuProps = {
   open?: boolean;
@@ -14,7 +14,8 @@ type MenuProps = {
   offsetLeft?: number;
   offsetTop?: number;
   position?: "bottom" | "left" | "right" | "over";
-} & React.HTMLAttributes<HTMLDivElement>;
+} & React.HTMLAttributes<HTMLDivElement> &
+  MuiProps;
 type Variant = "default";
 type SuffixType = "opened" | "closed";
 
@@ -81,9 +82,10 @@ export default function Menu({
   offsetLeft,
   offsetTop,
   position,
+  sx,
   ...props
 }: MenuProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
   const [_position_, setPosition] = useState({
     top: 0,
     left: 0,
@@ -165,7 +167,7 @@ export default function Menu({
         margin: 0,
         top: _position_.top + (offsetTop ?? 0) + AddPositionOffset("top"),
         left: _position_.left + (offsetLeft ?? 0) + AddPositionOffset("left"),
-        ...style,
+        ..._style.styleFromSx,
       }}
       {...props}
     >
@@ -184,7 +186,8 @@ type MenuElementProps = {
    * add space to replace the startElement
    */
   offSet?: boolean;
-} & React.HTMLAttributes<HTMLLIElement>;
+} & React.HTMLAttributes<HTMLLIElement> &
+  MuiProps;
 
 class ElementRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
@@ -267,9 +270,12 @@ export function MenuElement({
   StartElement,
   EndElement,
   offSet,
+  style,
+  sx,
+  className,
   ...props
 }: MenuElementProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
 
   const currentVariant: Variant = "default";
 
@@ -286,7 +292,11 @@ export function MenuElement({
   });
 
   return (
-    <li className={root.createClassNames()} {...props}>
+    <li
+      className={root.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+      {...props}
+    >
       <MuiBase
         ripple
         style={{

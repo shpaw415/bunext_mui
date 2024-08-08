@@ -1,4 +1,4 @@
-import MuiBase from "../../utils/base";
+import MuiBase, { type MuiProps } from "../../utils/base";
 import {
   MuiBaseStyleUtils,
   useStyle,
@@ -12,7 +12,8 @@ type BottomNavigationProps = {
     key: number
   ) => void;
   selectedKey?: number;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLDivElement>;
 type Variant = "default";
 type SuffixType = "";
 
@@ -26,7 +27,7 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
     this.makeDefaultStyle({
       commonStyle: {
         display: "flex",
-        "--WebkitBoxPack": "center",
+        "-WebkitBoxPack": "center",
         justifyContent: "center",
         height: "56px",
         backgroundColor: this.colorFromTheme({
@@ -46,9 +47,12 @@ export default function BottomNavigation({
   children,
   onSelect,
   selectedKey,
+  sx,
+  className,
+  style,
   ...props
 }: BottomNavigationProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
 
   const currentVariant = "default";
 
@@ -63,7 +67,11 @@ export default function BottomNavigation({
   let key = 0;
 
   return (
-    <div className={root.createClassNames()} {...props}>
+    <div
+      className={root.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+      {...props}
+    >
       {children.map((e) => {
         key = key + 1;
         return cloneElement<BottomNavigationElementProps | HTMLButtonElement>(
@@ -86,7 +94,8 @@ type BottomNavigationElementProps = {
   Icon?: JSX.Element;
   label?: string;
   selected?: boolean;
-} & React.HTMLAttributes<HTMLButtonElement>;
+} & React.HTMLAttributes<HTMLButtonElement> &
+  MuiProps;
 
 type ElementSuffixType = "selected";
 
@@ -100,13 +109,13 @@ class Button extends MuiBaseStyleUtils<Variant, ElementSuffixType> {
     this.makeDefaultStyle({
       commonStyle: {
         display: "inline-flex",
-        WebkitBoxAlign: "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
-        WebkitBoxPack: "center",
+        "-WebkitBoxPack": "center",
         justifyContent: "center",
         position: "relative",
         boxSizing: "border-box",
-        WebkitTapHighlightColor: "transparent",
+        "-WebkitTapHighlightColor": "transparent",
         backgroundColor: "transparent",
         outline: "0px",
         border: "0px",
@@ -140,18 +149,18 @@ class _Icon extends MuiBaseStyleUtils<Variant, ElementSuffixType> {
   private makeDefault() {
     this.makeDefaultStyle({
       commonStyle: {
-        WebkitUserSelect: "none",
-        "--MozUserSelect": "none",
-        "--MsUserSelect": "none",
+        "-WebkitUserSelect": "none",
+        "-MozUserSelect": "none",
+        "-MsUserSelect": "none",
         userSelect: "none",
         width: "1em",
         height: "1em",
         display: "inline-block",
         fill: "currentColor",
-        "--WebkitFlexShrink": "0",
-        "--MsFlexNegative": "0",
+        "-WebkitFlexShrink": "0",
+        "-MsFlexNegative": "0",
         flexShrink: "0",
-        "--WebkitTransition": "fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+        "-WebkitTransition": "fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
         transition: "fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
         fontSize: "1.5rem",
       },
@@ -205,9 +214,12 @@ export function BottomNavigationElement({
   Icon,
   label,
   selected,
+  style,
+  sx,
+  className,
   ...props
 }: BottomNavigationElementProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
 
   const currentVariant = "default";
 
@@ -231,9 +243,10 @@ export function BottomNavigationElement({
 
   return (
     <MuiBase
-      className={button.createClassNames()}
+      className={button.createClassNames() + ` ${className || ""}`}
       element="button"
       ripple
+      style={_style.styleFromSx}
       {...props}
     >
       {Icon &&

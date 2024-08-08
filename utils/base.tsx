@@ -2,64 +2,66 @@
 
 import { Ripple } from "../material/style/ripple";
 import { forwardRef } from "react";
+import type { SxProps } from "../style";
+import { useMediaQuery } from ".";
 
-type MuiBase =
+type MuiBaseType =
   | ({
       element?: "div";
-      ripple?: boolean;
     } & React.DetailedHTMLProps<
       React.HTMLAttributes<HTMLDivElement>,
       HTMLDivElement
     >)
   | ({
       element: "button";
-      ripple?: boolean;
     } & React.DetailedHTMLProps<
       React.ButtonHTMLAttributes<HTMLButtonElement>,
       HTMLButtonElement
     >)
   | ({
       element: "fieldset";
-      ripple?: boolean;
     } & React.DetailedHTMLProps<
       React.ButtonHTMLAttributes<HTMLFieldSetElement>,
       HTMLFieldSetElement
     >)
   | ({
       element: "input";
-      ripple?: boolean;
     } & React.DetailedHTMLProps<
       React.ButtonHTMLAttributes<HTMLInputElement>,
       HTMLInputElement
     >)
   | ({
       element: "label";
-      ripple?: boolean;
     } & React.DetailedHTMLProps<
       React.ButtonHTMLAttributes<HTMLLabelElement>,
       HTMLLabelElement
     >)
   | ({
       element: "legend";
-      ripple?: boolean;
     } & React.DetailedHTMLProps<
       React.ButtonHTMLAttributes<HTMLLegendElement>,
       HTMLLegendElement
     >)
   | ({
       element: "p";
-      ripple?: boolean;
     } & React.DetailedHTMLProps<
       React.ButtonHTMLAttributes<HTMLParagraphElement>,
       HTMLParagraphElement
     >)
   | ({
       element: "textarea";
-      ripple?: boolean;
     } & React.DetailedHTMLProps<
       React.TextareaHTMLAttributes<HTMLTextAreaElement>,
       HTMLTextAreaElement
     >);
+
+export type MuiProps = {
+  sx?: SxProps;
+};
+
+type MuiBase = MuiBaseType & {
+  ripple?: boolean;
+} & MuiProps;
 
 function setType(elTag: MuiBase["element"]) {
   switch (elTag) {
@@ -84,8 +86,11 @@ function setType(elTag: MuiBase["element"]) {
 }
 
 const MuiBase = forwardRef<any, MuiBase>((_props: MuiBase, ref) => {
-  const { ripple, element, className, onClick, children, ...props } = _props;
+  const { ripple, element, className, onClick, children, sx, ...props } =
+    _props;
   const Element = setType(element);
+
+  const mediaQuery = useMediaQuery();
 
   return (
     <Element.type

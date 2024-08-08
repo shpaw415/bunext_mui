@@ -5,6 +5,7 @@ import {
   type MuiBaseStyleUtilsProps,
 } from "../../style";
 import ArrowSvg from "@material-design-icons/svg/filled/arrow_back_ios.svg";
+import type { MuiProps } from "../../utils/base";
 type PaginationProps = {
   count: number;
   selected: number;
@@ -12,7 +13,8 @@ type PaginationProps = {
   color?: "primary" | "secondary";
   variant?: "standard" | "outlined";
   disabled?: boolean;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLElement>;
 type Variant = PaginationProps["variant"];
 type SuffixType = "";
 
@@ -76,8 +78,11 @@ export default function Pagination({
   onSelect,
   selected,
   color,
+  sx,
+  style,
+  ...props
 }: PaginationProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
 
   const currentVariant = variant ?? "standard";
 
@@ -98,7 +103,7 @@ export default function Pagination({
   const _selected = selected - 1;
 
   return (
-    <nav>
+    <nav style={_style.styleFromSx} {...props}>
       <ul className={root.createClassNames()}>
         <li className={el.createClassNames()}>
           <IconButton

@@ -10,6 +10,7 @@ import { useClickAwayListener } from "../../utils";
 import ToolTip from "../ToolTip";
 import IconButton from "../IconButton";
 import Backdrop from "../Backdrop";
+import type { MuiProps } from "../../utils/base";
 type SpeedDialProps = {
   backDrop?: boolean;
   children: JSX.Element | JSX.Element[];
@@ -18,7 +19,8 @@ type SpeedDialProps = {
   onClose?: () => void;
   direction?: "top" | "left" | "right" | "bottom";
   position?: "top-left" | "top-right" | "bottom-right" | "bottom-left";
-} & React.HTMLAttributes<HTMLDivElement>;
+} & React.HTMLAttributes<HTMLDivElement> &
+  MuiProps;
 
 type Variant = SpeedDialProps["direction"];
 type SuffixType = "opened" | "closed" | SpeedDialProps["position"];
@@ -161,8 +163,11 @@ export default function SpeedDial({
   direction,
   position,
   children,
+  sx,
+  style,
+  className,
 }: SpeedDialProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
   const [opened, setOpen] = useState(open ?? false);
   const ref = useClickAwayListener<HTMLButtonElement>(() => {
     setOpen(false);
@@ -220,7 +225,8 @@ export default function SpeedDial({
           setOpen(false);
           onClose && onClose();
         }}
-        className={root.createClassNames()}
+        className={root.createClassNames() + ` ${className || ""}`}
+        style={_style.styleFromSx}
       >
         <FloatingButton
           ref={ref}

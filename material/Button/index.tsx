@@ -1,19 +1,13 @@
 "use client";
 
-import {
-  forwardRef,
-  type ButtonHTMLAttributes,
-  type HTMLAttributes,
-} from "react";
+import { forwardRef, type HTMLAttributes } from "react";
 import {
   _MuiStyleContext,
   MuiBaseStyleUtils,
   type MuiTheme,
   useStyle,
 } from "../../style";
-import { type MuiElementProps } from "../common";
-import MuiBase from "../../utils/base";
-import { Svg } from "../../utils/svg";
+import MuiBase, { type MuiProps } from "../../utils/base";
 type MuiButtonProps = {
   variant?: "text" | "contained" | "outlined";
   StartIcon?: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
@@ -22,7 +16,8 @@ type MuiButtonProps = {
   href?: string;
   color?: "error" | "success";
   disabled?: boolean;
-} & HTMLAttributes<HTMLButtonElement>;
+} & HTMLAttributes<HTMLButtonElement> &
+  MuiProps;
 
 type ButtonSuffix =
   | "error"
@@ -216,7 +211,7 @@ class ButtonStyleManager extends MuiBaseStyleUtils<
       },
       commonStyle: {
         cursor: "default",
-        PointerEvent: "none",
+        PointerEvents: "none",
       },
     });
   }
@@ -303,15 +298,19 @@ const Button = forwardRef<HTMLButtonElement, MuiButtonProps>(
       EndIcon,
       href,
       color,
+      sx,
+      style,
+      className,
+      onClick,
       ...props
     },
     ref
   ) => {
-    const style = useStyle();
+    const _style = useStyle(sx, style);
 
     const styleManager = new ButtonStyleManager({
-      theme: style.theme,
-      styleContext: style.styleContext,
+      theme: _style.theme,
+      styleContext: _style.styleContext,
       variant,
     });
 
@@ -325,12 +324,13 @@ const Button = forwardRef<HTMLButtonElement, MuiButtonProps>(
       <MuiBase
         element="button"
         ref={ref}
-        className={styleManager.createClassNames()}
+        className={styleManager.createClassNames() + ` ${className || ""}`}
+        style={_style.styleFromSx}
         {...props}
         ripple
         onClick={(e) => {
           if (href) window.location.replace(href);
-          if (props.onClick) props.onClick(e);
+          if (onClick) onClick(e);
         }}
       >
         {StartIcon && (

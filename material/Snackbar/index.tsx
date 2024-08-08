@@ -8,6 +8,7 @@ import {
 } from "../../style";
 import { useClickAwayListener } from "../../utils";
 import { useEffect, useState } from "react";
+import type { MuiProps } from "../../utils/base";
 
 type MuiSnackBarProps = {
   position:
@@ -35,7 +36,8 @@ type MuiSnackBarProps = {
   opened?: boolean;
   onClose?: (setOpen: React.Dispatch<React.SetStateAction<boolean>>) => void;
   children: string;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLDivElement>;
 
 const backgroundFromTheme = (theme: MuiTheme) => {
   switch (theme.theme) {
@@ -415,9 +417,18 @@ class ActionContainer extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-export default function SnackBar(props: MuiSnackBarProps) {
+export default function SnackBar({
+  className,
+  sx,
+  style,
+  children,
+  opened,
+  color,
+  actionButton,
+  ...props
+}: MuiSnackBarProps) {
   const [isInited, setInited] = useState(false);
-  const [isOpen, setOpenState] = useState<boolean>(props.opened as boolean);
+  const [isOpen, setOpenState] = useState<boolean>(opened as boolean);
   const ref = useClickAwayListener<HTMLDivElement>(() => {
     if (props.HideOnClickAway === false) return;
     if (isOpen) setOpenState(false);
@@ -432,10 +443,10 @@ export default function SnackBar(props: MuiSnackBarProps) {
     }, props.autoHideDuration * 1000);
   }, [isOpen]);
 
-  if (props.opened && !isOpen && !isInited) {
+  if (opened && !isOpen && !isInited) {
     setOpenState(true);
     setInited(true);
-  } else if (!props.opened && isInited) {
+  } else if (!opened && isInited) {
     setInited(false);
     setOpenState(false);
   }
@@ -482,23 +493,27 @@ export default function SnackBar(props: MuiSnackBarProps) {
   });
 
   return (
-    <div ref={ref} role="presentation" className={root.createClassNames()}>
+    <div
+      ref={ref}
+      role="presentation"
+      className={root.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+      {...props}
+    >
       <div className={paper.createClassNames()} role="alert">
-        <div className={messageContainer.createClassNames()}>
-          {props.children}
-        </div>
-        {props.actionButton && (
+        <div className={messageContainer.createClassNames()}>{children}</div>
+        {actionButton && (
           <div className={actionContainer.createClassNames()}>
-            {typeof props.actionButton == "string" ? (
+            {typeof actionButton == "string" ? (
               <Button
                 variant="text"
                 onClick={() => setOpenState(false)}
                 style={{ color: "rgb(0, 121, 107)" }}
               >
-                {props.actionButton}
+                {actionButton}
               </Button>
             ) : (
-              props.actionButton
+              actionButton
             )}
           </div>
         )}

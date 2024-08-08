@@ -6,6 +6,7 @@ import {
 } from "../../style";
 import Paper from "../Paper";
 import { useState } from "react";
+import type { MuiProps } from "../../utils/base";
 
 type DrawerProps = {
   open: boolean;
@@ -13,7 +14,8 @@ type DrawerProps = {
   onOpen?: () => void;
   position?: "top" | "right" | "bottom" | "left";
   children: JSX.Element | JSX.Element[];
-} & React.HTMLAttributes<HTMLDivElement>;
+} & React.HTMLAttributes<HTMLDivElement> &
+  MuiProps;
 
 type Variant = DrawerProps["position"];
 type SuffixType = "opened" | "closed" | "restrained";
@@ -77,10 +79,11 @@ export default function Drawer({
   onClose,
   onOpen,
   style,
+  sx,
   className,
   ...props
 }: DrawerProps) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
   const [displayed, setDisplayed] = useState<"hidden" | "visible">("hidden");
   const currentVariant = position ?? "left";
 
@@ -113,7 +116,7 @@ export default function Drawer({
           transition: "opacity 250ms",
         }}
       />
-      <div className={className ?? "" + drawerBox.createClassNames()}>
+      <div className={`${className || ""} ` + drawerBox.createClassNames()}>
         <Paper
           style={{
             margin: 0,
@@ -122,7 +125,7 @@ export default function Drawer({
             maxHeight: "100%",
             overflowY: "auto",
             borderRadius: "0",
-            ...(style ?? {}),
+            ..._style.styleFromSx,
           }}
           {...props}
         >

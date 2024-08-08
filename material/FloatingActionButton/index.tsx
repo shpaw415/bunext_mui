@@ -48,13 +48,13 @@ class FloatingButtonManager extends MuiBaseStyleUtils<Variants, SuffixType> {
     this.makeDefaultStyle({
       commonStyle: {
         display: "inline-flex",
-        WebkitBoxAlign: "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
-        WebkitBoxPack: "center",
+        "-WebkitBoxPack": "center",
         justifyContent: "center",
         position: "relative",
         boxSizing: "border-box",
-        WebkitTapHighlightColor: "transparent",
+        "-WebkitTapHighlightColor": "transparent",
         outline: "0px",
         border: "0px",
         margin: "0px",
@@ -233,13 +233,23 @@ const FloatingButton = forwardRef<
     >
 >(
   (
-    { children, sx, disabled, onClick, color, size, animateOnClick, ...props },
+    {
+      children,
+      style,
+      sx,
+      disabled,
+      onClick,
+      color,
+      size,
+      animateOnClick,
+      ...props
+    },
     ref
   ) => {
     const [state, setState] = useState<1 | 0>(1);
-    const style = useStyle();
+    const _style = useStyle(sx, style);
     const manager = new FloatingButtonManager({
-      ...style,
+      ..._style,
       staticClassName: "MUI_FloatingButton",
       currentVariant: "default",
     });
@@ -266,6 +276,7 @@ const FloatingButton = forwardRef<
     return (
       <MuiBase
         element="button"
+        style={_style.styleFromSx}
         {...props}
         ref={ref}
         className={manager.createClassNames()}

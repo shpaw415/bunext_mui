@@ -3,13 +3,14 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
+import type { MuiProps } from "../../utils/base";
 
 type MuiAvatarProps = {
   children?: string;
   src?: string;
   alt?: string;
-  style?: React.CSSProperties;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLDivElement>;
 
 type Variant = "default";
 type SuffixType = "";
@@ -26,9 +27,9 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
         margin: "0",
         position: "relative",
         display: "flex",
-        WebkitBoxAlign: "center",
+        "-WebkitBoxAlign": "center",
         alignItems: "center",
-        WebkitBoxPack: "center",
+        "-WebkitBoxPack": "center",
         justifyContent: "center",
         flexShrink: "0",
         width: "40px",
@@ -68,8 +69,16 @@ class Image extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-export default function Avatar(props: MuiAvatarProps) {
-  const _style = useStyle();
+export default function Avatar({
+  sx,
+  style,
+  className,
+  children,
+  src,
+  alt,
+  ...props
+}: MuiAvatarProps) {
+  const _style = useStyle(sx, style);
 
   const root = new Root({
     ..._style,
@@ -84,15 +93,19 @@ export default function Avatar(props: MuiAvatarProps) {
   });
 
   return (
-    <div className={root.createClassNames()} style={props.style || {}}>
-      {(props.src && (
+    <div
+      className={root.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+      {...props}
+    >
+      {(src && (
         <img
-          alt={props.alt || "Avatar"}
-          src={props.src}
+          alt={alt || "Avatar"}
+          src={src}
           className={img.createClassNames()}
         />
       )) ||
-        (props.children && props.children)}
+        (children && children)}
     </div>
   );
 }

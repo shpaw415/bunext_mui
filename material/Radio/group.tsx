@@ -6,12 +6,12 @@ import {
   type MuiBaseStyleUtilsProps,
 } from "../../style";
 import Radio from ".";
-import MuiBase from "../../utils/base";
+import MuiBase, { type MuiProps } from "../../utils/base";
 import Text from "../Typography";
 import { useState } from "react";
 import { Expect } from "../../utils";
 
-type RadioGroupProps = MuiElementProps & {
+type RadioGroupProps = {
   label?: string;
   children: React.ReactNode | React.ReactNode[];
   defaultChecked?: string;
@@ -21,7 +21,8 @@ type RadioGroupProps = MuiElementProps & {
     current: string,
     setCurrent: React.Dispatch<React.SetStateAction<string | undefined>>
   ) => void;
-};
+} & MuiProps &
+  React.HTMLAttributes<HTMLDivElement>;
 
 type Variants = "default";
 type SuffixType = "direction_column" | "direction_row";
@@ -103,10 +104,13 @@ export default function RadioGroup({
   defaultChecked,
   direction,
   onchange,
+  className,
+  sx,
+  style,
   ...props
 }: RadioGroupProps) {
   const [current, setCurrent] = useState<undefined | string>(undefined);
-  const style = useStyle();
+  const _style = useStyle();
   if (!Expect(<Radio />, children))
     throw Error("must be Radio Elements in RadioGroup");
 
@@ -137,7 +141,7 @@ export default function RadioGroup({
   }
 
   const wrapperStyle = new WrapperStyle({
-    ...style,
+    ..._style,
     staticClassName: "Mui_RadioGroup_Wrapper",
     currentVariant: "default",
   });
@@ -145,17 +149,21 @@ export default function RadioGroup({
   const groupStyle = new GroupStyle({
     staticClassName: "Mui_RadioGroup_InputGroup",
     currentVariant: "default",
-    ...style,
+    ..._style,
   }).setProps(direction ? `direction_${direction}` : undefined);
 
   const labelStyle = new LabelStyle({
     staticClassName: "MUI_RadioGroup_Label",
     currentVariant: "default",
-    ...style,
+    ..._style,
   });
 
   return (
-    <MuiBase className={wrapperStyle.createClassNames()} {...props}>
+    <MuiBase
+      className={wrapperStyle.createClassNames() + ` ${className || ""}`}
+      style={_style.styleFromSx}
+      {...props}
+    >
       {label && <Text className={labelStyle.createClassNames()}>{label}</Text>}
       <MuiBase className={groupStyle.createClassNames()}>{NewElements}</MuiBase>
     </MuiBase>

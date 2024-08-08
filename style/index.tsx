@@ -1,7 +1,30 @@
 "use client";
 
-import { createContext, useContext, useState, type CSSProperties } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+} from "react";
 import { RippleCss } from "../material/style/ripple";
+import MuiCss from "../style/style.json";
+
+export type MediaQueryType = {
+  sm: number;
+  md: number;
+  lg: number;
+};
+
+export type SxProps = Partial<React.CSSProperties> &
+  Partial<Record<keyof MediaQueryType, Partial<React.CSSProperties>>>;
+
+export const MediaQueryValues: MediaQueryType = {
+  sm: 425,
+  md: 600,
+  lg: 1200,
+} as const;
 
 export type CssProps =
   | (Partial<React.CSSProperties> &
@@ -26,13 +49,6 @@ export type CssProps =
       >)
   | { [key: string]: string };
 
-type MediaQueryNames = "sm" | "md" | "lg";
-type MediaQueryValues = {
-  lg: 1200;
-  md: 600;
-  sm: 425;
-};
-
 export type MuiStyleControl = {
   className: string;
   defaultStyle: CssProps;
@@ -43,8 +59,14 @@ export type MuiStyleControl = {
 export class _MuiStyleContext {
   ids: string[] = [];
   content: Record<string, string> = {};
+  cssVariables: { id: string; values: Record<MuiTheme["theme"], string> }[] =
+    [];
   update?: React.Dispatch<React.SetStateAction<string>>;
-  timeout?: Timer;
+  updateVariables?: React.Dispatch<
+    React.SetStateAction<
+      { id: string; values: Record<MuiTheme["theme"], string> }[]
+    >
+  >;
 
   constructor() {
     this.createStyle({
@@ -109,16 +131,6 @@ export class _MuiStyleContext {
       .trim()
       .replaceAll(";", ";\n");
   }
-  private _update() {
-    if (!this.update) return;
-    const self = this;
-    if (this.timeout) clearTimeout(this.timeout);
-    this.timeout = setTimeout(() => {
-      if (!self.update) return;
-      self.update(Object.values(this.content).join("\n"));
-      self.timeout = undefined;
-    }, 10);
-  }
 
   private OmitCustomCss(props: CssProps) {
     return Object.assign(
@@ -131,6 +143,15 @@ export class _MuiStyleContext {
           };
         })
     ) as Partial<CssProps>;
+  }
+
+  private _update() {
+    if (!this.update) return;
+    const self = this;
+    setTimeout(() => {
+      if (!self.update) return;
+      self.update(Object.values(this.content).join("\n"));
+    }, 10);
   }
 
   /**
@@ -161,6 +182,7 @@ export class _MuiStyleContext {
     }
 
     this._update();
+
     return {
       className,
       defaultStyle,
@@ -180,11 +202,6 @@ export type MuiBaseStyleUtilsProps<Variant> = {
   styleContext: _MuiStyleContext;
   currentVariant: Exclude<Variant, undefined>;
   staticClassName: string;
-  sxProps?: {
-    sx: Partial<CssProps>;
-    id?: string;
-    bypassRevalidate?: boolean;
-  };
 };
 
 export class MuiBaseStyleUtils<Variant, suffixesType> {
@@ -192,40 +209,29 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
   protected theme: MuiTheme;
   protected styleContext: _MuiStyleContext;
   public staticClassName: string;
+  private VariableCount = 0;
   protected suffixes: Array<suffixesType> = [];
   protected currentSuffix: Array<suffixesType> = [];
   private id?: string;
-  private sxProps?: {
-    sx: Partial<CssProps>;
-    id: string;
-  };
+
   constructor({
     theme,
     styleContext,
     currentVariant,
     staticClassName,
-    sxProps,
   }: MuiBaseStyleUtilsProps<Variant>) {
     this.variant = currentVariant;
     this.theme = theme;
     this.styleContext = styleContext;
     this.staticClassName = staticClassName;
-    if (
-      (sxProps && !sxProps.bypassRevalidate) ||
-      (sxProps && sxProps.id && !this.styleContext.ids.includes(sxProps.id))
-    ) {
-      this.id = `${this.staticClassName}_${sxProps.id}`;
-      this.sxProps = sxProps as any;
-    }
   }
-
-  protected createMediaQuery(maxWidth: number, style: CssProps) {}
 
   protected makeDefaultStyle(
     data: Partial<
       Record<"commonStyle" | Exclude<Variant & string, undefined>, CssProps>
     >
   ) {
+    if (typeof window != "undefined") return;
     this.styleContext.createStyle({
       className: this.staticClassName,
       defaultStyle: data.commonStyle || {},
@@ -256,6 +262,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
     suffix: suffixesType;
     commonStyle?: Partial<CssProps>;
   }) {
+    if (typeof window != "undefined") return;
     if (!this.suffixes.includes(suffix)) this.suffixes.push(suffix);
     if (commonStyle) {
       this.styleContext.createStyle({
@@ -278,6 +285,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
     name: string,
     content: Record<string, Partial<CSSProperties>>
   ) {
+    if (typeof window != "undefined") return "";
     return `@keyframes ${name} { \n${Object.keys(content)
       .map(
         (key) =>
@@ -334,7 +342,6 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
     result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   ) {
     return result ? result.map((i) => parseInt(i, 16)).slice(1) : null;
-    //returns [23, 14, 45] -> reformat if needed
   }
   /**
    * @returns [0-255, 0-255, 0-255, 0.0-1.0]
@@ -347,36 +354,85 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
       .map((e) => (e.includes(".") ? parseFloat(e) : parseInt(e)));
   }
 
-  public colorFromTheme(props: Record<MuiTheme["theme"], string>) {
-    return props[this.theme.theme];
+  private _updateVariables() {
+    const self = this;
+    setTimeout(() => {
+      self.styleContext.updateVariables &&
+        self.styleContext.updateVariables(this.styleContext.cssVariables);
+    }, 10);
   }
 
-  protected makeSx() {
-    if (!this.sxProps?.id) throw new Error("sx prop must be used with id prop");
-    this.styleContext.removeID(this.id as string);
-    this.styleContext.createStyle({
-      className: this.id as string,
-      defaultStyle: this.sxProps.sx,
+  public colorFromTheme(props: Record<MuiTheme["theme"], string>) {
+    const variable = `--${this.staticClassName}-${this.VariableCount}`;
+    this.VariableCount++;
+    this.styleContext.cssVariables.push({
+      id: variable,
+      values: props,
     });
+    this._updateVariables();
+    return `var(${variable})`;
   }
+
   protected alreadyExists() {
     return Boolean(
       this.styleContext.ids.find((e) => e == this.staticClassName)
     );
   }
+
+  static sxToStyle(
+    mediaQuerySize: keyof MediaQueryType,
+    sxProps?: SxProps
+  ): Partial<React.CSSProperties> {
+    if (!sxProps) return {};
+    const SxKeys = Object.keys(MediaQueryValues) as Array<keyof MediaQueryType>;
+    const StyleKeys = Object.keys(sxProps) as Array<keyof SxProps>;
+    return Object.assign(
+      {},
+      ...StyleKeys.map((key) => {
+        if (key == mediaQuerySize) return sxProps[key];
+        else if (SxKeys.includes(key as any)) return undefined;
+        else if (
+          typeof sxProps[mediaQuerySize] != "undefined" &&
+          typeof (sxProps[mediaQuerySize] as any)[key] != "undefined"
+        ) {
+          return { [key]: (sxProps[mediaQuerySize] as any)[key] };
+        } else return { [key]: sxProps[key] };
+      }).filter((e) => e != undefined)
+    ) as Partial<React.CSSProperties>;
+  }
 }
 
+const StyleContent = Object.values(MuiCss).join("");
+
 export function MuiStyle() {
-  const [data, setData] = useState("");
-  const muiStyleClass = useContext(MuiStyleContext);
-  muiStyleClass.update = setData;
+  return (
+    <>
+      <MuiStyleVariable />
+      <style
+        type="text/css"
+        dangerouslySetInnerHTML={{
+          __html: StyleContent,
+        }}
+      />
+    </>
+  );
+}
+
+export function LegacyMuiStyle() {
+  const [value, setValue] = useState("");
+  const styleControl = useContext(MuiStyleContext);
+
+  useEffect(() => {
+    styleControl.update = setValue;
+  }, []);
+
   return (
     <style
       type="text/css"
       suppressHydrationWarning
       suppressContentEditableWarning
       dangerouslySetInnerHTML={{
-        __html: data,
+        __html: value,
       }}
     />
   );
@@ -452,12 +508,105 @@ export const MuiColors = createContext<MuiTheme>({
   theme: "light",
 });
 
-export function useStyle() {
-  const style = useContext(MuiStyleContext);
+class SxPropsController {
+  private Elements: Array<
+    React.Dispatch<React.SetStateAction<keyof MediaQueryType>>
+  > = [];
+  public currentMediaQuery: keyof MediaQueryType = "md";
+  constructor() {
+    if (typeof window == "undefined") return;
+    this.currentMediaQuery = this.getCurrentMediaQuery();
+    const self = this;
+    window.addEventListener("resize", () => {
+      const newSize = this.getCurrentMediaQuery();
+      if (this.currentMediaQuery == newSize) return;
+      this.currentMediaQuery = newSize;
+      self.update(newSize);
+    });
+  }
+  private getCurrentMediaQuery(): keyof MediaQueryType {
+    for (const query of Object.keys(MediaQueryValues).reverse() as Array<
+      keyof MediaQueryType
+    >) {
+      if (window.innerWidth >= MediaQueryValues[query]) return query;
+    }
+    return "md";
+  }
+  private update(newValue: keyof MediaQueryType) {
+    for (const callback of this.Elements) {
+      callback(newValue);
+    }
+  }
+  add(callback: React.Dispatch<React.SetStateAction<keyof MediaQueryType>>) {
+    this.Elements.push(callback);
+  }
+}
+
+export const SxPropsContext = createContext<SxPropsController>(
+  new SxPropsController()
+);
+
+function MuiStyleVariable() {
+  const styleContext = useContext(MuiStyleContext);
   const theme = useContext(MuiColors);
+  const [value, setValue] = useState<
+    { id: string; values: Record<MuiTheme["theme"], string> }[]
+  >([]);
+  styleContext.updateVariables = setValue;
+
+  const computedValue = value.map(
+    (val) => `${val.id}: ${val.values[theme.theme]};`
+  );
+
+  return (
+    <style
+      type="text/css"
+      dangerouslySetInnerHTML={{
+        __html: `:root {${computedValue.join("\n")}}`,
+      }}
+    />
+  );
+}
+
+export function useStyle(sxProps?: SxProps, style?: CssProps) {
+  const _style = useContext(MuiStyleContext);
+  const theme = useContext(MuiColors);
+  const sx = useContext(SxPropsContext);
+  const [currentSx, setSx] = useState<keyof MediaQueryType>(
+    sx.currentMediaQuery
+  );
+  const memorizedStyleFromSx = useMemo(
+    () =>
+      MuiBaseStyleUtils.sxToStyle(currentSx, {
+        ...(style || {}),
+        ...(sxProps || {}),
+      }),
+    [currentSx]
+  );
+  useEffect(() => {
+    sx.add(setSx);
+  }, []);
+  return {
+    styleContext: _style,
+    theme,
+    styleFromSx: memorizedStyleFromSx,
+  };
+}
+/*
+export function useTheme() {
+  const styleContext = useContext(MuiStyleContext);
 
   return {
-    styleContext: style,
-    theme,
-  };
+    update: 
+  }
+}
+*/
+export function ThemeProvider({
+  children,
+  theme,
+}: {
+  children: any;
+  theme: MuiTheme;
+}) {
+  return <MuiColors.Provider value={theme}>{children}</MuiColors.Provider>;
 }
