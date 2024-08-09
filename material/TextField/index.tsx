@@ -13,13 +13,14 @@ import {
   useEffect,
   useState,
   type ReactElement,
+  type ReactNode,
 } from "react";
 import type { MuiProps } from "../../utils/base";
 
 export type TextFieldProps = MuiProps & {
   variant?: "outlined" | "filled" | "standard";
   startIcon?: () => JSX.Element;
-  endIcon?: () => JSX.Element;
+  endIcon?: () => JSX.Element | ReactNode;
   label?: string;
   color?: "error" | "success";
   value?: string;
@@ -908,7 +909,8 @@ const TextField = forwardRef<
       );
     } else if (children) {
       return cloneElement<HTMLSelectElement>(children, {
-        className: InputStyle.createClassNames(),
+        className:
+          InputStyle.createClassNames() + ` ${children.props.className || ""}`,
         ref: textAreaRef,
         ...commonProps,
       });

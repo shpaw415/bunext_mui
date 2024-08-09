@@ -76,7 +76,6 @@ function BuildElement() {
       <Progress />
       <Radio />
       <Rating />
-      <Select />
       <Separator />
       <Skeleton />
       <Slider min={0} max={1} step={1} />
@@ -93,6 +92,9 @@ function BuildElement() {
         <div />
       </ToolTip>
       <Typography>a</Typography>
+      <Select name="a">
+        <option value={1}>a</option>
+      </Select>
     </>
   );
 }
@@ -107,7 +109,6 @@ function Builder() {
 }
 
 async function DoBuild() {
-  console.log("test");
   renderToString(<BuildElement />);
   renderToString(<Builder />);
 
@@ -132,8 +133,7 @@ async function WriteToDisk() {
   await Bun.write(currentPath + "/style.json", JSON.stringify(formatContent()));
 }
 
-if (import.meta.main && process.env.build == "true") {
-  console.log("test");
+if (import.meta.main) {
   await DoBuild();
 }
 

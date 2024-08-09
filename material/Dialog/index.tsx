@@ -23,7 +23,7 @@ type MuiDialogProps = {
    */
   children?: JSX.Element;
 } & MuiProps &
-  React.HTMLAttributes<HTMLDivElement>;
+  Omit<React.HTMLAttributes<HTMLDivElement>, "content">;
 type Variants = "default";
 type SuffixType = "opened" | "closed";
 

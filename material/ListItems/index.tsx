@@ -12,7 +12,7 @@ type Props = {
   Header?: string;
   disablePadding?: boolean;
 } & MuiProps &
-  React.HTMLAttributes<HTMLElement>;
+  React.HTMLAttributes<HTMLDivElement>;
 
 type Variant = "default";
 type SuffixType = "selected" | "noPadding";
@@ -116,24 +116,28 @@ export default function ListItems({
   }
   groupedChildren.push(currentGroup);
 
-  return groupedChildren.flatMap((elArrayORSeparator, index) => {
-    if (Array.isArray(elArrayORSeparator))
-      return (
-        <nav key={index} style={_style.styleFromSx} {...props}>
-          {(groupedChildren[index] as Array<JSX.Element>).flatMap(
-            (elArray, index) => {
-              return (
-                <ul key={index} className={ul.createClassNames()}>
-                  {elArray}
-                </ul>
-              );
-            }
-          )}
-        </nav>
-      );
+  return (
+    <div style={_style.styleFromSx} {...props}>
+      {groupedChildren.flatMap((elArrayORSeparator, index) => {
+        if (Array.isArray(elArrayORSeparator))
+          return (
+            <nav key={index}>
+              {(groupedChildren[index] as Array<JSX.Element>).flatMap(
+                (elArray, index) => {
+                  return (
+                    <ul key={index} className={ul.createClassNames()}>
+                      {elArray}
+                    </ul>
+                  );
+                }
+              )}
+            </nav>
+          );
 
-    return elArrayORSeparator;
-  });
+        return elArrayORSeparator;
+      })}
+    </div>
+  );
 }
 
 type ListItemsElement = {

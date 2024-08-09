@@ -107,6 +107,7 @@ export function useMouseMoveListener(callback: (ev: MouseEvent) => void) {
  */
 export function useMediaQuery() {
   const [currentSx, setSxType] = useState<keyof MediaQueryType>(() => {
+    if (typeof window == "undefined") return "md";
     for (const query of Object.keys(MediaQueryValues).reverse() as Array<
       keyof MediaQueryType
     >) {
