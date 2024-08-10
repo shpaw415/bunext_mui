@@ -1,4 +1,11 @@
 {
-  "version": "0.0.8",
-  "include": ["material", "style", "utils", "README.md", "tsconfig.json"]
+  "version": "0.1.0",
+  "include": [
+    "material",
+    "style",
+    "utils",
+    "README.md",
+    "tsconfig.json",
+    "custom.d.ts"
+  ]
 }

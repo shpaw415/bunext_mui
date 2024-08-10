@@ -410,6 +410,7 @@ export function MuiStyle() {
       <MuiStyleVariable />
       <style
         type="text/css"
+        id="MUI_Base_Style"
         dangerouslySetInnerHTML={{
           __html: StyleContent,
         }}
@@ -586,6 +587,29 @@ export function useStyle(sxProps?: SxProps, style?: CssProps) {
   useEffect(() => {
     sx.add(setSx);
   }, []);
+
+  useEffect(() => {
+    let baseStyle = document.querySelector("#MUI_Base_Style");
+    if (baseStyle) return;
+
+    let head = document.querySelector("head") as HTMLHeadElement;
+
+    if (!head) {
+      document
+        .querySelector("html")
+        ?.insertBefore(
+          document.querySelector("body") as Node,
+          document.createElement("head")
+        );
+      head = document.querySelector("head") as HTMLHeadElement;
+    }
+    baseStyle = document.createElement("style");
+    baseStyle.setAttribute("type", "text/css");
+    baseStyle.setAttribute("id", "MUI_Base_Style");
+    baseStyle.innerHTML = StyleContent;
+    head.appendChild(baseStyle);
+  });
+
   return {
     styleContext: _style,
     theme,

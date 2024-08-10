@@ -263,6 +263,7 @@ class InputTextFieldStyleManager extends MuiBaseStyleUtils<
         width: "100%",
         animationName: "mui-auto-fill-cancel",
         animationDuration: "10ms",
+        cursor: "inherit",
       },
       outlined: {
         background: "inherit",

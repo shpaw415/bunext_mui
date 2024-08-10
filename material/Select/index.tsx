@@ -9,16 +9,15 @@ import type { MuiProps } from "../../utils/base";
 import { forwardRef, useRef, useState } from "react";
 import ArrowDown from "@material-design-icons/svg/filled/arrow_drop_down.svg";
 import ListItems, { ListItemElement } from "../ListItems";
-type SelectProps = {
+
+export type SelectProps = {
   value?: string;
   name: string;
   onSelect?: (name: string) => void;
   defaultValue?: string;
-  variant?: TextFieldProps["variant"];
-  label?: string;
   children: JSX.Element[] | JSX.Element;
 } & MuiProps &
-  React.HTMLAttributes<HTMLInputElement>;
+  Omit<TextFieldProps, "children" | "value">;
 type Variant = SelectProps["variant"];
 type SuffixType = "opened";
 
@@ -67,6 +66,8 @@ class DropDown extends MuiBaseStyleUtils<Variant, SuffixType> {
         transform: "scale(1, 1)",
         opacity: 1,
         top: 55,
+        boxShadow: "2px 2px 2px 1px rgba(0, 0, 0, 0.2)",
+        borderRadius: "10px",
       },
     });
   }
@@ -75,7 +76,6 @@ class DropDown extends MuiBaseStyleUtils<Variant, SuffixType> {
 const Select = forwardRef<HTMLInputElement, SelectProps>(
   (
     {
-      variant,
       sx,
       style,
       className,
@@ -86,6 +86,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       label,
       name,
       onChange,
+      required,
       ...props
     },
     ref
@@ -96,7 +97,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
     const [_value, setValue] = useState("");
     const [displayedValue, setDisplayedValue] = useState("");
     const _ref = useRef(null);
-    const currentVariant = variant || "standard";
+    const currentVariant = props.variant || "standard";
 
     const root = new Root({
       ..._style,
@@ -121,6 +122,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
     const textFielSx: CssProps = {
       caretColor: "transparent",
       width: "100%",
+      cursor: "pointer",
     };
 
     if (value && _value != value) {
@@ -140,7 +142,6 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       >
         <TextField
           label={label}
-          variant={variant}
           value={displayedValue}
           onBlur={() => {
             setTimeout(() => setFocus(false), 100);
@@ -148,37 +149,39 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
           onFocus={() => setFocus(true)}
           endIcon={() => <ArrowDown style={dropDownArrowStyle} />}
           sx={textFielSx}
+          {...props}
         />
-        <ListItems className={dropDown.createClassNames()}>
-          {children.map((child, index) => (
-            <ListItemElement
-              key={index}
-              onClick={() => {
-                const toCall = onSelect
-                  ? () => {
-                      onSelect(child.props?.value || index);
-                    }
-                  : () => {
-                      setDisplayedValue(child.props?.children);
-                      setValue(child.props?.value);
-                    };
+        <div className={dropDown.createClassNames()}>
+          <ListItems>
+            {children.map((child, index) => (
+              <ListItemElement
+                key={index}
+                onClick={() => {
+                  const toCall = onSelect
+                    ? () => {
+                        onSelect(child.props?.value || index);
+                      }
+                    : () => {
+                        setDisplayedValue(child.props?.children);
+                        setValue(child.props?.value);
+                      };
 
-                toCall();
-                onChange && onChange((ref as any)?.current || _ref.current);
-                setFocus(false);
-              }}
-            >
-              {child?.props?.children || ""}
-            </ListItemElement>
-          ))}
-        </ListItems>
+                  toCall();
+                  onChange && onChange((ref as any)?.current || _ref.current);
+                  setFocus(false);
+                }}
+              >
+                {child?.props?.children || ""}
+              </ListItemElement>
+            ))}
+          </ListItems>
+        </div>
         <input
           style={inputStyle}
           ref={ref || _ref}
           name={name}
           value={value || _value}
           readOnly
-          {...props}
         />
       </div>
     );
