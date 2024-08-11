@@ -634,3 +634,8 @@ export function ThemeProvider({
 }) {
   return <MuiColors.Provider value={theme}>{children}</MuiColors.Provider>;
 }
+
+export function useTheme() {
+  const colorContext = useContext(MuiColors);
+  return colorContext;
+}
