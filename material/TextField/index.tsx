@@ -268,7 +268,10 @@ class InputTextFieldStyleManager extends MuiBaseStyleUtils<
       outlined: {
         background: "inherit",
         padding: "16.5px 14px",
-        "-webkit-text-fill-color": "rgba(255, 255, 255, 0.5)",
+        "-webkit-text-fill-color": this.colorFromTheme({
+          light: "rgb(0,0,0)",
+          dark: "rgba(255, 255, 255, 0.5)",
+        }),
         ":focus": {
           outline: "0px",
         },

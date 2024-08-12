@@ -42,7 +42,6 @@ class Root extends MuiBaseStyleUtils<Variants, SuffixTypes> {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        position: "absolute",
         boxSizing: "border-box",
         backgroundColor: "transparent",
         outline: "0px",
