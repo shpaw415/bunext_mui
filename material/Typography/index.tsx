@@ -32,22 +32,16 @@ class Root extends MuiBaseStyleUtils<"default", SuffixType> {
   }
 
   private makeDefault() {
-    const setColorFromTheme = () => {
-      switch (this.theme.theme) {
-        case "dark":
-          return "white";
-        case "light":
-          return "black";
-      }
-    };
-
     this.makeDefaultStyle({
       commonStyle: {
         margin: "0px",
         fontFamily: "Roboto, Helvetica, Arial, sans-serif",
         lineHeight: "1.5",
         letterSpacing: "0.00938em",
-        color: setColorFromTheme(),
+        color: this.colorFromTheme({
+          light: "black",
+          dark: "white",
+        }),
       },
     });
   }
