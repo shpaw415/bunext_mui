@@ -57,7 +57,7 @@ class DrawerBox extends MuiBaseStyleUtils<Variant, SuffixType> {
         flexGrow: 1,
         flexDirection: "column",
         width: "fit-content",
-        maxWidth: "30%",
+        maxWidth: 200,
       },
     });
   }
@@ -125,6 +125,7 @@ export default function Drawer({
             maxHeight: "100%",
             overflowY: "auto",
             borderRadius: "0",
+            minWidth: 200,
             ..._style.styleFromSx,
           }}
           {...props}
