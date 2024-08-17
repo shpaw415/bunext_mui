@@ -639,3 +639,13 @@ export function useTheme() {
   const colorContext = useContext(MuiColors);
   return colorContext;
 }
+
+export function SystemTheme() {
+  if (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    return "dark";
+  }
+  return "light";
+}
