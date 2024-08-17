@@ -1087,6 +1087,7 @@ grid-template-columns:repeat(auto-fit,minmax(80px,1fr));
 }
 .MUI_IconButton_Root {
 display:inline-flex;
+position:relative;
 align-items:center;
 justify-content:center;
 box-sizing:border-box;

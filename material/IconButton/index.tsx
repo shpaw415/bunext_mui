@@ -40,6 +40,7 @@ class Root extends MuiBaseStyleUtils<Variants, SuffixTypes> {
     this.makeDefaultStyle({
       commonStyle: {
         display: "inline-flex",
+        position: "relative",
         alignItems: "center",
         justifyContent: "center",
         boxSizing: "border-box",
