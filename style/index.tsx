@@ -405,6 +405,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
 const StyleContent = Object.values(MuiCss).join("").replaceAll("\n", "");
 
 export function MuiStyle() {
+  const theme = useTheme();
   return (
     <>
       <MuiStyleVariable />
@@ -412,7 +413,13 @@ export function MuiStyle() {
         type="text/css"
         id="MUI_Base_Style"
         dangerouslySetInnerHTML={{
-          __html: StyleContent,
+          __html:
+            StyleContent +
+            `html,body {${new _MuiStyleContext().styleToString({
+              padding: 0,
+              margin: 0,
+              backgroundColor: theme.background[theme.theme],
+            })}}`,
         }}
       />
     </>
@@ -472,6 +479,10 @@ export type MuiTheme = {
     light: Exclude<React.CSSProperties["color"], undefined>;
     dark: Exclude<React.CSSProperties["color"], undefined>;
   };
+  background: {
+    light: Exclude<React.CSSProperties["color"], undefined>;
+    dark: Exclude<React.CSSProperties["color"], undefined>;
+  };
   theme: "light" | "dark";
 };
 
@@ -505,6 +516,10 @@ export const MuiColors = createContext<MuiTheme>({
   success: {
     dark: "rgb(102, 187, 106)",
     light: "rgb(102, 187, 106)",
+  },
+  background: {
+    light: "white",
+    dark: "#0e1217",
   },
   theme: "light",
 });
