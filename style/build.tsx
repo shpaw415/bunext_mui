@@ -34,7 +34,7 @@ import ToolTip from "../material/ToolTip";
 import Typography from "../material/Typography";
 
 import { useContext } from "react";
-import { MuiStyleContext, type MuiTheme } from "./index";
+import { MuiStyleContext } from "./index";
 import { renderToString } from "react-dom/server";
 
 function BuildElement() {
@@ -125,12 +125,17 @@ function formatContent() {
           [key]: content[key],
         };
       })
-  );
+  ) as Record<string, string>;
 }
 
 async function WriteToDisk() {
   const currentPath = import.meta.dirname;
-  await Bun.write(currentPath + "/style.json", JSON.stringify(formatContent()));
+  const content = formatContent();
+  await Bun.write(currentPath + "/style.json", JSON.stringify(content));
+  await Bun.write(
+    currentPath + "/style.css",
+    Object.values(content).join("\n")
+  );
 }
 
 if (import.meta.main) {

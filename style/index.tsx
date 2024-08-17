@@ -33,13 +33,13 @@ export type CssProps =
             ":hover":
               | Partial<React.CSSProperties>
               | Record<string, string | number>;
-            ":active": Partial<React.CSSProperties>;
-            ":link": Partial<React.CSSProperties>;
-            ":visited": Partial<React.CSSProperties>;
-            ":not": Partial<React.CSSProperties>;
-            ":before": Partial<React.CSSProperties>;
-            ":after": Partial<React.CSSProperties>;
-            ":focus": Partial<React.CSSProperties>;
+            ":active": Partial<React.CSSProperties & Record<string, string>>;
+            ":link": Partial<React.CSSProperties & Record<string, string>>;
+            ":visited": Partial<React.CSSProperties & Record<string, string>>;
+            ":not": Partial<React.CSSProperties & Record<string, string>>;
+            ":before": Partial<React.CSSProperties & Record<string, string>>;
+            ":after": Partial<React.CSSProperties & Record<string, string>>;
+            ":focus": Partial<React.CSSProperties & Record<string, string>>;
             /**
              * <!ID!> Is modified with the staticClassName
              */
@@ -402,7 +402,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
   }
 }
 
-const StyleContent = Object.values(MuiCss).join("");
+const StyleContent = Object.values(MuiCss).join("").replaceAll("\n", "");
 
 export function MuiStyle() {
   return (

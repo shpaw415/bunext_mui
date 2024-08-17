@@ -39,20 +39,6 @@ export type TextFieldProps = MuiProps & {
   children?: ReactElement<HTMLSelectElement>;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
-const commonColors = {
-  light: "50, 50, 50",
-  dark: "255, 255, 255",
-};
-
-function makeColor(theme: MuiTheme) {
-  switch (theme.theme) {
-    case "dark":
-      return commonColors.dark;
-    case "light":
-      return commonColors.light;
-  }
-}
-
 type Variants = TextFieldProps["variant"];
 type SuffixTypes =
   | "disabled"
@@ -109,11 +95,12 @@ class LabelTextFieldStyleManager extends MuiBaseStyleUtils<
   }
 
   private makeDefault() {
-    const currentColor = makeColor(this.theme);
-
     this.makeDefaultStyle({
       commonStyle: {
-        color: `rgba(${currentColor}, 0.7)`,
+        color: this.colorFromTheme({
+          light: "rgba(0,0,0, 0.6)",
+          dark: "rgba(255,255,255,0.7)",
+        }),
         fontFamily: "Roboto, Helvetica, Arial, sans-serif",
         fontWeight: "400",
         fontSize: "1rem",
@@ -280,6 +267,38 @@ class InputTextFieldStyleManager extends MuiBaseStyleUtils<
         background: "none",
         "-WebkitTapHighlightColor": "transparent",
         padding: "25px 12px 8px",
+        ":before": {
+          borderBottom: `1px solid ${this.colorFromTheme({
+            light: "rgba(0,0,0, 0.42)",
+            dark: "rgb(255, 255, 255)",
+          })}`,
+          left: "0",
+          bottom: "0",
+          content: '"\x00a0"',
+          position: "absolute",
+          right: "0",
+          "-WebkitTransition":
+            "border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+          transition:
+            "border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+          pointerEvents: "none",
+        },
+        ":after": {
+          borderBottom: "2px solid #1976d2",
+          left: "0",
+          bottom: "0",
+          content: '""',
+          position: "absolute",
+          right: "0",
+          "-WebkitTransform": "scaleX(0)",
+          "-MozTransform": "scaleX(0)",
+          "-MsTransform": "scaleX(0)",
+          transform: "scaleX(0)",
+          "-WebkitTransition":
+            "-webkit-transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms",
+          transition: "transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms",
+          pointerEvents: "none",
+        },
       },
       standard: {
         padding: "4px 0px 5px",
@@ -325,10 +344,12 @@ class HelperTextStyleManager extends MuiBaseStyleUtils<Variants, SuffixTypes> {
     this.makeDefault();
   }
   private makeDefault() {
-    const currentColor = makeColor(this.theme);
     this.makeDefaultStyle({
       commonStyle: {
-        color: `rgba(${currentColor}, 0.7)`,
+        color: this.colorFromTheme({
+          light: "rgba(50, 50, 50, 0.7)",
+          dark: "rgba(255,255,255, 0.7)",
+        }),
         fontFamily: "Roboto, Helvetica, Arial, sans-serif",
         fontWeight: "400",
         fontSize: "0.75rem",
@@ -338,9 +359,6 @@ class HelperTextStyleManager extends MuiBaseStyleUtils<Variants, SuffixTypes> {
         margin: "3px 0px 0px",
         cursor: "default",
       },
-      filled: {},
-      outlined: {},
-      standard: {},
     });
   }
 }
@@ -349,6 +367,10 @@ class BoxTextFieldStyleManager extends MuiBaseStyleUtils<
   Variants,
   SuffixTypes
 > {
+  commonCssVar = this.colorFromTheme({
+    light: "rgb(50, 50, 50)",
+    dark: "rgb(255,255,255)",
+  });
   constructor(
     props: MuiBaseStyleUtilsProps<Variants>,
     animationWrapperStaticClassname: string
@@ -360,8 +382,6 @@ class BoxTextFieldStyleManager extends MuiBaseStyleUtils<
     this.makeDisabled(animationWrapperStaticClassname);
   }
   private makeDefault(animationWrapperStaticClassname: string) {
-    const currentColor = makeColor(this.theme);
-
     this.makeDefaultStyle({
       commonStyle: {
         fontFamily: "Roboto, Helvetica, Arial, sans-serif",
@@ -369,7 +389,7 @@ class BoxTextFieldStyleManager extends MuiBaseStyleUtils<
         fontSize: "1rem",
         lineHeight: "1.4375em",
         letterSpacing: "0.00938em",
-        color: `rgb(${currentColor})`,
+        color: this.commonCssVar,
         boxSizing: "border-box",
         cursor: "text",
         display: "inline-flex",
@@ -381,21 +401,68 @@ class BoxTextFieldStyleManager extends MuiBaseStyleUtils<
         borderRadius: "4px",
         background: "inherit",
         ":hover": {
-          borderColor: `rgb(${currentColor})`,
+          borderColor: this.commonCssVar,
         },
       },
       filled: {
-        backgroundColor: `rgba(${currentColor}, 0.09)`,
+        backgroundColor: this.colorFromTheme({
+          light: "rgba(50,50,50, 0.09)",
+          dark: "rgba(255,255,255, 0.09)",
+        }),
         borderTopLeftRadius: "4px",
         borderTopRightRadius: "4px",
         transition: "background-color 200ms cubic-bezier(0, 0, 0.2, 1) 0ms",
-        borderBottom: `1px solid rgba(${currentColor}, 0.8)`,
+        borderBottom:
+          `1px solid ` +
+          this.colorFromTheme({
+            light: "rgba(50,50,50, 0.8)",
+            dark: "rbga(255,255,255, 0.8)",
+          }),
         ":hover": {
-          backgroundColor: `rgba(${currentColor}, 0.13)`,
+          backgroundColor: this.colorFromTheme({
+            light: "rgba(50,50,50, 0.13)",
+            dark: "rgba(255,255,255, 0.13)",
+          }),
         },
       },
       standard: {
-        ":customStyle": `.<!ID!>:hover .${animationWrapperStaticClassname} { height: 2px; background-color: rgb(${currentColor}); }`,
+        ":customStyle": `.<!ID!>:hover .${animationWrapperStaticClassname} { height: 2px; background-color: ${this.commonCssVar}; }`,
+        ":before": {
+          borderBottom:
+            "1px solid " +
+            this.colorFromTheme({
+              light: "rgba(0, 0, 0, 0.42)",
+              dark: "rgba(255,255,255,0.7)",
+            }),
+          backgroundColor: "transparent",
+          left: "0",
+          bottom: "0",
+          content: '""',
+          position: "absolute",
+          right: "0",
+          "-WebkitTransition":
+            "border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+          transition:
+            "border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+          pointerEvents: "none",
+        },
+        ":after": {
+          borderBottom:
+            "2px solid " +
+            this.colorFromTheme({
+              light: this.theme.primary.light,
+              dark: this.theme.primary.dark,
+            }),
+          left: "0px",
+          backgroundColor: "transparent",
+          bottom: "0px",
+          content: '""',
+          position: "absolute",
+          right: "0px",
+          transform: "scaleX(0)",
+          transition: "transform 200ms cubic-bezier(0, 0, 0.2, 1) 0ms",
+          pointerEvents: "none",
+        },
       },
     });
   }
@@ -406,8 +473,6 @@ class BoxTextFieldStyleManager extends MuiBaseStyleUtils<
         filled: {
           borderBottom: `1px solid ${this.theme.error[this.theme.theme]}`,
         },
-        outlined: {},
-        standard: {},
       },
     });
     this.makeStyleFor({
@@ -416,8 +481,6 @@ class BoxTextFieldStyleManager extends MuiBaseStyleUtils<
         filled: {
           borderBottom: `1px solid ${this.theme.success[this.theme.theme]}`,
         },
-        outlined: {},
-        standard: {},
       },
     });
   }
@@ -426,12 +489,14 @@ class BoxTextFieldStyleManager extends MuiBaseStyleUtils<
       suffix: "disabled",
       variants: {
         standard: {
-          ":customStyle": `.<!ID!>:hover .${animationWrapperStaticClassname} { height: 1px; background-color: rgba(${makeColor(
-            this.theme
-          )}, 0.7); }`,
+          ":customStyle":
+            `.<!ID!>:hover .${animationWrapperStaticClassname} { height: 1px; background-color: ` +
+            this.colorFromTheme({
+              light: "rgba(50,50,50, 0.7)",
+              dark: "rgba(255,255,255, 0.7)",
+            }) +
+            "}",
         },
-        filled: {},
-        outlined: {},
       },
     });
   }
@@ -446,7 +511,6 @@ class FieldSetStyleManager extends MuiBaseStyleUtils<Variants, SuffixTypes> {
     this.makeColors();
   }
   private makeDefault() {
-    const currentColor = makeColor(this.theme);
     this.makeDefaultStyle({
       commonStyle: {
         textAlign: "left",
@@ -460,15 +524,18 @@ class FieldSetStyleManager extends MuiBaseStyleUtils<Variants, SuffixTypes> {
         borderWidth: "1px",
         overflow: "hidden",
         minWidth: "0%",
-        borderColor: `rgba(${currentColor}, 0.23)`,
+        borderColor: this.colorFromTheme({
+          light: "rgba(50,50,50, 0.23)",
+          dark: "rgba(255,255,255, 0.23)",
+        }),
         ":hover": {
-          borderColor: `rgba(${currentColor}, 1)`,
+          borderColor: this.colorFromTheme({
+            light: "rgb(50,50,50)",
+            dark: "rgb(255,255,255)",
+          }),
           background: "red",
         },
       },
-      filled: {},
-      outlined: {},
-      standard: {},
     });
   }
   private makeFocus() {
@@ -490,8 +557,6 @@ class FieldSetStyleManager extends MuiBaseStyleUtils<Variants, SuffixTypes> {
       suffix: "color_success",
       commonStyle: {},
       variants: {
-        standard: {},
-        filled: {},
         outlined: {
           borderColor: this.theme.error[this.theme.theme],
           borderWidth: "2px",
@@ -502,8 +567,6 @@ class FieldSetStyleManager extends MuiBaseStyleUtils<Variants, SuffixTypes> {
       suffix: "color_error",
       commonStyle: {},
       variants: {
-        standard: {},
-        filled: {},
         outlined: {
           borderColor: this.theme.error[this.theme.theme],
           borderWidth: "2px",
@@ -586,10 +649,12 @@ class AnimationWrapperStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
     this.makeColors();
   }
   private makeDefault() {
-    const currentColor = makeColor(this.theme);
     this.makeDefaultStyle({
       commonStyle: {
-        backgroundColor: `rgba(${currentColor}, 0.7)`,
+        backgroundColor: this.colorFromTheme({
+          light: "rgba(50,50,50, 0.7)",
+          dark: "rgba(255,255,255, 0.7)",
+        }),
         height: "1px",
         left: "0px",
         bottom: "0px",
@@ -600,9 +665,6 @@ class AnimationWrapperStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
           "border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
         pointerEvents: "none",
       },
-      filled: {},
-      outlined: {},
-      standard: {},
     });
   }
   private makeColors() {
@@ -611,21 +673,11 @@ class AnimationWrapperStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
       commonStyle: {
         backgroundColor: this.theme.success[this.theme.theme],
       },
-      variants: {
-        filled: {},
-        outlined: {},
-        standard: {},
-      },
     });
     this.makeStyleFor({
       suffix: "color_error",
       commonStyle: {
         backgroundColor: this.theme.error[this.theme.theme],
-      },
-      variants: {
-        filled: {},
-        outlined: {},
-        standard: {},
       },
     });
   }
@@ -652,9 +704,6 @@ class AnimationStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
         pointerEvents: "none",
         transform: "scaleX(0)",
       },
-      filled: {},
-      outlined: {},
-      standard: {},
     });
   }
   private makeColors() {
@@ -663,21 +712,11 @@ class AnimationStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
       commonStyle: {
         borderBottom: `2px solid ${this.theme.success[this.theme.theme]}`,
       },
-      variants: {
-        filled: {},
-        outlined: {},
-        standard: {},
-      },
     });
     this.makeStyleFor({
       suffix: "color_error",
       commonStyle: {
         borderBottom: `2px solid ${this.theme.error[this.theme.theme]}`,
-      },
-      variants: {
-        filled: {},
-        outlined: {},
-        standard: {},
       },
     });
   }
@@ -686,11 +725,6 @@ class AnimationStyle extends MuiBaseStyleUtils<Variants, SuffixTypes> {
       suffix: "focus",
       commonStyle: {
         transform: "scaleX(1) translateX(0px)",
-      },
-      variants: {
-        filled: {},
-        outlined: {},
-        standard: {},
       },
     });
   }
@@ -727,7 +761,6 @@ class TextAreaStyle extends MuiBaseStyleUtils<"default", "none"> {
           outline: "none",
         },
       },
-      default: {},
     });
   }
 }
