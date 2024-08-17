@@ -640,7 +640,7 @@ export function useTheme() {
   return colorContext;
 }
 
-export function SystemTheme() {
+export function SystemTheme(): "dark" | "light" {
   if (
     window.matchMedia &&
     window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -648,4 +648,19 @@ export function SystemTheme() {
     return "dark";
   }
   return "light";
+}
+/**
+ * will update if the system theme updates
+ * @returns the current system theme
+ */
+export function useSystemTheme() {
+  const [current, set] = useState(SystemTheme());
+
+  window
+    .matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", (event) => {
+      set(event.matches ? "dark" : "light");
+    });
+
+  return current;
 }
