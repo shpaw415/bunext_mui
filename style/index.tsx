@@ -582,7 +582,7 @@ export function useStyle(sxProps?: SxProps, style?: CssProps) {
         ...(style || {}),
         ...(sxProps || {}),
       }),
-    [currentSx]
+    [currentSx, sxProps, style]
   );
   useEffect(() => {
     sx.add(setSx);
