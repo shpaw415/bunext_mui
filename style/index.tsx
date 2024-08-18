@@ -548,7 +548,7 @@ class SxPropsController {
     >) {
       if (window.innerWidth >= MediaQueryValues[query]) return query;
     }
-    return "sm";
+    return "md";
   }
   private update(newValue: keyof MediaQueryType) {
     for (const callback of this.Elements) {
