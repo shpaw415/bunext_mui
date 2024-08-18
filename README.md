@@ -11,3 +11,9 @@ import { MuiStyle } from "@bunpmjs/bunext_material/style";
     <MuiStyle />
 </Shell>
 ```
+
+# Change Log
+
+## 0.1.6
+
+    - Fix Error: "Can't find variable: window" when using SystemTheme();

@@ -657,8 +657,9 @@ export function useTheme() {
 
 export function SystemTheme(): "dark" | "light" {
   if (
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
+    typeof window == "undefined" ||
+    (window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches)
   ) {
     return "dark";
   }
@@ -671,11 +672,13 @@ export function SystemTheme(): "dark" | "light" {
 export function useSystemTheme() {
   const [current, set] = useState(SystemTheme());
 
-  window
-    .matchMedia("(prefers-color-scheme: dark)")
-    .addEventListener("change", (event) => {
-      set(event.matches ? "dark" : "light");
-    });
+  useEffect(() => {
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (event) => {
+        set(event.matches ? "dark" : "light");
+      });
+  }, []);
 
   return current;
 }
