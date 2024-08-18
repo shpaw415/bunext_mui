@@ -35,4 +35,8 @@ function MainLayout({children}:{children: JSX.Element}) {
 
 ## 0.1.6
 
-    - Fix Error: "Can't find variable: window" when using SystemTheme();
+- Fix Error: "Can't find variable: window" when using SystemTheme();
+
+## 0.1.7
+
+- Add xs to the sx props of Mui Element
