@@ -1,15 +1,34 @@
 # bunext_mui ( in devloppement )
 
-## how to use
+## Usage
 
-insert MuiStyle somewhere in your code
+Set the Dark or Light Theme
 
 ```Javascript XML
-import { MuiStyle } from "@bunpmjs/bunext_material/style";
+// /layout.tsx
+import {
+  MuiStyle,
+  SystemTheme,
+  ThemeProvider,
+  useTheme,
+} from "@bunpmjs/bunext_material/style";
 
-<Shell>
-    <MuiStyle />
-</Shell>
+export function Layout({children}:{children: JSX.Element}) {
+    return <MainLayout>{children}</MainLayout>
+}
+
+function MainLayout({children}:{children: JSX.Element}) {
+    const theme = useTheme();
+    theme.theme = SystemTheme();
+
+    return (
+     <ThemeProvider theme={theme}>
+        <MuiStyle />
+        {children}
+     </ThemeProvider>
+    );
+}
+
 ```
 
 # Change Log
