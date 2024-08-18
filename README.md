@@ -40,3 +40,4 @@ function MainLayout({children}:{children: JSX.Element}) {
 ## 0.1.7
 
 - Add xs to the sx props of Mui Element
+- Fix SR not showing the current sx causing hydration error

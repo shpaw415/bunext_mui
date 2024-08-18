@@ -382,13 +382,14 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
   }
 
   static sxToStyle(
-    mediaQuerySize: keyof MediaQueryType,
+    mediaQuerySize?: keyof MediaQueryType,
     sxProps?: SxProps
   ): Partial<React.CSSProperties> {
     if (!sxProps) return {};
     const SxKeys = Object.keys(MediaQueryValues) as Array<keyof MediaQueryType>;
     const StyleKeys = Object.keys(sxProps) as Array<keyof SxProps>;
-    let hasSxMediaQueryKey = StyleKeys.includes(mediaQuerySize);
+    let hasSxMediaQueryKey =
+      mediaQuerySize && StyleKeys.includes(mediaQuerySize);
     const ReturnAndSet = (key: keyof MediaQueryType) => {
       hasSxMediaQueryKey = true;
       return sxProps[key] as Partial<CSSProperties>;
@@ -398,7 +399,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
       ...StyleKeys.map((key) => {
         if (key == mediaQuerySize) return sxProps[key];
         else if (SxKeys.includes(key as keyof MediaQueryType)) {
-          if (hasSxMediaQueryKey) return undefined;
+          if (hasSxMediaQueryKey || !mediaQuerySize) return undefined;
           else if (mediaQuerySize == "xs") {
             if (sxProps?.sm) return ReturnAndSet("sm");
             else if (sxProps?.md) return ReturnAndSet("md");
@@ -410,6 +411,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
             if (sxProps?.lg) return ReturnAndSet("lg");
           }
         } else if (
+          mediaQuerySize &&
           typeof sxProps[mediaQuerySize] != "undefined" &&
           typeof (sxProps[mediaQuerySize] as any)[key] != "undefined"
         ) {
@@ -546,19 +548,20 @@ class SxPropsController {
   private Elements: Array<
     React.Dispatch<React.SetStateAction<keyof MediaQueryType>>
   > = [];
-  public currentMediaQuery: keyof MediaQueryType = "md";
+  private privateEffectTimer?: Timer;
+  public currentMediaQuery: keyof MediaQueryType = "sm";
   constructor() {
     if (typeof window == "undefined") return;
-    this.currentMediaQuery = this.getCurrentMediaQuery();
     const self = this;
-    window.addEventListener("resize", () => {
-      const newSize = this.getCurrentMediaQuery();
-      if (this.currentMediaQuery == newSize) return;
-      this.currentMediaQuery = newSize;
-      self.update(newSize);
-    });
+    window.addEventListener("resize", () => self.makeUpdate());
   }
-  private getCurrentMediaQuery(): keyof MediaQueryType {
+  private makeUpdate() {
+    const newSize = this.getCurrentMediaQuery();
+    if (this.currentMediaQuery == newSize) return;
+    this.currentMediaQuery = newSize;
+    this.update(newSize);
+  }
+  public getCurrentMediaQuery(): keyof MediaQueryType {
     for (const query of Object.keys(MediaQueryValues).reverse() as Array<
       keyof MediaQueryType
     >) {
@@ -618,6 +621,7 @@ export function useStyle(sxProps?: SxProps, style?: CssProps) {
     [currentSx, sxProps, style]
   );
   useEffect(() => {
+    setSx(sx.getCurrentMediaQuery());
     sx.add(setSx);
   }, []);
 
