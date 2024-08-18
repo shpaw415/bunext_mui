@@ -12,6 +12,7 @@ import { RippleCss } from "../material/style/ripple";
 import MuiCss from "../style/style.json";
 
 export type MediaQueryType = {
+  xs: number;
   sm: number;
   md: number;
   lg: number;
@@ -21,6 +22,7 @@ export type SxProps = Partial<React.CSSProperties> &
   Partial<Record<keyof MediaQueryType, Partial<React.CSSProperties>>>;
 
 export const MediaQueryValues: MediaQueryType = {
+  xs: 0,
   sm: 425,
   md: 600,
   lg: 1200,
@@ -546,7 +548,7 @@ class SxPropsController {
     >) {
       if (window.innerWidth >= MediaQueryValues[query]) return query;
     }
-    return "md";
+    return "sm";
   }
   private update(newValue: keyof MediaQueryType) {
     for (const callback of this.Elements) {
