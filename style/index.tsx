@@ -388,12 +388,28 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
     if (!sxProps) return {};
     const SxKeys = Object.keys(MediaQueryValues) as Array<keyof MediaQueryType>;
     const StyleKeys = Object.keys(sxProps) as Array<keyof SxProps>;
+    let hasSxMediaQueryKey = StyleKeys.includes(mediaQuerySize);
+    const ReturnAndSet = (key: keyof MediaQueryType) => {
+      hasSxMediaQueryKey = true;
+      return sxProps[key] as Partial<CSSProperties>;
+    };
     return Object.assign(
       {},
       ...StyleKeys.map((key) => {
         if (key == mediaQuerySize) return sxProps[key];
-        else if (SxKeys.includes(key as any)) return undefined;
-        else if (
+        else if (SxKeys.includes(key as keyof MediaQueryType)) {
+          if (hasSxMediaQueryKey) return undefined;
+          else if (mediaQuerySize == "xs") {
+            if (sxProps?.sm) return ReturnAndSet("sm");
+            else if (sxProps?.md) return ReturnAndSet("md");
+            else if (sxProps?.lg) return ReturnAndSet("lg");
+          } else if (mediaQuerySize == "sm") {
+            if (sxProps?.md) return ReturnAndSet("md");
+            else if (sxProps?.lg) return ReturnAndSet("lg");
+          } else if (mediaQuerySize == "md") {
+            if (sxProps?.lg) return ReturnAndSet("lg");
+          }
+        } else if (
           typeof sxProps[mediaQuerySize] != "undefined" &&
           typeof (sxProps[mediaQuerySize] as any)[key] != "undefined"
         ) {
@@ -633,15 +649,7 @@ export function useStyle(sxProps?: SxProps, style?: CssProps) {
     styleFromSx: memorizedStyleFromSx,
   };
 }
-/*
-export function useTheme() {
-  const styleContext = useContext(MuiStyleContext);
 
-  return {
-    update: 
-  }
-}
-*/
 export function ThemeProvider({
   children,
   theme,
