@@ -354,13 +354,13 @@ export function ListItemElement({
     currentVariant: "default",
   });
 
-  const startIconRoot = new StartIconRoot({
+  const IconRoot = new StartIconRoot({
     ..._style,
     staticClassName: "MUI_ListItem_li_StartIcon_Root",
     currentVariant: "default",
   });
 
-  const startIconSVG = new StartIconSVG({
+  const IconSVG = new StartIconSVG({
     ..._style,
     staticClassName: "MUI_ListItem_li_StartIcon_SVG",
     currentVariant: "default",
@@ -383,15 +383,15 @@ export function ListItemElement({
         {...props}
       >
         {StartElement && (
-          <div className={startIconRoot.createClassNames()}>
+          <div className={IconRoot.createClassNames()}>
             {cloneElement<HTMLElement>(StartElement, {
-              className: `${startIconSVG.createClassNames()} ${
+              className: `${IconSVG.createClassNames()} ${
                 StartElement.props.className || ""
               }`,
             })}
           </div>
         )}
-        {inset && <div className={startIconRoot.createClassNames()} />}
+        {inset && <div className={IconRoot.createClassNames()} />}
         {typeof children == "string" ? (
           <div className={contentWrapper.createClassNames()}>
             <Typography>{children}</Typography>
@@ -404,7 +404,16 @@ export function ListItemElement({
         )}
 
         {EndElement && (
-          <div onClick={(e) => e.stopPropagation()}>{EndElement}</div>
+          <div
+            className={IconRoot.createClassNames()}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {cloneElement<HTMLElement>(EndElement, {
+              className: `${IconSVG.createClassNames()} ${
+                EndElement.props.className || ""
+              }`,
+            })}
+          </div>
         )}
       </MuiBase>
     </li>
