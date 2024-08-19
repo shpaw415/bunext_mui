@@ -868,7 +868,7 @@ display:flex;
 flex-grow:1;
 flex-direction:column;
 width:fit-content;
-max-width:200;
+max-width:250;
 
 }
 .MUI_Drawer_Box_closed_left {

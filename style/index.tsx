@@ -422,7 +422,33 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
   }
 }
 
-const StyleContent = Object.values(MuiCss).join("").replaceAll("\n", "");
+const defaultCss = `
+body,
+html {
+  padding: 0;
+  margin: 0;
+  max-width: 100dvw;
+  width: 100dvw;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+*::-webkit-scrollbar {
+  width: 7px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #262624;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #4d4b49;
+  border-radius: 2px;
+}
+`;
+
+const StyleContent =
+  Object.values(MuiCss).join("").replaceAll("\n", "") + defaultCss;
 
 export function MuiStyle() {
   const theme = useTheme();
@@ -436,8 +462,6 @@ export function MuiStyle() {
           __html:
             StyleContent +
             `html,body {${new _MuiStyleContext().styleToString({
-              padding: 0,
-              margin: 0,
               backgroundColor: theme.background[theme.theme],
             })}}`,
         }}

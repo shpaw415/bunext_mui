@@ -45,3 +45,7 @@ function MainLayout({children}:{children: JSX.Element}) {
 ## 0.1.8
 
 - Fix EndElement from ListItemElement now showing the right color by default
+
+## 0.1.9
+
+- Scrollbar modified

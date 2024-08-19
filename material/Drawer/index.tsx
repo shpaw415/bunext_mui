@@ -5,7 +5,7 @@ import {
   type MuiBaseStyleUtilsProps,
 } from "../../style";
 import Paper from "../Paper";
-import { useState } from "react";
+import React, { useState } from "react";
 import type { MuiProps } from "../../utils/base";
 
 type DrawerProps = {
@@ -14,6 +14,7 @@ type DrawerProps = {
   onOpen?: () => void;
   position?: "top" | "right" | "bottom" | "left";
   children: JSX.Element | JSX.Element[];
+  width?: React.CSSProperties["width"];
 } & React.HTMLAttributes<HTMLDivElement> &
   MuiProps;
 
@@ -57,7 +58,7 @@ class DrawerBox extends MuiBaseStyleUtils<Variant, SuffixType> {
         flexGrow: 1,
         flexDirection: "column",
         width: "fit-content",
-        maxWidth: 200,
+        maxWidth: 250,
       },
     });
   }
@@ -81,6 +82,7 @@ export default function Drawer({
   style,
   sx,
   className,
+  width,
   ...props
 }: DrawerProps) {
   const _style = useStyle(sx, style);
@@ -116,7 +118,12 @@ export default function Drawer({
           transition: "opacity 250ms",
         }}
       />
-      <div className={`${className || ""} ` + drawerBox.createClassNames()}>
+      <div
+        className={`${className || ""} ` + drawerBox.createClassNames()}
+        style={{
+          maxWidth: width,
+        }}
+      >
         <Paper
           style={{
             margin: 0,
@@ -125,7 +132,7 @@ export default function Drawer({
             maxHeight: "100%",
             overflowY: "auto",
             borderRadius: "0",
-            minWidth: 200,
+            minWidth: width || 250,
             ..._style.styleFromSx,
           }}
           {...props}
