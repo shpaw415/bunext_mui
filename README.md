@@ -41,3 +41,7 @@ function MainLayout({children}:{children: JSX.Element}) {
 
 - Add xs to the sx props of Mui Element
 - Fix SR not showing the current sx causing hydration error
+
+## 0.1.8
+
+- Fix EndElement from ListItemElement now showing the right color by default
