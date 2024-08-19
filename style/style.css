@@ -950,6 +950,10 @@ flex-shrink:0;
 display:inline-flex;
 
 }
+.MUI_ListItem_EndElement_Root {
+color:var(--MUI_ListItem_EndElement_Root-0);
+
+}
 .MUI_ListItem_li_StartIcon_SVG {
 ---webkit-user-select:none;
 ---moz-user-select:none;

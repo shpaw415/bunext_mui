@@ -275,6 +275,24 @@ class StartIconRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
+class EndIconRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
+  constructor(props: MuiBaseStyleUtilsProps<Variant>) {
+    super(props);
+    if (this.alreadyExists()) return;
+    this.makeDefault();
+  }
+  private makeDefault() {
+    this.makeDefaultStyle({
+      commonStyle: {
+        color: this.colorFromTheme({
+          light: "rgba(0, 0, 0, 0.54)",
+          dark: "rgb(255, 255, 255)",
+        }),
+      },
+    });
+  }
+}
+
 class StartIconSVG extends MuiBaseStyleUtils<Variant, SuffixType> {
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
     super(props);
@@ -360,6 +378,12 @@ export function ListItemElement({
     currentVariant: "default",
   });
 
+  const endIconRoot = new EndIconRoot({
+    ..._style,
+    staticClassName: "MUI_ListItem_EndElement_Root",
+    currentVariant: "default",
+  });
+
   const IconSVG = new StartIconSVG({
     ..._style,
     staticClassName: "MUI_ListItem_li_StartIcon_SVG",
@@ -405,8 +429,8 @@ export function ListItemElement({
 
         {EndElement && (
           <div
-            className={IconRoot.createClassNames()}
             onClick={(e) => e.stopPropagation()}
+            className={endIconRoot.createClassNames()}
           >
             {cloneElement<HTMLElement>(EndElement, {
               className: `${IconSVG.createClassNames()} ${
