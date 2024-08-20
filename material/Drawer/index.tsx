@@ -53,7 +53,7 @@ class DrawerBox extends MuiBaseStyleUtils<Variant, SuffixType> {
     this.makeDefaultStyle({
       commonStyle: {
         transform: "none",
-        transition: "transform 700ms cubic-bezier(0, 0, 0.2, 1) 0ms",
+        transition: "transform 700ms cubic-bezier(0, 0, 0.2, 1)",
         display: "flex",
         flexGrow: 1,
         flexDirection: "column",
