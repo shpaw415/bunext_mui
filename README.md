@@ -50,3 +50,4 @@ function MainLayout({children}:{children: JSX.Element}) {
 
 - Scrollbar modified
 - modified default body,html style
+- Fix drawer Width and now respond correctly

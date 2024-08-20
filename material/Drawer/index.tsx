@@ -53,12 +53,10 @@ class DrawerBox extends MuiBaseStyleUtils<Variant, SuffixType> {
     this.makeDefaultStyle({
       commonStyle: {
         transform: "none",
-        transition: "transform 700ms cubic-bezier(0, 0, 0.2, 1)",
+        transition: "transform 350ms cubic-bezier(0, 0, 0.2, 1)",
         display: "flex",
-        flexGrow: 1,
         flexDirection: "column",
         width: "fit-content",
-        maxWidth: 250,
       },
     });
   }
@@ -67,7 +65,7 @@ class DrawerBox extends MuiBaseStyleUtils<Variant, SuffixType> {
       suffix: "closed",
       variants: {
         left: {
-          transform: "translateX(-200%)",
+          transform: "translateX(-100%)",
         },
       },
     });
@@ -118,13 +116,7 @@ export default function Drawer({
           transition: "opacity 250ms",
         }}
       />
-      <div
-        className={`${className || ""} ` + drawerBox.createClassNames()}
-        style={{
-          minWidth: width,
-          width: width,
-        }}
-      >
+      <div className={`${className || ""} ` + drawerBox.createClassNames()}>
         <Paper
           style={{
             margin: 0,
@@ -133,7 +125,7 @@ export default function Drawer({
             maxHeight: "100%",
             overflowY: "auto",
             borderRadius: "0",
-            minWidth: width || 250,
+            width: displayed ? width || 250 : 0,
             ..._style.styleFromSx,
           }}
           {...props}

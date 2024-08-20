@@ -863,16 +863,14 @@ display:flex;
 }
 .MUI_Drawer_Box {
 transform:none;
-transition:transform 700ms cubic-bezier(0, 0, 0.2, 1);
+transition:transform 350ms cubic-bezier(0, 0, 0.2, 1);
 display:flex;
-flex-grow:1;
 flex-direction:column;
 width:fit-content;
-max-width:250;
 
 }
 .MUI_Drawer_Box_closed_left {
-transform:translateX(-200%);
+transform:translateX(-100%);
 
 }
 .MUI_ListItem_ul {
