@@ -54,3 +54,7 @@ function MainLayout({children}:{children: JSX.Element}) {
 - Badge sx is now set to the badge itself
 - SpeedDialElement is now theme color receptive and Element is now use has a IconButton using his props
 - Fix CSS Variables initialized multiple time
+
+## 0.1.10
+
+- Box is now forwardRef

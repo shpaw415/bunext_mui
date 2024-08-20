@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { useStyle } from "../../style";
 import type { MuiProps } from "../../utils/base";
 type BoxProps = {
@@ -5,23 +6,21 @@ type BoxProps = {
   children?: any;
 } & MuiProps &
   React.HTMLAttributes<HTMLDivElement>;
-type Variant = "default";
-type SuffixType = "";
 
-export default function Box({
-  sx,
-  style,
-  children,
-  variant,
-  ...props
-}: BoxProps) {
-  const _style = useStyle(sx, style);
+const Box = forwardRef<HTMLElement, BoxProps>(
+  ({ sx, style, children, variant, ...props }, ref) => {
+    const _style = useStyle(sx, style);
 
-  const El = variant || <div />;
+    const El = variant || <div />;
 
-  return (
-    <El.type style={_style.styleFromSx} {...props}>
-      {children}
-    </El.type>
-  );
-}
+    return (
+      <El.type style={_style.styleFromSx} {...props} ref={ref}>
+        {children}
+      </El.type>
+    );
+  }
+);
+
+Box.displayName = "Box";
+
+export default Box;
