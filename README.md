@@ -49,3 +49,4 @@ function MainLayout({children}:{children: JSX.Element}) {
 ## 0.1.9
 
 - Scrollbar modified
+- modified default body,html style

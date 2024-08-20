@@ -53,7 +53,7 @@ class DrawerBox extends MuiBaseStyleUtils<Variant, SuffixType> {
     this.makeDefaultStyle({
       commonStyle: {
         transform: "none",
-        transition: "transform 350ms cubic-bezier(0, 0, 0.2, 1) 0ms",
+        transition: "transform 700ms cubic-bezier(0, 0, 0.2, 1) 0ms",
         display: "flex",
         flexGrow: 1,
         flexDirection: "column",
@@ -67,7 +67,7 @@ class DrawerBox extends MuiBaseStyleUtils<Variant, SuffixType> {
       suffix: "closed",
       variants: {
         left: {
-          transform: "translateX(-100%)",
+          transform: "translateX(-200%)",
         },
       },
     });
