@@ -140,11 +140,10 @@ export default function Badge({
   return (
     <span
       className={root.createClassNames() + ` ${className || ""}`}
-      style={_style.styleFromSx}
       {...props}
     >
       {props.children}
-      <span className={badge.createClassNames()}>
+      <span className={badge.createClassNames()} style={_style.styleFromSx}>
         {badgeContent && currentVariant == "default" && badgeContent}
       </span>
     </span>

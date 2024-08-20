@@ -2,13 +2,14 @@ import FloatingButton from "../FloatingActionButton";
 import {
   MuiBaseStyleUtils,
   useStyle,
+  useTheme,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
 import AddSvg from "@material-design-icons/svg/filled/add.svg";
 import { cloneElement, useCallback, useState } from "react";
 import { useClickAwayListener } from "../../utils";
 import ToolTip from "../ToolTip";
-import IconButton from "../IconButton";
+import IconButton, { type MuiIconButtonProps } from "../IconButton";
 import Backdrop from "../Backdrop";
 import type { MuiProps } from "../../utils/base";
 type SpeedDialProps = {
@@ -274,7 +275,7 @@ type SpeedDialElementProps = {
   description?: string;
   children: JSX.Element;
   position?: "left" | "right" | "top" | "bottom";
-};
+} & MuiIconButtonProps;
 
 class MenuElementRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
@@ -294,33 +295,41 @@ class MenuElementRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
       },
     });
   }
+  public setColorVariableForElement() {
+    return this.colorFromTheme({
+      light: "rgba(0, 0, 0, 0.6)",
+      dark: "rgba(255,255,255, 0.6)",
+    });
+  }
 }
 
 export function SpeedDialElement({
   children,
   description,
   position,
+  ...props
 }: SpeedDialElementProps) {
   const _style = useStyle();
-  const StandAloneIcon = (
-    <IconButton
-      style={{
-        boxShadow: "4px 4px 20px 0px #0000003d",
-        color: "rgba(0, 0, 0, 0.6)",
-        overflow: "hidden",
-      }}
-    >
-      {children}
-    </IconButton>
-  );
 
   const currentVariant = "top";
-
   const root = new MenuElementRoot({
     ..._style,
     staticClassName: "MUI_SpeedDial_Element_Root",
     currentVariant,
   });
+
+  const StandAloneIcon = (
+    <IconButton
+      style={{
+        boxShadow: "4px 4px 20px 0px #0000003d",
+        color: root.setColorVariableForElement(),
+        overflow: "hidden",
+      }}
+      {...props}
+    >
+      {children}
+    </IconButton>
+  );
 
   return (
     <div className={root.createClassNames()}>

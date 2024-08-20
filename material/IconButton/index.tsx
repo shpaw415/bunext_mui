@@ -9,7 +9,7 @@ import {
 } from "../../style";
 import MuiBase, { type MuiProps } from "../../utils/base";
 
-type MuiIconButtonProps = {
+export type MuiIconButtonProps = {
   children: JSX.Element;
   size?: "small" | "medium" | "large";
   href?: string;
