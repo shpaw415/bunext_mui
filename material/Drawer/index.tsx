@@ -121,7 +121,8 @@ export default function Drawer({
       <div
         className={`${className || ""} ` + drawerBox.createClassNames()}
         style={{
-          maxWidth: width,
+          minWidth: width,
+          width: width,
         }}
       >
         <Paper
