@@ -44,10 +44,15 @@ type Variant = "default";
 type SuffixType = ToolTipProps["position"] | "diplay";
 
 class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
+  public makeColor = this.colorFromTheme({
+    light: "rgb(255,255,255)",
+    dark: "rgb(0,0,0)",
+  });
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
     super(props);
     if (this.alreadyExists()) return;
     this.makeDefault();
+
     this.makeDisaplayed();
   }
   private makeDefault() {
@@ -82,12 +87,6 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
       commonStyle: {
         opacity: 1,
       },
-    });
-  }
-  public makeColor() {
-    return this.colorFromTheme({
-      light: "rgb(255,255,255)",
-      dark: "rgb(0,0,0)",
     });
   }
 }
@@ -282,7 +281,7 @@ export default function ToolTip({
         className={root.createClassNames() + ` ${className || ""}`}
         style={{
           ...coordinate,
-          color: root.makeColor(),
+          color: root.makeColor,
           ..._style.styleFromSx,
         }}
         {...(props as any)}

@@ -77,6 +77,10 @@ class Root extends MuiBaseStyleUtils<Variants, SuffixType> {
 }
 
 class Title extends MuiBaseStyleUtils<Variants, SuffixType> {
+  public fromTheme = this.colorFromTheme({
+    dark: "rgb(255, 255, 255)",
+    light: "rgb(0,0,0)",
+  });
   constructor(props: MuiBaseStyleUtilsProps<Variants>) {
     super(props);
     if (this.alreadyExists()) return;
@@ -90,15 +94,13 @@ class Title extends MuiBaseStyleUtils<Variants, SuffixType> {
       },
     });
   }
-  public fromTheme() {
-    return this.colorFromTheme({
-      dark: "rgb(255, 255, 255)",
-      light: "rgb(0,0,0)",
-    });
-  }
 }
 
 class ContentRoot extends MuiBaseStyleUtils<Variants, SuffixType> {
+  public TextColorFromTheme = this.colorFromTheme({
+    light: "rgba(0,0,0, 0.7)",
+    dark: "rgba(255, 255, 255, 0.7)",
+  });
   constructor(props: MuiBaseStyleUtilsProps<Variants>) {
     super(props);
     if (this.alreadyExists()) return;
@@ -112,13 +114,6 @@ class ContentRoot extends MuiBaseStyleUtils<Variants, SuffixType> {
         overflowY: "auto",
         padding: "20px 24px",
       },
-    });
-  }
-
-  public TextColorFromTheme() {
-    return this.colorFromTheme({
-      light: "rgba(0,0,0, 0.7)",
-      dark: "rgba(255, 255, 255, 0.7)",
     });
   }
 }
@@ -202,14 +197,14 @@ export default function Dialog({
               <Typography
                 variant="h2"
                 className={title.createClassNames()}
-                style={{ color: title.fromTheme() }}
+                style={{ color: title.fromTheme }}
               >
                 {props.title}
               </Typography>
             )}
             <div className={contentRoot.createClassNames()}>
               {props.content.text && (
-                <Typography style={{ color: contentRoot.TextColorFromTheme() }}>
+                <Typography style={{ color: contentRoot.TextColorFromTheme }}>
                   {props.content.text}
                 </Typography>
               )}

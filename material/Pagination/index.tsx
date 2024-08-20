@@ -40,6 +40,21 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
 }
 
 class Element extends MuiBaseStyleUtils<Variant, SuffixType> {
+  private bgColor = {
+    primary: this.colorFromTheme({
+      light: this.theme.primary.light,
+      dark: this.theme.primary.dark,
+    }),
+    secondary: this.colorFromTheme({
+      light: this.theme.secondary.light,
+      dark: this.theme.secondary.dark,
+    }),
+    default: this.colorFromTheme({
+      light: "rgba(0,0,0,0.16)",
+      dark: "rgba(255,255,255,0.16)",
+    }),
+  };
+
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
     super(props);
     if (this.alreadyExists()) return;
@@ -58,17 +73,8 @@ class Element extends MuiBaseStyleUtils<Variant, SuffixType> {
     color: PaginationProps["color"]
   ) {
     if (!selected) return undefined;
-
-    if (!color)
-      return this.colorFromTheme({
-        light: "rgba(0,0,0,0.16)",
-        dark: "rgba(255,255,255,0.16)",
-      });
-
-    return this.colorFromTheme({
-      light: this.theme[color].light,
-      dark: this.theme[color].dark,
-    });
+    else if (!color) return this.bgColor.default;
+    return this.bgColor[color];
   }
 }
 

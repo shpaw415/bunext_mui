@@ -21,14 +21,12 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
     this.makeDefault();
   }
   private makeDefault() {
-    const backgroundColor = this.colorFromTheme({
-      dark: "rgb(18, 18, 18)",
-      light: "rgb(255,255,255)",
-    });
-
     this.makeDefaultStyle({
       commonStyle: {
-        backgroundColor,
+        backgroundColor: this.colorFromTheme({
+          dark: "rgb(18, 18, 18)",
+          light: "rgb(255,255,255)",
+        }),
         transition: "box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
         borderRadius: "4px",
         boxShadow:

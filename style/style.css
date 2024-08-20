@@ -1590,7 +1590,7 @@ transition-duration:250ms;
 transition-delay:100ms;
 opacity:0;
 position:absolute;
-color:var(--MUI_ToolTip_Root-0);
+color:var(--MUI_ToolTip_Root-1);
 display:flex;
 justify-content:center;
 background-color:rgba(97, 97, 97, 0.92);

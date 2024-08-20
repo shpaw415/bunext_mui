@@ -278,6 +278,10 @@ type SpeedDialElementProps = {
 } & MuiIconButtonProps;
 
 class MenuElementRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
+  public setColorVariableForElement = this.colorFromTheme({
+    light: "rgba(0, 0, 0, 0.6)",
+    dark: "rgba(255,255,255, 0.6)",
+  });
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
     super(props);
     if (this.alreadyExists()) return;
@@ -293,12 +297,6 @@ class MenuElementRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
         display: "flex",
         justifyContent: "center",
       },
-    });
-  }
-  public setColorVariableForElement() {
-    return this.colorFromTheme({
-      light: "rgba(0, 0, 0, 0.6)",
-      dark: "rgba(255,255,255, 0.6)",
     });
   }
 }
@@ -322,7 +320,7 @@ export function SpeedDialElement({
     <IconButton
       style={{
         boxShadow: "4px 4px 20px 0px #0000003d",
-        color: root.setColorVariableForElement(),
+        color: root.setColorVariableForElement,
         overflow: "hidden",
       }}
       {...props}

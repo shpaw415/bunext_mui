@@ -190,6 +190,14 @@ type MenuElementProps = {
   MuiProps;
 
 class ElementRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
+  public TextThemeColorContent = this.colorFromTheme({
+    light: "rgba(0, 0, 0)",
+    dark: "rgb(255,255,255)",
+  });
+  public TextThemeColorEndElement = this.colorFromTheme({
+    light: "rgba(0, 0, 0, 0.6)",
+    dark: "rgba(255,255,255 0.6)",
+  });
   constructor(props: MuiBaseStyleUtilsProps<Variant>) {
     super(props);
     if (this.alreadyExists()) return;
@@ -231,18 +239,6 @@ class ElementRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
           backgroundColor: "rgba(0, 0, 0, 0.04)",
         },
       },
-    });
-  }
-  public TextThemeColorContent() {
-    return this.colorFromTheme({
-      light: "rgba(0, 0, 0)",
-      dark: "rgb(255,255,255)",
-    });
-  }
-  public TextThemeColorEndElement() {
-    return this.colorFromTheme({
-      light: "rgba(0, 0, 0, 0.6)",
-      dark: "rgba(255,255,255 0.6)",
     });
   }
 }
@@ -315,7 +311,7 @@ export function MenuElement({
           style={{
             flex: "1 1 auto",
             minWidth: "0px",
-            color: root.TextThemeColorContent(),
+            color: root.TextThemeColorContent,
           }}
         >
           {children}
@@ -326,7 +322,7 @@ export function MenuElement({
               fontWeight: "400",
               fontSize: "0.875rem",
               letterSpacing: "0.01071em",
-              color: root.TextThemeColorEndElement(),
+              color: root.TextThemeColorEndElement,
             }}
           >
             {EndElement}
