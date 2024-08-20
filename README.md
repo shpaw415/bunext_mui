@@ -53,3 +53,4 @@ function MainLayout({children}:{children: JSX.Element}) {
 - Fix drawer Width and now respond correctly
 - Badge sx is now set to the badge itself
 - SpeedDialElement is now theme color receptive and Element is now use has a IconButton using his props
+- Fix CSS Variables initialized multiple time
