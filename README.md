@@ -58,3 +58,4 @@ function MainLayout({children}:{children: JSX.Element}) {
 ## 0.1.10
 
 - Box is now forwardRef
+- Fix Theme propagation

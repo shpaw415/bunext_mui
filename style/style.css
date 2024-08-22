@@ -413,7 +413,7 @@ box-shadow:0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0
 MUI_Button_error_contained
 .MUI_Button_error_outlined {
 border:1px solid rgba(211, 47, 47, 0.5);
-color:#d32f2f;
+color:#e57373;
 
 }
 .MUI_Button_error_outlined:hover {
@@ -422,7 +422,7 @@ border:1px solid #d32f2f;
  
 }
 .MUI_Button_error_text {
-color:#d32f2f;
+color:#e57373;
 
 }
 .MUI_Button_error_text:hover {
@@ -1049,11 +1049,11 @@ background-color:rgba(33, 150, 243, 0.7);
 .MUI_FloatingButton_color_primary > svg { fill: white; }
 .MUI_FloatingButton_color_secondary {
 color:white;
-background-color:rgb(0, 121, 107);
+background-color:#f3e5f5;
 
 }
 .MUI_FloatingButton_color_secondary:hover {
-background-color:rgba(0, 121, 107, 0.7);
+background-color:rgba(243, 229, 245, 0.7);
  
 }
 .MUI_FloatingButton_color_secondary > svg { fill: white; }
@@ -2065,11 +2065,11 @@ background-color:rgb(33, 150, 243);
 
 }
 .MUI_Switch_Thumb_color_success {
-background-color:rgb(102, 187, 106);
+background-color:#81c784;
 
 }
 .MUI_Switch_Thumb_color_error {
-background-color:#d32f2f;
+background-color:#e57373;
 
 }
 .MUI_Switch_Thumb_disabled {
@@ -2118,11 +2118,11 @@ opacity:0.60;
 
 }
 .MUI_Switch_Track_color_success {
-background-color:rgb(102, 187, 106);
+background-color:#81c784;
 
 }
 .MUI_Switch_Track_color_error {
-background-color:#d32f2f;
+background-color:#e57373;
 
 }
 .MUI_Switch_Track_disabled {
@@ -2235,11 +2235,11 @@ padding:0px;
 
 }
 .MUI_TextField_label_color_success {
-color:rgb(102, 187, 106);
+color:#81c784;
 
 }
 .MUI_TextField_label_color_error {
-color:#d32f2f;
+color:#e57373;
 
 }
 .MUI_TextField_label_hasStartIcon_standard {
@@ -2263,11 +2263,11 @@ pointer-events:none;
 
 }
 .MUI_TextField_AnimationWrapper_color_success {
-background-color:rgb(102, 187, 106);
+background-color:#81c784;
 
 }
 .MUI_TextField_AnimationWrapper_color_error {
-background-color:#d32f2f;
+background-color:#e57373;
 
 }
 .MUI_TextField_AnimationStyle {
@@ -2283,11 +2283,11 @@ transform:scaleX(0);
 
 }
 .MUI_TextField_AnimationStyle_color_success {
-border-bottom:2px solid rgb(102, 187, 106);
+border-bottom:2px solid #81c784;
 
 }
 .MUI_TextField_AnimationStyle_color_error {
-border-bottom:2px solid #d32f2f;
+border-bottom:2px solid #e57373;
 
 }
 .MUI_TextField_AnimationStyle_focus {
@@ -2359,11 +2359,11 @@ pointer-events:none;
 }
 .MUI_TextField_Box_standard:hover .MUI_TextField_AnimationWrapper { height: 2px; background-color: var(--MUI_TextField_Box-0); }
 .MUI_TextField_Box_color_error_filled {
-border-bottom:1px solid #d32f2f;
+border-bottom:1px solid #e57373;
 
 }
 .MUI_TextField_Box_color_success_filled {
-border-bottom:1px solid rgb(102, 187, 106);
+border-bottom:1px solid #81c784;
 
 }
 .MUI_TextField_Box_disabled_standard:hover .MUI_TextField_AnimationWrapper { height: 1px; background-color: var(--MUI_TextField_Box-6)}
@@ -2405,12 +2405,12 @@ border-width:2px;
 
 }
 .MUI_TextField_FieldSet_color_success_outlined {
-border-color:#d32f2f;
+border-color:#e57373;
 border-width:2px;
 
 }
 .MUI_TextField_FieldSet_color_error_outlined {
-border-color:#d32f2f;
+border-color:#e57373;
 border-width:2px;
 
 }

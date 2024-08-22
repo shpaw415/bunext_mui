@@ -536,8 +536,8 @@ export const MuiColors = createContext<MuiTheme>({
     light: "rgb(33, 150, 243)",
   },
   secondary: {
-    dark: "rgb(0, 121, 107)",
-    light: "rgb(0, 121, 107)",
+    dark: "#ab47bc",
+    light: "#f3e5f5",
   },
   disabled: {
     dark: "rgba(255, 255, 255, 0.3)",
@@ -555,11 +555,11 @@ export const MuiColors = createContext<MuiTheme>({
   },
   error: {
     dark: "#d32f2f",
-    light: "#d32f2f",
+    light: "#e57373",
   },
   success: {
-    dark: "rgb(102, 187, 106)",
-    light: "rgb(102, 187, 106)",
+    dark: "#388e3c",
+    light: "#81c784",
   },
   background: {
     light: "white",
@@ -688,29 +688,64 @@ export function ThemeProvider({
   return <MuiColors.Provider value={theme}>{children}</MuiColors.Provider>;
 }
 
+type ThemePropagationHook = React.Dispatch<
+  React.SetStateAction<MuiTheme["theme"]>
+>;
+
+export const ThemePropagation = createContext<
+  Record<string, ThemePropagationHook>
+>({});
+
+const genRand = (len: number) => {
+  return Math.random()
+    .toString(36)
+    .substring(2, len + 2);
+};
+
 export function useTheme() {
   const colorContext = useContext(MuiColors);
+  const [themeState, set] = useState<MuiTheme["theme"]>("light");
+  const key = useMemo(() => genRand(8), []);
+  const propagation = useContext(ThemePropagation);
+  useEffect(() => {
+    propagation[key] = set;
+    return () => {
+      delete propagation[key];
+    };
+  }, []);
+
+  if (themeState != colorContext.theme) set(colorContext.theme);
   return colorContext;
 }
 
-export function SystemTheme(): "dark" | "light" {
+export function SystemTheme(): MuiTheme["theme"] {
   if (
     typeof window == "undefined" ||
     (window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches)
+      !window.matchMedia("(prefers-color-scheme: dark)").matches)
   ) {
-    return "dark";
+    return "light";
   }
-  return "light";
+  return "dark";
 }
 /**
- * will update if the system theme updates
+ * will update if the system theme updates SR compatible
  * @returns the current system theme
  */
-export function useSystemTheme() {
-  const [current, set] = useState(SystemTheme());
+export function useSystemTheme(): [
+  MuiTheme["theme"],
+  React.Dispatch<React.SetStateAction<MuiTheme["theme"]>>
+] {
+  const [current, set] = useState<MuiTheme["theme"]>("light");
+  const propagation = useContext(ThemePropagation);
 
   useEffect(() => {
+    const hooks = Object.values(propagation) as ThemePropagationHook[];
+    for (let i = 0; i < hooks.length; i++) hooks[i](current);
+  }, [current]);
+
+  useEffect(() => {
+    set(SystemTheme());
     window
       .matchMedia("(prefers-color-scheme: dark)")
       .addEventListener("change", (event) => {
@@ -718,5 +753,5 @@ export function useSystemTheme() {
       });
   }, []);
 
-  return current;
+  return [current, set];
 }
