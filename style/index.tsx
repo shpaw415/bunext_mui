@@ -361,7 +361,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
     setTimeout(() => {
       self.styleContext.updateVariables &&
         self.styleContext.updateVariables(this.styleContext.cssVariables);
-    }, 10);
+    }, 100);
   }
 
   public colorFromTheme(props: Record<MuiTheme["theme"], string>) {
@@ -613,6 +613,7 @@ function MuiStyleVariable() {
   const [value, setValue] = useState<
     { id: string; values: Record<MuiTheme["theme"], string> }[]
   >([]);
+
   styleContext.updateVariables = setValue;
 
   const computedValue = value.map(

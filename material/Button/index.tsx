@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, type HTMLAttributes } from "react";
+import { forwardRef } from "react";
 import {
   _MuiStyleContext,
   MuiBaseStyleUtils,
@@ -8,6 +8,7 @@ import {
   useStyle,
 } from "../../style";
 import MuiBase, { type MuiProps } from "../../utils/base";
+
 type MuiButtonProps = {
   variant?: "text" | "contained" | "outlined";
   StartIcon?: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
@@ -16,8 +17,13 @@ type MuiButtonProps = {
   href?: string;
   color?: "error" | "success";
   disabled?: boolean;
-} & HTMLAttributes<HTMLButtonElement> &
-  MuiProps;
+} & React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+> &
+  MuiProps & {
+    type?: "submit" | "reset" | "button";
+  };
 
 type ButtonSuffix =
   | "error"
