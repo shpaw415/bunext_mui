@@ -61,9 +61,6 @@ function MainLayout({children}:{children: JSX.Element}) {
 
 - Box is now forwardRef
 - Fix Theme propagation
-
-## 0.1.11
-
 - Button has detailed htmlAttributes
 - SnackBar children is typed as any
 - TextField new prop: resetValue, will empty the input field
