@@ -35,7 +35,7 @@ type MuiSnackBarProps = {
   HideOnClickAway?: boolean;
   opened?: boolean;
   onClose?: (setOpen: React.Dispatch<React.SetStateAction<boolean>>) => void;
-  children: string;
+  children: any;
 } & MuiProps &
   React.HTMLAttributes<HTMLDivElement>;
 

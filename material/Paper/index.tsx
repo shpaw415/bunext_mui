@@ -4,7 +4,7 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import { type HTMLAttributes } from "react";
+import { forwardRef, type HTMLAttributes } from "react";
 import type { MuiProps } from "../../utils/base";
 
 type MuiPaperProps = {
@@ -45,23 +45,28 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-function Paper({ children, className, style, sx, ...props }: MuiPaperProps) {
-  const _style = useStyle(sx, style);
-  const root = new Root({
-    ..._style,
-    staticClassName: "MUI_Paper_Root",
-    currentVariant: "default",
-  });
+const Paper = forwardRef<HTMLDivElement, MuiPaperProps>(
+  ({ children, className, style, sx, ...props }, ref) => {
+    const _style = useStyle(sx, style);
+    const root = new Root({
+      ..._style,
+      staticClassName: "MUI_Paper_Root",
+      currentVariant: "default",
+    });
 
-  return (
-    <div
-      className={`${root.createClassNames()} ${className || ""}`}
-      style={_style.styleFromSx}
-      {...props}
-    >
-      {children && children}
-    </div>
-  );
-}
+    return (
+      <div
+        className={`${root.createClassNames()} ${className || ""}`}
+        style={_style.styleFromSx}
+        ref={ref}
+        {...props}
+      >
+        {children && children}
+      </div>
+    );
+  }
+);
+
+Paper.displayName = "Paper";
 
 export default Paper;

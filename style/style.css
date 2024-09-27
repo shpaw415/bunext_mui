@@ -1214,7 +1214,7 @@ background-color:rgba(0, 0, 0, 0.04);
 }
 .MUI_Menu_Element_StartIcon {
 min-width:56px;
-color:rgba(0, 0, 0, 0.54);
+color:var(--MUI_Menu_Element_StartIcon-0);
 flex-shrink:0;
 display:inline-flex;
 

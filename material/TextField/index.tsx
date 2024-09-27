@@ -4,7 +4,6 @@ import {
   MuiBaseStyleUtils,
   useStyle,
   type MuiBaseStyleUtilsProps,
-  type MuiTheme,
 } from "../../style";
 import {
   cloneElement,
@@ -12,6 +11,8 @@ import {
   useCallback,
   useEffect,
   useState,
+  type DetailedHTMLProps,
+  type InputHTMLAttributes,
   type ReactElement,
   type ReactNode,
 } from "react";
@@ -23,13 +24,7 @@ export type TextFieldProps = MuiProps & {
   endIcon?: () => JSX.Element | ReactNode;
   label?: string;
   color?: "error" | "success";
-  value?: string;
-  required?: boolean;
-  disabled?: boolean;
-  type?: "text" | "password" | "number" | "search" | "select";
-  defaultValue?: string | number;
   helpText?: string;
-  readOnly?: boolean;
   multiline?:
     | boolean
     | {
@@ -37,7 +32,8 @@ export type TextFieldProps = MuiProps & {
         maxRows?: number;
       };
   children?: ReactElement<HTMLSelectElement>;
-} & React.InputHTMLAttributes<HTMLInputElement>;
+  resetValue?: boolean;
+} & DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 
 type Variants = TextFieldProps["variant"];
 type SuffixTypes =
@@ -768,237 +764,256 @@ class TextAreaStyle extends MuiBaseStyleUtils<"default", "none"> {
 const TextField = forwardRef<
   HTMLTextAreaElement | HTMLInputElement,
   TextFieldProps
->((_props_, textAreaRef) => {
-  let {
-    color,
-    startIcon,
-    label,
-    variant,
-    multiline,
-    helpText,
-    onFocus,
-    onBlur,
-    onInput,
-    onChange,
-    endIcon,
-    children,
-    style,
-    sx,
-    className,
-    ...props
-  } = _props_;
-
-  const _style = useStyle(sx, style);
-  const [focused, setFocused] = useState(false);
-  const [currentValue, setValue] = useState(
-    props.defaultValue?.toString() || ""
-  );
-
-  if (props.value && currentValue != props.value) {
-    setValue(props.value);
-  }
-
-  const setter: Record<
-    Exclude<SuffixTypes, "color_success" | "color_error"> | "color",
-    SuffixTypes | undefined
-  > = {
-    hasValue: currentValue.length > 0 ? "hasValue" : undefined,
-    focus: focused ? "focus" : undefined,
-    color: color ? `color_${color}` : undefined,
-    disabled: props.disabled ? "disabled" : undefined,
-    hasStartIcon: startIcon ? "hasStartIcon" : undefined,
-  };
-
-  if (props?.required && label) label = `${label} *`;
-  if (!variant) variant = "standard";
-  const currentVariant = variant;
-
-  const WrapperStyle = new TextFieldStyleManager({
-    staticClassName: "MUI_TextField_Wrapper",
-    currentVariant,
-    ..._style,
-  });
-
-  const LabelStyle = new LabelTextFieldStyleManager({
-    staticClassName: "MUI_TextField_label",
-    currentVariant,
-    ..._style,
-  }).setProps([
-    setter.color,
-    setter.hasStartIcon && !setter.focus && !setter.hasValue
-      ? setter.hasStartIcon
-      : undefined,
-    setter.focus ? setter.focus : undefined,
-    setter.hasValue,
-  ]);
-
-  const animationWrapper = new AnimationWrapperStyle({
-    staticClassName: "MUI_TextField_AnimationWrapper",
-    currentVariant,
-    ..._style,
-  }).setProps([setter.color]);
-
-  const animationStyle = new AnimationStyle({
-    staticClassName: "MUI_TextField_AnimationStyle",
-    currentVariant,
-    ..._style,
-  }).setProps([setter.color, setter.focus]);
-
-  const BoxStyle = new BoxTextFieldStyleManager(
+>(
+  (
     {
-      staticClassName: "MUI_TextField_Box",
+      color,
+      startIcon,
+      label,
+      variant,
+      multiline,
+      helpText,
+      onFocus,
+      onBlur,
+      onInput,
+      onChange,
+      onReset,
+      resetValue,
+      endIcon,
+      children,
+      style,
+      sx,
+      className,
+      ...props
+    },
+    textAreaRef
+  ) => {
+    const _style = useStyle(sx, style);
+    const [focused, setFocused] = useState(false);
+    const [currentValue, setValue] = useState(
+      props.defaultValue?.toString() || ""
+    );
+    const [hasReset, setHasReset] = useState(false);
+
+    if (props.value && currentValue != props.value) {
+      setValue(props.value.toString());
+    }
+
+    if (resetValue && !hasReset) {
+      setValue("");
+      setHasReset(true);
+    } else if (!resetValue && hasReset) {
+      setHasReset(false);
+    }
+
+    const setter: Record<
+      Exclude<SuffixTypes, "color_success" | "color_error"> | "color",
+      SuffixTypes | undefined
+    > = {
+      hasValue: currentValue.length > 0 ? "hasValue" : undefined,
+      focus: focused ? "focus" : undefined,
+      color: color ? `color_${color}` : undefined,
+      disabled: props.disabled ? "disabled" : undefined,
+      hasStartIcon: startIcon ? "hasStartIcon" : undefined,
+    };
+
+    if (props?.required && label) label = `${label} *`;
+    if (!variant) variant = "standard";
+    const currentVariant = variant;
+
+    const WrapperStyle = new TextFieldStyleManager({
+      staticClassName: "MUI_TextField_Wrapper",
       currentVariant,
       ..._style,
-    },
-    animationWrapper.staticClassName
-  ).setProps([setter.color, setter.disabled]);
+    });
 
-  const helpTextStyle = new HelperTextStyleManager({
-    staticClassName: "MUI_TextField_helpText",
-    currentVariant,
-    ..._style,
-  }); // ok
+    const LabelStyle = new LabelTextFieldStyleManager({
+      staticClassName: "MUI_TextField_label",
+      currentVariant,
+      ..._style,
+    }).setProps([
+      setter.color,
+      setter.hasStartIcon && !setter.focus && !setter.hasValue
+        ? setter.hasStartIcon
+        : undefined,
+      setter.focus ? setter.focus : undefined,
+      setter.hasValue,
+    ]);
 
-  const fieldSetStyle = new FieldSetStyleManager({
-    ..._style,
-    currentVariant,
-    staticClassName: "MUI_TextField_FieldSet",
-  }).setProps([setter.focus, setter.color]);
+    const animationWrapper = new AnimationWrapperStyle({
+      staticClassName: "MUI_TextField_AnimationWrapper",
+      currentVariant,
+      ..._style,
+    }).setProps([setter.color]);
 
-  const legendStyle = new LegendStyleManager({
-    ..._style,
-    currentVariant,
-    staticClassName: "MUI_TextField_legend",
-  }).setProps([setter.hasValue, setter.focus]);
+    const animationStyle = new AnimationStyle({
+      staticClassName: "MUI_TextField_AnimationStyle",
+      currentVariant,
+      ..._style,
+    }).setProps([setter.color, setter.focus]);
 
-  const InputStyle = new InputTextFieldStyleManager({
-    staticClassName: "MUI_TextField_Input",
-    currentVariant,
-    ..._style,
-  }).setProps([setter.focus, setter.disabled]);
+    const BoxStyle = new BoxTextFieldStyleManager(
+      {
+        staticClassName: "MUI_TextField_Box",
+        currentVariant,
+        ..._style,
+      },
+      animationWrapper.staticClassName
+    ).setProps([setter.color, setter.disabled]);
 
-  const textArea = new TextAreaStyle({
-    staticClassName: "MUI_TextField_TextArea",
-    currentVariant: "default",
-    ..._style,
-  });
+    const helpTextStyle = new HelperTextStyleManager({
+      staticClassName: "MUI_TextField_helpText",
+      currentVariant,
+      ..._style,
+    }); // ok
 
-  const resizeTextArea = useCallback(() => {
-    if (!multiline || !textAreaRef) return;
-    const ref = textAreaRef as React.MutableRefObject<HTMLTextAreaElement>;
-    (ref as any).current.style.height = "auto";
-    const reductedHeight = ref.current.scrollHeight as number;
-    if (
-      typeof multiline != "boolean" &&
-      typeof multiline?.maxRows == "number" &&
-      reductedHeight > 23 * multiline.maxRows
-    ) {
-      (ref.current as any).style.overflow = "auto";
-      (ref.current as any).style.height = 23 * multiline.maxRows;
-      return;
-    } else if (
-      typeof multiline != "boolean" &&
-      typeof multiline?.minRows == "number" &&
-      reductedHeight < 23 * multiline.minRows
-    ) {
-      (ref.current as any).style.overflow = "auto";
-      (ref.current as any).style.height = 23 * multiline.minRows;
-    } else (ref.current as any).style.height = reductedHeight + "px";
-  }, []);
-  useEffect(resizeTextArea, [currentValue]);
+    const fieldSetStyle = new FieldSetStyleManager({
+      ..._style,
+      currentVariant,
+      staticClassName: "MUI_TextField_FieldSet",
+    }).setProps([setter.focus, setter.color]);
 
-  const commonProps = {
-    value: props.defaultValue ? undefined : currentValue,
-    defaultValue: props.defaultValue,
-    onFocus: (e: any) => {
-      onFocus && onFocus(e as any);
-      if (e.isDefaultPrevented()) return;
-      setFocused(true);
-    },
-    onBlur: (e: any) => {
-      onBlur && onBlur(e as any);
-      if (e.isDefaultPrevented()) return;
-      setFocused(false);
-    },
-    onInput: (e: any) => {
-      onInput && onInput(e as any);
-      if (e.isDefaultPrevented()) return;
-      setValue(e.target.value);
-    },
-    onChange: (e: any) => {
-      onChange && onChange(e as any);
-      if (e.isDefaultPrevented()) return;
-      setValue(e.target.value);
-    },
-    placeholder: !focused ? undefined : props.placeholder,
-    ...(props as any),
-  };
+    const legendStyle = new LegendStyleManager({
+      ..._style,
+      currentVariant,
+      staticClassName: "MUI_TextField_legend",
+    }).setProps([setter.hasValue, setter.focus]);
 
-  const setInput = () => {
-    if (multiline) {
-      return (
-        <textarea
-          ref={textAreaRef as React.RefObject<HTMLTextAreaElement>}
-          className={textArea.createClassNames()}
-          rows={typeof multiline != "boolean" ? multiline?.minRows || 1 : 1}
-          {...commonProps}
-        />
-      );
-    } else if (children) {
-      return cloneElement<HTMLSelectElement>(children, {
-        className:
-          InputStyle.createClassNames() + ` ${children.props.className || ""}`,
-        ref: textAreaRef,
-        ...commonProps,
-      });
-    } else {
-      return (
-        <input
-          ref={textAreaRef as React.RefObject<HTMLInputElement>}
-          className={InputStyle.createClassNames()}
-          {...commonProps}
-        />
-      );
-    }
-  };
+    const InputStyle = new InputTextFieldStyleManager({
+      staticClassName: "MUI_TextField_Input",
+      currentVariant,
+      ..._style,
+    }).setProps([setter.focus, setter.disabled]);
 
-  return (
-    <div
-      className={WrapperStyle.createClassNames() + ` ${className || ""}`}
-      style={_style.styleFromSx}
-    >
-      <label className={LabelStyle.createClassNames()}>{label}</label>
-      <div className={BoxStyle.createClassNames()}>
-        {variant == "standard" && (
-          <div className={animationWrapper.createClassNames()}>
-            <div className={animationStyle.createClassNames()}></div>
-          </div>
-        )}
-        {startIcon && (
-          <div style={{ transform: "translateX(2px)", cursor: "default" }}>
-            {startIcon()}
-          </div>
-        )}
-        {setInput()}
-        {variant == "outlined" && (
-          <fieldset className={fieldSetStyle.createClassNames()}>
-            <legend className={legendStyle.createClassNames()}>
-              <span>{label}</span>
-            </legend>
-          </fieldset>
-        )}
-        {endIcon && (
-          <div style={{ transform: "translateX(-5px)", cursor: "default" }}>
-            {endIcon()}
-          </div>
+    const textArea = new TextAreaStyle({
+      staticClassName: "MUI_TextField_TextArea",
+      currentVariant: "default",
+      ..._style,
+    });
+
+    const resizeTextArea = useCallback(() => {
+      if (!multiline || !textAreaRef) return;
+      const ref = textAreaRef as React.MutableRefObject<HTMLTextAreaElement>;
+      (ref as any).current.style.height = "auto";
+      const reductedHeight = ref.current.scrollHeight as number;
+      if (
+        typeof multiline != "boolean" &&
+        typeof multiline?.maxRows == "number" &&
+        reductedHeight > 23 * multiline.maxRows
+      ) {
+        (ref.current as any).style.overflow = "auto";
+        (ref.current as any).style.height = 23 * multiline.maxRows;
+        return;
+      } else if (
+        typeof multiline != "boolean" &&
+        typeof multiline?.minRows == "number" &&
+        reductedHeight < 23 * multiline.minRows
+      ) {
+        (ref.current as any).style.overflow = "auto";
+        (ref.current as any).style.height = 23 * multiline.minRows;
+      } else (ref.current as any).style.height = reductedHeight + "px";
+    }, []);
+    useEffect(resizeTextArea, [currentValue]);
+
+    const commonProps = {
+      value: props.defaultValue ? undefined : currentValue,
+      defaultValue: props.defaultValue,
+      onFocus: (e: any) => {
+        onFocus && onFocus(e as any);
+        if (e.isDefaultPrevented()) return;
+        setFocused(true);
+      },
+      onBlur: (e: any) => {
+        onBlur && onBlur(e as any);
+        if (e.isDefaultPrevented()) return;
+        setFocused(false);
+      },
+      onInput: (e: any) => {
+        onInput && onInput(e as any);
+        if (e.isDefaultPrevented()) return;
+        setValue(e.target.value);
+      },
+      onChange: (e: any) => {
+        onChange && onChange(e as any);
+        if (e.isDefaultPrevented()) return;
+        setValue(e.target.value);
+      },
+      onReset: (e: any) => {
+        onReset && onReset(e as any);
+        if (e.isDefaultPrevented()) return;
+        setValue("");
+      },
+      placeholder: !focused ? undefined : props.placeholder,
+      ...(props as any),
+    };
+
+    const setInput = () => {
+      if (multiline) {
+        return (
+          <textarea
+            ref={textAreaRef as React.RefObject<HTMLTextAreaElement>}
+            className={textArea.createClassNames()}
+            rows={typeof multiline != "boolean" ? multiline?.minRows || 1 : 1}
+            {...commonProps}
+          />
+        );
+      } else if (children) {
+        return cloneElement<HTMLSelectElement>(children, {
+          className:
+            InputStyle.createClassNames() +
+            ` ${children.props.className || ""}`,
+          ref: textAreaRef,
+          ...commonProps,
+        });
+      } else {
+        return (
+          <input
+            ref={textAreaRef as React.RefObject<HTMLInputElement>}
+            className={InputStyle.createClassNames()}
+            {...commonProps}
+          />
+        );
+      }
+    };
+
+    return (
+      <div
+        className={WrapperStyle.createClassNames() + ` ${className || ""}`}
+        style={_style.styleFromSx}
+      >
+        <label className={LabelStyle.createClassNames()}>{label}</label>
+        <div className={BoxStyle.createClassNames()}>
+          {variant == "standard" && (
+            <div className={animationWrapper.createClassNames()}>
+              <div className={animationStyle.createClassNames()}></div>
+            </div>
+          )}
+          {startIcon && (
+            <div style={{ transform: "translateX(2px)", cursor: "default" }}>
+              {startIcon()}
+            </div>
+          )}
+          {setInput()}
+          {variant == "outlined" && (
+            <fieldset className={fieldSetStyle.createClassNames()}>
+              <legend className={legendStyle.createClassNames()}>
+                <span>{label}</span>
+              </legend>
+            </fieldset>
+          )}
+          {endIcon && (
+            <div style={{ transform: "translateX(-5px)", cursor: "default" }}>
+              {endIcon()}
+            </div>
+          )}
+        </div>
+        {helpText && (
+          <p className={helpTextStyle.createClassNames()}>{helpText}</p>
         )}
       </div>
-      {helpText && (
-        <p className={helpTextStyle.createClassNames()}>{helpText}</p>
-      )}
-    </div>
-  );
-});
+    );
+  }
+);
 TextField.displayName = "TextField";
 
 export default TextField;

@@ -1,1 +1,1 @@
-svg icon copy
+Pagination Element remove colorFromTheme from the Element class constructor
