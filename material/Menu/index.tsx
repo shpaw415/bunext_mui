@@ -255,8 +255,8 @@ class StartIconElement extends MuiBaseStyleUtils<Variant, SuffixType> {
       commonStyle: {
         minWidth: "56px",
         color: this.colorFromTheme({
-          light: "rgba(0, 0, 0, 0.54)",
-          dark: "rgba(255,255,255, 0,54)",
+          light: "rgba(0,0,0,0.54)",
+          dark: "rgba(255,255,255,0.54)",
         }),
         flexShrink: "0",
         display: "inline-flex",
@@ -280,7 +280,6 @@ const MenuElement = forwardRef<HTMLLIElement, MenuElementProps>(
     ref
   ) => {
     const _style = useStyle(sx, style);
-    const theme = useTheme();
 
     const currentVariant: Variant = "default";
 
@@ -297,7 +296,7 @@ const MenuElement = forwardRef<HTMLLIElement, MenuElementProps>(
     });
 
     const colorFromTheme = (themes: { light: string; dark: string }) => {
-      switch (theme.theme) {
+      switch (_style.theme.theme) {
         case "light":
           return themes.light;
         case "dark":
@@ -314,7 +313,7 @@ const MenuElement = forwardRef<HTMLLIElement, MenuElementProps>(
       >
         <MuiBase
           ripple
-          sx={{
+          style={{
             display: "flex",
             width: "100%",
             height: "100%",
@@ -329,7 +328,7 @@ const MenuElement = forwardRef<HTMLLIElement, MenuElementProps>(
             <div className={startElement.createClassNames()} />
           )}
           <Typography
-            sx={{
+            style={{
               flex: "1 1 auto",
               minWidth: "0px",
               color: colorFromTheme({
@@ -342,7 +341,7 @@ const MenuElement = forwardRef<HTMLLIElement, MenuElementProps>(
           </Typography>
           {typeof EndElement == "string" ? (
             <Typography
-              sx={{
+              style={{
                 fontWeight: "400",
                 fontSize: "0.875rem",
                 letterSpacing: "0.01071em",

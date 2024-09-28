@@ -66,3 +66,8 @@ function MainLayout({children}:{children: JSX.Element}) {
 - TextField new prop: resetValue, will empty the input field
 - Paper & Menu & MenuElement use forwardRef
 - menu icon & menuElement are theme color sensitive
+
+## 0.1.11
+
+- Fix display regression in menuElement & color
+- fix

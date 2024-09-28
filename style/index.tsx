@@ -620,14 +620,7 @@ function MuiStyleVariable() {
     (val) => `${val.id}: ${val.values[theme.theme]};`
   );
 
-  return (
-    <style
-      type="text/css"
-      dangerouslySetInnerHTML={{
-        __html: `:root {${computedValue.join("\n")}}`,
-      }}
-    />
-  );
+  return <style type="text/css">{`:root{${computedValue.join("")}}`}</style>;
 }
 
 export function useStyle(sxProps?: SxProps, style?: CssProps) {
