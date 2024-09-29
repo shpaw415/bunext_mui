@@ -76,3 +76,8 @@ function MainLayout({children}:{children: JSX.Element}) {
 
 - fix select dropdown color and Zindex
 - fix css variable multiplication
+
+## 0.1.13
+
+- fix Select defaultValue not showing
+- fix css variable not updating correcly

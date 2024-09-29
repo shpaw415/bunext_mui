@@ -374,7 +374,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
 
     MuiVariableTimer = setTimeout(() => {
       self.styleContext.updateVariables &&
-        self.styleContext.updateVariables(MuiStyleVariables);
+        self.styleContext.updateVariables(structuredClone(MuiStyleVariables));
     }, 100);
   }
 
@@ -468,26 +468,6 @@ html {
 
 const StyleContent =
   Object.values(MuiCss).join("").replaceAll("\n", "") + defaultCss;
-
-export function MuiStyle() {
-  const theme = useTheme();
-  return (
-    <>
-      <MuiStyleVariable />
-      <style
-        type="text/css"
-        id="MUI_Base_Style"
-        dangerouslySetInnerHTML={{
-          __html:
-            StyleContent +
-            `html,body {${new _MuiStyleContext().styleToString({
-              backgroundColor: theme.background[theme.theme],
-            })}}`,
-        }}
-      />
-    </>
-  );
-}
 
 export function LegacyMuiStyle() {
   const [value, setValue] = useState("");
@@ -626,27 +606,6 @@ export const SxPropsContext = createContext<SxPropsController>(
   new SxPropsController()
 );
 
-function MuiStyleVariable() {
-  const styleContext = useContext(MuiStyleContext);
-  const theme = useContext(MuiColors);
-  const [value, setValue] = useState<
-    { id: string; values: Record<MuiTheme["theme"], string> }[]
-  >([]);
-
-  styleContext.updateVariables = setValue;
-
-  const ids = value.map((o) => o.id);
-  const filtered = value.filter(
-    ({ id }, index) => !ids.includes(id, index + 1)
-  );
-
-  const computedValue = filtered.map(
-    (val) => `${val.id}: ${val.values[theme.theme]};`
-  );
-
-  return <style type="text/css">{`:root{${computedValue.join("")}}`}</style>;
-}
-
 export function useStyle(sxProps?: SxProps, style?: CssProps) {
   const _style = useContext(MuiStyleContext);
   const theme = useContext(MuiColors);
@@ -696,6 +655,17 @@ export function useStyle(sxProps?: SxProps, style?: CssProps) {
   };
 }
 
+export const MuiVariableUpdater = createContext<
+  React.Dispatch<
+    React.SetStateAction<
+      {
+        id: string;
+        values: Record<MuiTheme["theme"], string>;
+      }[]
+    >
+  >
+>(() => {});
+
 export function ThemeProvider({
   children,
   theme,
@@ -703,7 +673,51 @@ export function ThemeProvider({
   children: any;
   theme: MuiTheme;
 }) {
-  return <MuiColors.Provider value={theme}>{children}</MuiColors.Provider>;
+  const styleContext = useContext(MuiStyleContext);
+  const [value, setValue] = useState<
+    { id: string; values: Record<MuiTheme["theme"], string> }[]
+  >([]);
+
+  styleContext.updateVariables = setValue;
+
+  const ids = value.map((o) => o.id);
+  const filtered = value.filter(
+    ({ id }, index) => !ids.includes(id, index + 1)
+  );
+
+  const computedValue = filtered.map(
+    (val) => `${val.id}: ${val.values[theme.theme]};`
+  );
+
+  return (
+    <MuiColors.Provider value={theme}>
+      <style type="text/css">{`:root{${computedValue.join("")}}`}</style>
+      <style
+        type="text/css"
+        id="MUI_Base_Style"
+        dangerouslySetInnerHTML={{
+          __html:
+            StyleContent +
+            `html,body {${new _MuiStyleContext().styleToString({
+              backgroundColor: theme.background[theme.theme],
+            })}}`,
+        }}
+      />
+      <MuiVariableUpdater.Provider value={setValue}>
+        {children}
+      </MuiVariableUpdater.Provider>
+    </MuiColors.Provider>
+  );
+}
+/** will update the variables */
+export function useVariableUpdater() {
+  const updaterContext = useContext(MuiVariableUpdater);
+
+  return () => {
+    const copy = structuredClone(MuiStyleVariables);
+    updaterContext(copy);
+    console.log("update", MuiStyleVariables);
+  };
 }
 
 type ThemePropagationHook = React.Dispatch<

@@ -7,7 +7,7 @@ import {
 } from "../../style";
 import TextField, { type TextFieldProps } from "../TextField";
 import type { MuiProps } from "../../utils/base";
-import { forwardRef, useRef, useState } from "react";
+import { forwardRef, useMemo, useRef, useState } from "react";
 import ArrowDown from "@material-design-icons/svg/filled/arrow_drop_down.svg";
 import ListItems, { ListItemElement } from "../ListItems";
 
@@ -96,8 +96,16 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
     if (!Array.isArray(children)) children = [children];
     const _style = useStyle(sx, style);
     const [focused, setFocus] = useState(false);
-    const [_value, setValue] = useState("");
-    const [displayedValue, setDisplayedValue] = useState("");
+    const DefaultValueMemo = useMemo(() => {
+      if (defaultValue)
+        return children.find((e) => e.props?.value == defaultValue)?.props
+          .children as string;
+      return undefined;
+    }, []);
+    const [_value, setValue] = useState(DefaultValueMemo || "");
+    const [displayedValue, setDisplayedValue] = useState<string | undefined>(
+      undefined
+    );
     const theme = useTheme();
     const _ref = useRef(null);
     const currentVariant = props.variant || "standard";
@@ -137,7 +145,6 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
         }
       });
     }
-
     return (
       <div
         style={_style.styleFromSx}
@@ -145,7 +152,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       >
         <TextField
           label={label}
-          value={displayedValue}
+          value={displayedValue || DefaultValueMemo}
           onBlur={() => {
             setTimeout(() => setFocus(false), 100);
           }}
