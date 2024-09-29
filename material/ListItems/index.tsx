@@ -98,7 +98,7 @@ export default function ListItems({
     });
     groupedChildren.push(
       <div className={_Header_.createClassNames()} key="Mui-List-Header">
-        {Header}
+        <Typography>{Header}</Typography>
       </div>
     );
   }

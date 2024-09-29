@@ -1,6 +1,7 @@
 import {
   MuiBaseStyleUtils,
   useStyle,
+  useTheme,
   type CssProps,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
@@ -56,6 +57,7 @@ class DropDown extends MuiBaseStyleUtils<Variant, SuffixType> {
         width: "100%",
         top: 0,
         left: 0,
+        zIndex: 100,
       },
     });
   }
@@ -96,6 +98,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
     const [focused, setFocus] = useState(false);
     const [_value, setValue] = useState("");
     const [displayedValue, setDisplayedValue] = useState("");
+    const theme = useTheme();
     const _ref = useRef(null);
     const currentVariant = props.variant || "standard";
 
@@ -152,9 +155,16 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
           {...props}
         />
         <div className={dropDown.createClassNames()}>
-          <ListItems>
+          <ListItems
+            sx={{
+              background: theme.background[theme.theme],
+            }}
+          >
             {children.map((child, index) => (
               <ListItemElement
+                sx={{
+                  color: "black",
+                }}
                 key={index}
                 onClick={() => {
                   const toCall = onSelect

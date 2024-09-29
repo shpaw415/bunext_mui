@@ -11,6 +11,13 @@ import {
 import { RippleCss } from "../material/style/ripple";
 import MuiCss from "../style/style.json";
 
+export let MuiIds: string[] = [];
+export let MuiStyleVariables: {
+  id: string;
+  values: Record<MuiTheme["theme"], string>;
+}[] = [];
+export let MuiVariableTimer: Timer;
+
 export type MediaQueryType = {
   xs: number;
   sm: number;
@@ -215,6 +222,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
   protected suffixes: Array<suffixesType> = [];
   protected currentSuffix: Array<suffixesType> = [];
   private id?: string;
+  protected justCreated: boolean = false;
 
   constructor({
     theme,
@@ -226,6 +234,10 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
     this.theme = theme;
     this.styleContext = styleContext;
     this.staticClassName = staticClassName;
+    if (!this.alreadyExists()) {
+      this.justCreated = true;
+      MuiIds.push(staticClassName);
+    }
   }
 
   protected makeDefaultStyle(
@@ -358,9 +370,11 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
 
   private _updateVariables() {
     const self = this;
-    setTimeout(() => {
+    clearTimeout(MuiVariableTimer);
+
+    MuiVariableTimer = setTimeout(() => {
       self.styleContext.updateVariables &&
-        self.styleContext.updateVariables(this.styleContext.cssVariables);
+        self.styleContext.updateVariables(MuiStyleVariables);
     }, 100);
   }
 
@@ -371,14 +385,19 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
       id: variable,
       values: props,
     });
+    MuiStyleVariables.push({
+      id: variable,
+      values: props,
+    });
     this._updateVariables();
     return `var(${variable})`;
   }
 
   protected alreadyExists() {
-    return Boolean(
-      this.styleContext.ids.find((e) => e == this.staticClassName)
-    );
+    let res = false;
+    if (this.justCreated) res = false;
+    else res = Boolean(MuiIds.find((e) => e == this.staticClassName));
+    return res;
   }
 
   static sxToStyle(
@@ -616,7 +635,12 @@ function MuiStyleVariable() {
 
   styleContext.updateVariables = setValue;
 
-  const computedValue = value.map(
+  const ids = value.map((o) => o.id);
+  const filtered = value.filter(
+    ({ id }, index) => !ids.includes(id, index + 1)
+  );
+
+  const computedValue = filtered.map(
     (val) => `${val.id}: ${val.values[theme.theme]};`
   );
 

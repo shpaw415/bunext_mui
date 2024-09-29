@@ -70,4 +70,9 @@ function MainLayout({children}:{children: JSX.Element}) {
 ## 0.1.11
 
 - Fix display regression in menuElement & color
-- fix
+- fix listItem header color
+
+## 0.1.12
+
+- fix select dropdown color and Zindex
+- fix css variable multiplication
