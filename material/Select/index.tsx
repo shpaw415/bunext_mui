@@ -102,9 +102,9 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
           .children as string;
       return undefined;
     }, []);
-    const [_value, setValue] = useState(DefaultValueMemo || "");
+    const [_value, setValue] = useState(defaultValue || "");
     const [displayedValue, setDisplayedValue] = useState<string | undefined>(
-      undefined
+      DefaultValueMemo
     );
     const theme = useTheme();
     const _ref = useRef(null);
@@ -161,6 +161,13 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
           sx={textFielSx}
           {...props}
         />
+        <input
+          style={inputStyle}
+          ref={ref || _ref}
+          name={name}
+          value={value || _value}
+          readOnly
+        />
         <div className={dropDown.createClassNames()}>
           <ListItems
             sx={{
@@ -169,14 +176,19 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
           >
             {children.map((child, index) => (
               <ListItemElement
+                e-value={child.props.value}
                 sx={{
                   color: "black",
                 }}
                 key={index}
-                onClick={() => {
+                onMouseDown={() => {
                   const toCall = onSelect
                     ? () => {
                         onSelect(child.props?.value || index);
+                        if (!value) {
+                          setDisplayedValue(child.props?.children);
+                          setValue(child.props?.value);
+                        }
                       }
                     : () => {
                         setDisplayedValue(child.props?.children);
@@ -193,13 +205,6 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
             ))}
           </ListItems>
         </div>
-        <input
-          style={inputStyle}
-          ref={ref || _ref}
-          name={name}
-          value={value || _value}
-          readOnly
-        />
       </div>
     );
   }

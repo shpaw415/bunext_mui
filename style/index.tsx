@@ -380,7 +380,9 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
 
   public colorFromTheme(props: Record<MuiTheme["theme"], string>) {
     const variable = `--${this.staticClassName}-${this.VariableCount}`;
+    const compiledVariable = `var(${variable})`;
     this.VariableCount++;
+    //if (this.alreadyExists()) return compiledVariable;
     this.styleContext.cssVariables.push({
       id: variable,
       values: props,
@@ -390,7 +392,7 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
       values: props,
     });
     this._updateVariables();
-    return `var(${variable})`;
+    return compiledVariable;
   }
 
   protected alreadyExists() {
@@ -655,15 +657,13 @@ export function useStyle(sxProps?: SxProps, style?: CssProps) {
   };
 }
 
+type MuiVariableData = {
+  id: string;
+  values: Record<MuiTheme["theme"], string>;
+}[];
+
 export const MuiVariableUpdater = createContext<
-  React.Dispatch<
-    React.SetStateAction<
-      {
-        id: string;
-        values: Record<MuiTheme["theme"], string>;
-      }[]
-    >
-  >
+  React.Dispatch<React.SetStateAction<MuiVariableData>>
 >(() => {});
 
 export function ThemeProvider({
@@ -674,9 +674,7 @@ export function ThemeProvider({
   theme: MuiTheme;
 }) {
   const styleContext = useContext(MuiStyleContext);
-  const [value, setValue] = useState<
-    { id: string; values: Record<MuiTheme["theme"], string> }[]
-  >([]);
+  const [value, setValue] = useState<MuiVariableData>([]);
 
   styleContext.updateVariables = setValue;
 

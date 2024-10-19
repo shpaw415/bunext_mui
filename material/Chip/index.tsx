@@ -3,7 +3,7 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import { createRef } from "react";
+import { createRef, forwardRef, useRef } from "react";
 import CloseSvgImage from "@material-design-icons/svg/filled/close.svg";
 import type { MuiProps } from "../../utils/base";
 
@@ -14,13 +14,14 @@ type MuiChipProps = {
   /**
    * @param el the chip element reference
    */
-  onDelete?: (el: React.RefObject<HTMLDivElement>) => void;
+  onDelete?: (el: React.ForwardedRef<HTMLDivElement>) => void;
   deleteIcon?: () => JSX.Element;
-  Icon?: () => JSX.Element;
+  icon?: () => JSX.Element;
   avatar?: JSX.Element;
   color?: "success" | "error" | "primary" | "default" | "secondary";
 } & MuiProps &
   React.HTMLAttributes<HTMLDivElement>;
+
 type Variant = Exclude<MuiChipProps["variant"], undefined>;
 type SuffixType = "clickable" | MuiChipProps["color"];
 
@@ -437,65 +438,74 @@ class SvgIcon extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-export default function Chip({
-  sx,
-  style,
-  className,
-  children,
-  onDelete,
-  deleteIcon,
-  ...props
-}: MuiChipProps) {
-  const _style = useStyle(sx, style);
-  const ref = createRef<HTMLDivElement>();
-  const currentVariant = props.variant || "filled";
+const Chip = forwardRef<HTMLDivElement, MuiChipProps>(
+  (
+    {
+      sx,
+      style,
+      className,
+      children,
+      onDelete,
+      deleteIcon,
+      icon,
+      avatar,
+      ...props
+    },
+    ref
+  ) => {
+    const _style = useStyle(sx, style);
+    const currentVariant = props.variant || "filled";
 
-  const root = new Root({
-    ..._style,
-    staticClassName: "MUI_Chip_Root",
-    currentVariant,
-  }).setProps([props.onClick ? "clickable" : undefined, props.color]);
+    const root = new Root({
+      ..._style,
+      staticClassName: "MUI_Chip_Root",
+      currentVariant,
+    }).setProps([props.onClick ? "clickable" : undefined, props.color]);
 
-  const label = new Label({
-    ..._style,
-    staticClassName: "MUI_Chip_Label",
-    currentVariant,
-  }).setProps([props.color]);
+    const label = new Label({
+      ..._style,
+      staticClassName: "MUI_Chip_Label",
+      currentVariant,
+    }).setProps([props.color]);
 
-  const svgClose = new SvgClose({
-    ..._style,
-    staticClassName: "MUI_Chip_Close_Svg_Wrapper",
-    currentVariant,
-  }).setProps([props.color]);
+    const svgClose = new SvgClose({
+      ..._style,
+      staticClassName: "MUI_Chip_Close_Svg_Wrapper",
+      currentVariant,
+    }).setProps([props.color]);
 
-  const svgIcon = new SvgIcon({
-    ..._style,
-    staticClassName: "MUI_Chip_Icon_Svg_Wrapper",
-    currentVariant,
-  }).setProps([props.color]);
+    const svgIcon = new SvgIcon({
+      ..._style,
+      staticClassName: "MUI_Chip_Icon_Svg_Wrapper",
+      currentVariant,
+    }).setProps([props.color]);
 
-  const Icon: JSX.Element | undefined =
-    props.avatar || (props.Icon && props.Icon());
+    const Icon: JSX.Element | undefined = avatar || (icon && icon());
 
-  return (
-    <div
-      className={root.createClassNames() + ` ${className || ""}`}
-      ref={ref}
-      style={_style.styleFromSx}
-      {...props}
-    >
-      {Icon && <div className={svgIcon.createClassNames()}>{Icon}</div>}
-      <span className={label.createClassNames()}>{props.label}</span>
-      {onDelete && (
-        <div
-          className={svgClose.createClassNames()}
-          onClick={() => {
-            onDelete && onDelete(ref);
-          }}
-        >
-          {deleteIcon ? deleteIcon() : <CloseSvgImage />}
-        </div>
-      )}
-    </div>
-  );
-}
+    return (
+      <div
+        className={root.createClassNames() + ` ${className || ""}`}
+        ref={ref}
+        style={_style.styleFromSx}
+        {...props}
+      >
+        {Icon && <div className={svgIcon.createClassNames()}>{Icon}</div>}
+        <span className={label.createClassNames()}>{props.label}</span>
+        {onDelete && (
+          <div
+            className={svgClose.createClassNames()}
+            onClick={() => {
+              onDelete && onDelete(ref);
+            }}
+          >
+            {deleteIcon ? deleteIcon() : <CloseSvgImage />}
+          </div>
+        )}
+      </div>
+    );
+  }
+);
+
+Chip.displayName = "Chip";
+
+export default Chip;

@@ -4,7 +4,6 @@ import {
   forwardRef,
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import {
@@ -132,7 +131,7 @@ export default function ToolTip({
       setDisplay(false);
   });
 
-  const unTriggerFunction = useCallback(() => setDisplay(false), []);
+  const unTriggerFunction = () => setDisplay(false);
   const makeCoordinateStyle = useCallback<() => StyleProp>(() => {
     const t = (ref as React.RefObject<HTMLDivElement>).current;
     if (!t) return {} as StyleProp;
@@ -168,7 +167,7 @@ export default function ToolTip({
         break;
       case "bottom":
         basePosition.left -= t.offsetWidth / 2;
-        basePosition.transform = "translateX(-100%)";
+        basePosition.transform = "translateX(-50%)";
         basePosition.top += 5;
         break;
       case "bottom-left":

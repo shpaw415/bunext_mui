@@ -63,7 +63,7 @@ function MainLayout({children}:{children: JSX.Element}) {
 - Fix Theme propagation
 - Button has detailed htmlAttributes
 - SnackBar children is typed as any
-- TextField new prop: resetValue, will empty the input field
+- TextField new prop: resetValue, will empty the input field (temporary)
 - Paper & Menu & MenuElement use forwardRef
 - menu icon & menuElement are theme color sensitive
 
@@ -79,5 +79,7 @@ function MainLayout({children}:{children: JSX.Element}) {
 
 ## 0.1.13
 
-- fix Select defaultValue not showing
+- fix Select defaultValue not showing & defaultValue value not initialized correctly
 - fix css variable not updating correcly
+- Select set value onMouseDown replacing onClick ( more responsive )
+- Snackbar is more stable and onOpen prop is supported

@@ -7,11 +7,11 @@ import {
   type MuiTheme,
 } from "../../style";
 import { useClickAwayListener } from "../../utils";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { MuiProps } from "../../utils/base";
 
 type MuiSnackBarProps = {
-  position:
+  position?:
     | "top-center"
     | "top-left"
     | "top-right"
@@ -32,9 +32,11 @@ type MuiSnackBarProps = {
    * Hide when a click occure on somewhere else then the SnackBar
    *  ( default: true )
    */
-  HideOnClickAway?: boolean;
+  onClose?: () => void;
+  onOpen?: (
+    setOpenState: React.Dispatch<React.SetStateAction<boolean>>
+  ) => void;
   opened?: boolean;
-  onClose?: (setOpen: React.Dispatch<React.SetStateAction<boolean>>) => void;
   children: any;
 } & MuiProps &
   React.HTMLAttributes<HTMLDivElement>;
@@ -425,23 +427,42 @@ export default function SnackBar({
   opened,
   color,
   actionButton,
+  autoHideDuration,
+  position,
+  transition,
+  onClose,
+  onOpen,
   ...props
 }: MuiSnackBarProps) {
   const [isInited, setInited] = useState(false);
   const [isOpen, setOpenState] = useState<boolean>(opened as boolean);
-  const ref = useClickAwayListener<HTMLDivElement>(() => {
-    if (props.HideOnClickAway === false) return;
-    if (isOpen) setOpenState(false);
-    if (props.onClose) props.onClose(setOpenState);
-  });
-  const _style = useStyle();
+  const [wasOpend, setWasOpened] = useState(Boolean(opened));
+  const [, setTimer] = useState<Timer>();
+  const _style = useStyle(sx, style);
+
+  const timerSetter = useCallback(() => {
+    if (!autoHideDuration || !isOpen) return;
+    setTimer((c) => {
+      clearTimeout(c);
+      return setTimeout(() => {
+        setOpenState(false);
+        onClose && onClose();
+      }, autoHideDuration * 1000);
+    });
+  }, [autoHideDuration, opened, onClose, isOpen]);
 
   useEffect(() => {
-    if (!props.autoHideDuration || !isOpen) return;
-    setTimeout(() => {
-      setOpenState(false);
-    }, props.autoHideDuration * 1000);
-  }, [isOpen]);
+    if (isOpen) onOpen && onOpen(setOpenState);
+    if (isOpen || opened) setWasOpened(true);
+    if (isOpen && wasOpend) {
+      setWasOpened(false);
+      onClose && onClose();
+    }
+  }, [opened, isOpen]);
+
+  useEffect(() => {
+    timerSetter();
+  }, [children]);
 
   if (opened && !isOpen && !isInited) {
     setOpenState(true);
@@ -459,13 +480,19 @@ export default function SnackBar({
   > = {
     opened: isOpen === true ? "opened" : undefined,
     closed: !isOpen ? "closed" : undefined,
-    position: props.position ? props.position : "bottom-left",
-    topOrBottom: props.position.startsWith("bottom") ? "bottom" : "top",
+    position: position ? position : "bottom-left",
+    topOrBottom: position
+      ? position.startsWith("bottom")
+        ? "bottom"
+        : "top"
+      : "bottom",
   };
+
+  const currentTransition = transition || "fade";
 
   const root = new Root({
     staticClassName: "MUI_Snackbar_root",
-    currentVariant: props.transition || "fade",
+    currentVariant: currentTransition,
     ..._style,
   }).setProps([
     setter.opened,
@@ -476,25 +503,24 @@ export default function SnackBar({
 
   const paper = new Paper({
     staticClassName: "MUI_Snackbar_paper",
-    currentVariant: "fade",
+    currentVariant: currentTransition,
     ..._style,
   });
 
   const messageContainer = new MessageContainer({
     staticClassName: "MUI_Snackbar_Message_Container",
-    currentVariant: "fade",
+    currentVariant: currentTransition,
     ..._style,
   });
 
   const actionContainer = new ActionContainer({
     staticClassName: "MUI_Snackbar_Action_Container",
-    currentVariant: "fade",
+    currentVariant: currentTransition,
     ..._style,
   });
 
   return (
     <div
-      ref={ref}
       role="presentation"
       className={root.createClassNames() + ` ${className || ""}`}
       style={_style.styleFromSx}
