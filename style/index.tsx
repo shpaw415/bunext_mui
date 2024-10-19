@@ -785,25 +785,3 @@ export function useSystemTheme(): [
 
   return [current, set];
 }
-
-export function useMediaQuery() {
-  const [state, setState] = useState<keyof MediaQueryType>("md");
-
-  useEffect(() => {
-    const setMediaQuery = () => {
-      for (const query of Object.keys(MediaQueryValues).reverse() as Array<
-        keyof MediaQueryType
-      >) {
-        if (window.innerWidth >= MediaQueryValues[query]) setState(query);
-      }
-    };
-
-    window.addEventListener("resize", setMediaQuery);
-
-    return () => {
-      window.removeEventListener("resize", setMediaQuery);
-    };
-  }, []);
-
-  return state;
-}
