@@ -158,10 +158,14 @@ const Menu = forwardRef<HTMLDivElement, MenuProps>(
         return;
 
       setPosition({
-        top: anchor.current.offsetTop,
-        left: anchor.current.offsetLeft,
+        top:
+          anchor.current.offsetTop -
+          ((ref as any).current as HTMLDivElement).offsetHeight / 4,
+        left:
+          anchor.current.offsetLeft -
+          ((ref as any).current as HTMLDivElement).offsetWidth / 2,
       });
-    });
+    }, [open]);
 
     return (
       <Paper
