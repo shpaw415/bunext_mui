@@ -7,7 +7,7 @@ import {
 } from "../../style";
 import Typography from "../Typography";
 import MuiBase, { type MuiProps } from "../../utils/base";
-import { forwardRef, useCallback, useEffect, useState } from "react";
+import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 type MenuProps = {
   open?: boolean;
   children: JSX.Element | JSX.Element[];
@@ -95,6 +95,7 @@ const Menu = forwardRef<HTMLDivElement, MenuProps>(
       top: 0,
       left: 0,
     });
+    const reRef = useRef<HTMLDivElement>(null);
 
     const currentVariant: Variant = "default";
 
@@ -121,7 +122,6 @@ const Menu = forwardRef<HTMLDivElement, MenuProps>(
           position == "over"
         )
           return 0;
-
         const el = anchor.current;
 
         if (from == "top") {
@@ -157,19 +157,21 @@ const Menu = forwardRef<HTMLDivElement, MenuProps>(
       )
         return;
 
+      let refToUse = (ref || reRef) as React.RefObject<HTMLDivElement>;
+
       setPosition({
         top:
           anchor.current.offsetTop -
-          ((ref as any).current as HTMLDivElement).offsetHeight / 4,
+          (refToUse.current as HTMLDivElement).offsetHeight / 4,
         left:
           anchor.current.offsetLeft -
-          ((ref as any).current as HTMLDivElement).offsetWidth / 2,
+          (refToUse.current as HTMLDivElement).offsetWidth / 2,
       });
-    }, [open]);
+    }, [open, anchor]);
 
     return (
       <Paper
-        ref={ref}
+        ref={ref || reRef}
         className={wrapper.createClassNames() + ` ${className}`}
         style={{
           transition: "250ms ease-in-out",
