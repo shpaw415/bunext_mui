@@ -1,6 +1,6 @@
 "use client";
 
-import { cloneElement, forwardRef } from "react";
+import { cloneElement, forwardRef, useCallback, useMemo } from "react";
 import {
   _MuiStyleContext,
   MuiBaseStyleUtils,
@@ -169,21 +169,43 @@ const IconButton = forwardRef<HTMLButtonElement, MuiIconButtonProps>(
   ) => {
     const uStyle = useStyle(sx, style);
 
-    const root = new Root({
-      staticClassName: "MUI_IconButton_Root",
-      ...uStyle,
-      currentVariant: "default",
-    }).setProps([
-      disabled ? "disabled" : undefined,
-      size ? `size_${size}` : undefined,
-      color ? `color_${color}` : undefined,
-    ]);
+    const _root = useMemo(
+      () =>
+        new Root({
+          staticClassName: "MUI_IconButton_Root",
+          ...uStyle,
+          currentVariant: "default",
+        }),
+      []
+    );
+    const root = useMemo(
+      () =>
+        _root.setProps([
+          disabled ? "disabled" : undefined,
+          size ? `size_${size}` : undefined,
+          color ? `color_${color}` : undefined,
+        ]),
+      [size, color, disabled]
+    );
 
-    const icon = new Icon({
-      staticClassName: "MUI_IconButton_Icon",
-      ...uStyle,
-      currentVariant: "default",
-    });
+    const icon = useMemo(
+      () =>
+        new Icon({
+          staticClassName: "MUI_IconButton_Icon",
+          ...uStyle,
+          currentVariant: "default",
+        }),
+      []
+    );
+
+    const ClonedElement = useCallback(
+      () =>
+        cloneElement<React.HTMLAttributes<HTMLOrSVGElement>>(children, {
+          className:
+            children.props.className ?? "" + ` ${icon.createClassNames()}`,
+        }),
+      [children.props.className, children]
+    );
 
     return (
       <MuiBase
@@ -198,10 +220,7 @@ const IconButton = forwardRef<HTMLButtonElement, MuiIconButtonProps>(
         }}
         style={uStyle.styleFromSx}
       >
-        {cloneElement<React.HTMLAttributes<HTMLOrSVGElement>>(children, {
-          className:
-            children.props.className ?? "" + ` ${icon.createClassNames()}`,
-        })}
+        <ClonedElement />
       </MuiBase>
     );
   }

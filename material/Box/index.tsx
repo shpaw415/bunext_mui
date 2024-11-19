@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { useStyle } from "../../style";
 import type { MuiProps } from "../../utils/base";
-type BoxProps = {
+export type BoxProps = {
   variant?: JSX.Element;
   children?: any;
 } & MuiProps &

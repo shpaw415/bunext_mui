@@ -8,6 +8,7 @@ import {
   cloneElement,
   createElement,
   forwardRef,
+  useMemo,
   type HTMLAttributes,
 } from "react";
 import type { MuiProps } from "../../utils/base";
@@ -59,25 +60,30 @@ class Root extends MuiBaseStyleUtils<"default", SuffixType> {
 const Typography = forwardRef<HTMLElement, MuiTypographyProps>(
   ({ children, variant, className, sx, style, ...props }, ref) => {
     const _style = useStyle(sx, style);
-    const manager = new Root({
-      ..._style,
-      staticClassName: "MUI_Typography_Root",
-      currentVariant: "default",
-    });
+    const manager = useMemo(
+      () =>
+        new Root({
+          ..._style,
+          staticClassName: "MUI_Typography_Root",
+          currentVariant: "default",
+        }),
+      []
+    );
+    const _className = useMemo(() => manager.createClassNames(), []);
 
     if (typeof children == "string" || Array.isArray(children)) {
       return createElement(variant || "p", {
         ...props,
         style: _style.styleFromSx,
         children,
-        className: `${className || ""} ${manager.createClassNames()}`,
+        className: `${className || ""} ${_className}`,
         ref,
       });
     } else if (children) {
       return cloneElement(children, {
         ...props,
         style: _style.styleFromSx,
-        className: `${className || ""} ${manager.createClassNames()}`,
+        className: `${className || ""} ${_className}`,
         ref,
       });
     }

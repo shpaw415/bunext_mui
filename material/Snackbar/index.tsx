@@ -7,7 +7,7 @@ import {
   type MuiTheme,
 } from "../../style";
 import { useClickAwayListener } from "../../utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { MuiProps } from "../../utils/base";
 
 type MuiSnackBarProps = {
@@ -33,10 +33,8 @@ type MuiSnackBarProps = {
    *  ( default: true )
    */
   onClose?: () => void;
-  onOpen?: (
-    setOpenState: React.Dispatch<React.SetStateAction<boolean>>
-  ) => void;
-  opened?: boolean;
+  onOpen?: () => void;
+  opened: boolean;
   children: any;
 } & MuiProps &
   React.HTMLAttributes<HTMLDivElement>;
@@ -434,43 +432,25 @@ export default function SnackBar({
   onOpen,
   ...props
 }: MuiSnackBarProps) {
-  const [isInited, setInited] = useState(false);
-  const [isOpen, setOpenState] = useState<boolean>(opened as boolean);
-  const [wasOpend, setWasOpened] = useState(Boolean(opened));
   const [, setTimer] = useState<Timer>();
   const _style = useStyle(sx, style);
 
   const timerSetter = useCallback(() => {
-    if (!autoHideDuration || !isOpen) return;
+    if (!autoHideDuration) return;
     setTimer((c) => {
       clearTimeout(c);
       return setTimeout(() => {
-        setOpenState(false);
         onClose && onClose();
       }, autoHideDuration * 1000);
     });
-  }, [autoHideDuration, opened, onClose, isOpen]);
+  }, [autoHideDuration, opened, onClose]);
 
   useEffect(() => {
-    if (isOpen) onOpen && onOpen(setOpenState);
-    if (isOpen || opened) setWasOpened(true);
-    if (isOpen && wasOpend) {
-      setWasOpened(false);
-      onClose && onClose();
-    }
-  }, [opened, isOpen]);
-
-  useEffect(() => {
-    timerSetter();
-  }, [children]);
-
-  if (opened && !isOpen && !isInited) {
-    setOpenState(true);
-    setInited(true);
-  } else if (!opened && isInited) {
-    setInited(false);
-    setOpenState(false);
-  }
+    if (opened) {
+      onOpen && onOpen();
+      timerSetter();
+    } else onClose && onClose();
+  }, [opened]);
 
   const setter: Partial<
     Record<
@@ -478,8 +458,8 @@ export default function SnackBar({
       SuffixType | undefined
     >
   > = {
-    opened: isOpen === true ? "opened" : undefined,
-    closed: !isOpen ? "closed" : undefined,
+    opened: opened ? "opened" : undefined,
+    closed: !opened ? "closed" : undefined,
     position: position ? position : "bottom-left",
     topOrBottom: position
       ? position.startsWith("bottom")
@@ -501,23 +481,51 @@ export default function SnackBar({
     setter.topOrBottom,
   ]);
 
-  const paper = new Paper({
-    staticClassName: "MUI_Snackbar_paper",
-    currentVariant: currentTransition,
-    ..._style,
-  });
+  const paper = useMemo(
+    () =>
+      new Paper({
+        staticClassName: "MUI_Snackbar_paper",
+        currentVariant: currentTransition,
+        ..._style,
+      }),
+    [currentTransition]
+  );
 
-  const messageContainer = new MessageContainer({
-    staticClassName: "MUI_Snackbar_Message_Container",
-    currentVariant: currentTransition,
-    ..._style,
-  });
+  const messageContainer = useMemo(
+    () =>
+      new MessageContainer({
+        staticClassName: "MUI_Snackbar_Message_Container",
+        currentVariant: currentTransition,
+        ..._style,
+      }),
+    [currentTransition]
+  );
 
-  const actionContainer = new ActionContainer({
-    staticClassName: "MUI_Snackbar_Action_Container",
-    currentVariant: currentTransition,
-    ..._style,
-  });
+  const actionContainer = useMemo(
+    () =>
+      new ActionContainer({
+        staticClassName: "MUI_Snackbar_Action_Container",
+        currentVariant: currentTransition,
+        ..._style,
+      }),
+    [currentTransition]
+  );
+
+  const ActionBtn = useMemo(
+    () =>
+      typeof actionButton == "string" ? (
+        <Button
+          variant="text"
+          onClick={() => onClose && onClose()}
+          style={{ color: "rgb(0, 121, 107)" }}
+        >
+          {actionButton}
+        </Button>
+      ) : (
+        actionButton
+      ),
+    [actionButton]
+  );
 
   return (
     <div
@@ -529,19 +537,7 @@ export default function SnackBar({
       <div className={paper.createClassNames()} role="alert">
         <div className={messageContainer.createClassNames()}>{children}</div>
         {actionButton && (
-          <div className={actionContainer.createClassNames()}>
-            {typeof actionButton == "string" ? (
-              <Button
-                variant="text"
-                onClick={() => setOpenState(false)}
-                style={{ color: "rgb(0, 121, 107)" }}
-              >
-                {actionButton}
-              </Button>
-            ) : (
-              actionButton
-            )}
-          </div>
+          <div className={actionContainer.createClassNames()}>{ActionBtn}</div>
         )}
       </div>
     </div>

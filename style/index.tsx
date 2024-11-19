@@ -9,7 +9,8 @@ import {
   type CSSProperties,
 } from "react";
 import { RippleCss } from "../material/style/ripple";
-import MuiCss from "../style/style.json";
+import DefaultMUICssPath from "../style/style.css";
+import CommonMUICssPath from "../style/common.css";
 
 export let MuiIds: string[] = [];
 export let MuiStyleVariables: {
@@ -19,10 +20,11 @@ export let MuiStyleVariables: {
 export let MuiVariableTimer: Timer;
 
 export type MediaQueryType = {
-  xs: number;
-  sm: number;
-  md: number;
-  lg: number;
+  xs: 0;
+  sm: 600;
+  md: 900;
+  lg: 1200;
+  xl: 1536;
 };
 
 export type SxProps = Partial<React.CSSProperties> &
@@ -30,9 +32,10 @@ export type SxProps = Partial<React.CSSProperties> &
 
 export const MediaQueryValues: MediaQueryType = {
   xs: 0,
-  sm: 425,
-  md: 600,
+  sm: 600,
+  md: 900,
   lg: 1200,
+  xl: 1536,
 } as const;
 
 export type CssProps =
@@ -443,34 +446,6 @@ export class MuiBaseStyleUtils<Variant, suffixesType> {
   }
 }
 
-const defaultCss = `
-body,
-html {
-  padding: 0;
-  margin: 0;
-  max-width: 100dvw;
-  width: 100dvw;
-  min-width: 0;
-  overflow-x: hidden;
-}
-
-*::-webkit-scrollbar {
-  width: 7px;
-}
-
-*::-webkit-scrollbar-track {
-  background: #262624;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: #4d4b49;
-  border-radius: 2px;
-}
-`;
-
-const StyleContent =
-  Object.values(MuiCss).join("").replaceAll("\n", "") + defaultCss;
-
 export function LegacyMuiStyle() {
   const [value, setValue] = useState("");
   const styleControl = useContext(MuiStyleContext);
@@ -528,10 +503,14 @@ export type MuiTheme = {
     light: Exclude<React.CSSProperties["color"], undefined>;
     dark: Exclude<React.CSSProperties["color"], undefined>;
   };
+  surface: {
+    light: Exclude<React.CSSProperties["color"], undefined>;
+    dark: Exclude<React.CSSProperties["color"], undefined>;
+  };
   theme: "light" | "dark";
 };
 
-export const MuiColors = createContext<MuiTheme>({
+const DefaultTheme: MuiTheme = {
   primary: {
     dark: "rgb(33, 150, 243)",
     light: "rgb(33, 150, 243)",
@@ -566,8 +545,14 @@ export const MuiColors = createContext<MuiTheme>({
     light: "white",
     dark: "#0e1217",
   },
+  surface: {
+    light: "linear-gradient(#FFF 0%, hsl(210, 100%, 96%) 10%)",
+    dark: "#333",
+  },
   theme: "light",
-});
+};
+
+export const MuiColors = createContext<MuiTheme>(structuredClone(DefaultTheme));
 
 class SxPropsController {
   private Elements: Array<
@@ -615,44 +600,25 @@ export function useStyle(sxProps?: SxProps, style?: CssProps) {
   const [currentSx, setSx] = useState<keyof MediaQueryType>(
     sx.currentMediaQuery
   );
+  const currentSxJson = JSON.stringify(sxProps);
+  const currentStyleJson = JSON.stringify(style);
+
   const memorizedStyleFromSx = useMemo(
     () =>
       MuiBaseStyleUtils.sxToStyle(currentSx, {
         ...(style || {}),
         ...(sxProps || {}),
       }),
-    [currentSx, sxProps, style]
+    [currentSx, currentSxJson, currentStyleJson]
   );
   useEffect(() => {
     setSx(sx.getCurrentMediaQuery());
     sx.add(setSx);
   }, []);
 
-  useEffect(() => {
-    let baseStyle = document.querySelector("#MUI_Base_Style");
-    if (baseStyle) return;
-
-    let head = document.querySelector("head") as HTMLHeadElement;
-
-    if (!head) {
-      document
-        .querySelector("html")
-        ?.insertBefore(
-          document.querySelector("body") as Node,
-          document.createElement("head")
-        );
-      head = document.querySelector("head") as HTMLHeadElement;
-    }
-    baseStyle = document.createElement("style");
-    baseStyle.setAttribute("type", "text/css");
-    baseStyle.setAttribute("id", "MUI_Base_Style");
-    baseStyle.innerHTML = StyleContent;
-    head.appendChild(baseStyle);
-  });
-
   return {
     styleContext: _style,
-    theme,
+    theme: theme,
     styleFromSx: memorizedStyleFromSx,
   };
 }
@@ -675,31 +641,49 @@ export function ThemeProvider({
 }) {
   const styleContext = useContext(MuiStyleContext);
   const [value, setValue] = useState<MuiVariableData>([]);
-
+  const [currentTheme, setCurrentTheme] = useState(
+    structuredClone(DefaultTheme)
+  );
   styleContext.updateVariables = setValue;
+  const json = JSON.stringify(theme);
+  useEffect(() => setCurrentTheme(theme), [json]);
 
-  const ids = value.map((o) => o.id);
-  const filtered = value.filter(
-    ({ id }, index) => !ids.includes(id, index + 1)
+  const ids = useMemo(() => value.map((o) => o.id), [value]);
+  const filtered = useMemo(
+    () => value.filter(({ id }, index) => !ids.includes(id, index + 1)),
+    [ids]
+  );
+  const computedValue = useMemo(
+    () =>
+      filtered.map((val) => `${val.id}: ${val.values[currentTheme.theme]};`),
+    [filtered]
   );
 
-  const computedValue = filtered.map(
-    (val) => `${val.id}: ${val.values[theme.theme]};`
-  );
+  const styleContent = useMemo(() => {
+    return `
+      html,body {
+        ${new _MuiStyleContext().styleToString({
+          background: currentTheme.background[currentTheme.theme],
+        })}
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover,
+      input:-webkit-autofill:focus,
+      input:-webkit-autofill:active {
+      transition: background-color 5000s ease-in-out 0s;
+        -webkit-text-fill-color: ${
+          currentTheme.theme == "dark" ? "#fff" : "rgba(0, 0, 0, 0.6)"
+        } !important;
+      }
+      `;
+  }, [currentTheme]);
 
   return (
-    <MuiColors.Provider value={theme}>
+    <MuiColors.Provider value={currentTheme}>
       <style type="text/css">{`:root{${computedValue.join("")}}`}</style>
       <style
         type="text/css"
         id="MUI_Base_Style"
-        dangerouslySetInnerHTML={{
-          __html:
-            StyleContent +
-            `html,body {${new _MuiStyleContext().styleToString({
-              backgroundColor: theme.background[theme.theme],
-            })}}`,
-        }}
+        dangerouslySetInnerHTML={{ __html: styleContent }}
       />
       <MuiVariableUpdater.Provider value={setValue}>
         {children}
@@ -707,6 +691,7 @@ export function ThemeProvider({
     </MuiColors.Provider>
   );
 }
+
 /** will update the variables */
 export function useVariableUpdater() {
   const updaterContext = useContext(MuiVariableUpdater);
@@ -714,7 +699,6 @@ export function useVariableUpdater() {
   return () => {
     const copy = structuredClone(MuiStyleVariables);
     updaterContext(copy);
-    console.log("update", MuiStyleVariables);
   };
 }
 
@@ -732,9 +716,10 @@ const genRand = (len: number) => {
     .substring(2, len + 2);
 };
 
+/** set To light at first run or there will be hydration error */
 export function useTheme() {
   const colorContext = useContext(MuiColors);
-  const [themeState, set] = useState<MuiTheme["theme"]>("light");
+  const [, set] = useState<MuiTheme["theme"]>("light");
   const key = useMemo(() => genRand(8), []);
   const propagation = useContext(ThemePropagation);
   useEffect(() => {
@@ -743,8 +728,9 @@ export function useTheme() {
       delete propagation[key];
     };
   }, []);
-
-  if (themeState != colorContext.theme) set(colorContext.theme);
+  const json = JSON.stringify(colorContext);
+  useEffect(() => {}, [json]);
+  //init();
   return colorContext;
 }
 
@@ -785,3 +771,51 @@ export function useSystemTheme(): [
 
   return [current, set];
 }
+
+function init() {
+  if (typeof window == "undefined") return;
+  let head = document.querySelector("head") as HTMLHeadElement;
+  const alreadySet = document.querySelector("#MUI_PRIMARY_STYLE");
+  if (alreadySet) return;
+
+  if (!head) {
+    document
+      .querySelector("html")
+      ?.insertBefore(
+        document.querySelector("body") as Node,
+        document.createElement("head")
+      );
+    head = document.querySelector("head") as HTMLHeadElement;
+  }
+  const style = document.createElement("link");
+  const commonStyle = document.createElement("link");
+  style.setAttribute("rel", "stylesheet");
+  style.setAttribute("id", "MUI_PRIMARY_STYLE");
+  style.setAttribute("href", DefaultMUICssPath);
+
+  commonStyle.setAttribute("rel", "stylesheet");
+  commonStyle.setAttribute("id", "MUI_COMMON_STYLE");
+  commonStyle.setAttribute("href", CommonMUICssPath);
+  head.appendChild(style);
+  head.appendChild(commonStyle);
+}
+
+export function MuiStyleLinks() {
+  return (
+    <>
+      <link rel="stylesheet" href={DefaultMUICssPath} />
+      <link rel="stylesheet" href={CommonMUICssPath} />
+    </>
+  );
+}
+
+export const MetaData: React.HTMLProps<HTMLLinkElement>[] = [
+  {
+    rel: "stylesheet",
+    href: DefaultMUICssPath,
+  },
+  {
+    rel: "stylesheet",
+    href: CommonMUICssPath,
+  },
+];

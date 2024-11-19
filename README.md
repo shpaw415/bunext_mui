@@ -9,11 +9,24 @@ Set the Dark or Light Theme
 ```Javascript XML
 // /layout.tsx
 import {
-  MuiStyle,
+  MuiStyleLinks,
   SystemTheme,
   ThemeProvider,
   useTheme,
+  MetaData
 } from "@bunpmjs/bunext_material/style";
+
+
+// add Metadata or <MuiStyleLinks />
+Head.setHead({
+  path: "*",
+  data: {
+    link: [
+      ...MetaData,
+    ],
+  },
+});
+
 
 export function Layout({children}:{children: JSX.Element}) {
     return <MainLayout>{children}</MainLayout>
@@ -21,11 +34,16 @@ export function Layout({children}:{children: JSX.Element}) {
 
 function MainLayout({children}:{children: JSX.Element}) {
     const theme = useTheme();
-    theme.theme = SystemTheme();
+    const Mytheme = useMemo(() => {
+      return {
+        ...theme,
+        theme: SystemTheme()
+      }
+    })
 
     return (
-     <ThemeProvider theme={theme}>
-        <MuiStyle />
+     <ThemeProvider theme={Mytheme}>
+        <MuiStyleLinks />
         {children}
      </ThemeProvider>
     );
@@ -83,3 +101,12 @@ function MainLayout({children}:{children: JSX.Element}) {
 - fix css variable not updating correcly
 - Select set value onMouseDown replacing onClick ( more responsive )
 - Snackbar is more stable and onOpen prop is supported
+
+## 0.1.14
+
+- fix Select dropdown not showing correcly and added dropDownSx & formatValue as props
+- add deps to clickawaylistener
+
+## 0.1.15
+
+- many performance updates

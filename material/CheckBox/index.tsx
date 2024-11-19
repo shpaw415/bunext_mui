@@ -8,7 +8,7 @@ import {
 } from "../../style";
 import Check from "@material-design-icons/svg/outlined/check.svg";
 import MuiBase, { type MuiProps } from "../../utils/base";
-import { useState, type InputHTMLAttributes } from "react";
+import { useMemo, useState, type InputHTMLAttributes } from "react";
 import Typography from "../Typography";
 
 type MuiCheckBox = {
@@ -231,23 +231,35 @@ export default function CheckBox({
     else return undefined;
   };
 
-  const _props = [
-    size ? `size_${size}` : `size_medium`,
-    setDisabled(),
-    _checked ? "checked" : undefined,
-  ] as any;
+  const _props = useMemo(
+    () =>
+      [
+        size ? `size_${size}` : `size_medium`,
+        setDisabled(),
+        _checked ? "checked" : undefined,
+      ] as any,
+    [disabeled, _checked, size]
+  );
 
-  const MainManager = new CheckBoxManager({
-    ..._style,
-    staticClassName: MuiClass.CheckBox,
-    currentVariant: "default",
-  }).setProps(_props);
+  const MainManager = useMemo(
+    () =>
+      new CheckBoxManager({
+        ..._style,
+        staticClassName: MuiClass.CheckBox,
+        currentVariant: "default",
+      }).setProps(_props),
+    [_props]
+  );
 
-  const WrapperManager = new WrapperStyleManager({
-    staticClassName: "MUI_Checkbox_wrapper",
-    currentVariant: "default",
-    ..._style,
-  }).setProps(_props);
+  const WrapperManager = useMemo(
+    () =>
+      new WrapperStyleManager({
+        staticClassName: "MUI_Checkbox_wrapper",
+        currentVariant: "default",
+        ..._style,
+      }).setProps(_props),
+    [_props]
+  );
 
   return (
     <div
@@ -268,7 +280,7 @@ export default function CheckBox({
           }}
           ripple={disabeled || props.readOnly ? false : true}
         >
-          <Check />
+          <Check style={{ display: !_checked ? "none" : undefined }} />
           <input
             type="checkbox"
             checked={_checked}
@@ -287,7 +299,7 @@ export default function CheckBox({
       </MuiBase>
       {label && (
         <Typography sx={{ marginLeft: "5px" }} id="__MUI_Checkbox_Label__">
-          {label + props.required ? "*" : ""}
+          {label + (props.required ? "*" : "")}
         </Typography>
       )}
     </div>

@@ -1589,9 +1589,9 @@ transition:opacity ease-in-out;
 transition-duration:250ms;
 transition-delay:100ms;
 opacity:0;
+display:none;
 position:absolute;
 color:var(--MUI_ToolTip_Root-1);
-display:flex;
 justify-content:center;
 background-color:rgba(97, 97, 97, 0.92);
 border-radius:4px;
@@ -1606,6 +1606,7 @@ font-weight:500;
 }
 .MUI_ToolTip_Root_diplay {
 opacity:1;
+display:flex;
 
 }
 .MUI_Snackbar_root {

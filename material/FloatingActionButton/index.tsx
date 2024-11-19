@@ -7,7 +7,7 @@ import {
   type CssProps,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import { forwardRef, useState } from "react";
+import { forwardRef, useMemo, useState } from "react";
 
 type Variants = "default";
 type SuffixType =
@@ -30,7 +30,7 @@ type FloatingButtonProps = {
   color?: "primary" | "secondary";
   size?: "small" | "medium" | "large";
   animateOnClick?: boolean;
-} & MuiElementProps;
+} & Omit<MuiElementProps, "children">;
 
 class FloatingButtonManager extends MuiBaseStyleUtils<Variants, SuffixType> {
   constructor(props: MuiBaseStyleUtilsProps<Variants>) {
@@ -248,30 +248,39 @@ const FloatingButton = forwardRef<
   ) => {
     const [state, setState] = useState<1 | 0>(1);
     const _style = useStyle(sx, style);
-    const manager = new FloatingButtonManager({
-      ..._style,
-      staticClassName: "MUI_FloatingButton",
-      currentVariant: "default",
-    });
 
-    let Icon = children;
-    let Text = "";
-    if (Array.isArray(children)) {
-      if (typeof children[0] == "string") Text = children[0];
-      else Icon = children[0];
-      if (typeof children[1] == "string") Text = children[1];
-      else Icon = children[1];
-    }
+    const { Icon, Text } = useMemo(() => {
+      let Icon = children;
+      let Text = "";
+      if (Array.isArray(children)) {
+        if (typeof children[0] == "string") Text = children[0];
+        else Icon = children[0];
+        if (typeof children[1] == "string") Text = children[1];
+        else Icon = children[1];
+      }
+      return {
+        Icon,
+        Text,
+      };
+    }, [children]);
 
     const isTextEnable = Text.length > 0;
 
-    manager.setProps([
-      disabled ? "disabled" : undefined,
-      isTextEnable ? "text-enabled" : undefined,
-      state == 0 ? "animate_small" : "animate_large",
-      color ? `color_${color}` : undefined,
-      size ? `size_${size}` : undefined,
-    ]);
+    const manager = useMemo(
+      () =>
+        new FloatingButtonManager({
+          ..._style,
+          staticClassName: "MUI_FloatingButton",
+          currentVariant: "default",
+        }).setProps([
+          disabled ? "disabled" : undefined,
+          isTextEnable ? "text-enabled" : undefined,
+          state == 0 ? "animate_small" : "animate_large",
+          color ? `color_${color}` : undefined,
+          size ? `size_${size}` : undefined,
+        ]),
+      [disabled, isTextEnable, state, color, size]
+    );
 
     return (
       <MuiBase

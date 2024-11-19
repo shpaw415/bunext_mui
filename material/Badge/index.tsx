@@ -120,6 +120,7 @@ export default function Badge({
   sx,
   style,
   badgeContent,
+  side,
   ...props
 }: MUIBadgeProps) {
   const _style = useStyle(sx, style);
@@ -136,7 +137,7 @@ export default function Badge({
     ..._style,
     staticClassName: "MUI_Badge_Badge_Root",
     currentVariant: currentVariant,
-  }).setProps([props.side ? props.side : "top-right"]);
+  }).setProps([side ? side : "top-right"]);
   return (
     <span
       className={root.createClassNames() + ` ${className || ""}`}

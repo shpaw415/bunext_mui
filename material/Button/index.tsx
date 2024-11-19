@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useMemo } from "react";
 import {
   _MuiStyleContext,
   MuiBaseStyleUtils,
@@ -314,23 +314,27 @@ const Button = forwardRef<HTMLButtonElement, MuiButtonProps>(
   ) => {
     const _style = useStyle(sx, style);
 
-    const styleManager = new ButtonStyleManager({
-      theme: _style.theme,
-      styleContext: _style.styleContext,
-      variant,
-    });
-
-    styleManager.setProps([
-      disabled ? "disabled" : undefined,
-      size ? `size_${size}` : undefined,
-      color,
-    ]);
+    const styleManager = useMemo(
+      () =>
+        new ButtonStyleManager({
+          theme: _style.theme,
+          styleContext: _style.styleContext,
+          variant,
+        })
+          .setProps([
+            disabled ? "disabled" : undefined,
+            size ? `size_${size}` : undefined,
+            color,
+          ])
+          .createClassNames(),
+      [variant, disabled, size, color]
+    );
 
     return (
       <MuiBase
         element="button"
         ref={ref}
-        className={styleManager.createClassNames() + ` ${className || ""}`}
+        className={styleManager + ` ${className || ""}`}
         style={_style.styleFromSx}
         {...props}
         ripple

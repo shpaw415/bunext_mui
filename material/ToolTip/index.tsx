@@ -4,6 +4,7 @@ import {
   forwardRef,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import {
@@ -61,12 +62,12 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
         transitionDuration: "250ms",
         transitionDelay: "100ms",
         opacity: 0,
+        display: "none",
         position: "absolute",
         color: this.colorFromTheme({
           light: "rgb(255,255,255)",
           dark: "rgb(0,0,0)",
         }),
-        display: "flex",
         justifyContent: "center",
         backgroundColor: "rgba(97, 97, 97, 0.92)",
         borderRadius: "4px",
@@ -85,6 +86,7 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
       suffix: "diplay",
       commonStyle: {
         opacity: 1,
+        display: "flex",
       },
     });
   }
@@ -103,6 +105,8 @@ export default function ToolTip({
   trigger,
   open,
   autoClose,
+  onClose,
+  onOpen,
   style,
   sx,
   className,
@@ -113,13 +117,14 @@ export default function ToolTip({
     top: 100,
     left: 100,
   });
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
   const ref = useClickAwayListener<HTMLDivElement>(() => {
+    if (typeof open != "undefined" && onClose) onClose();
     if (!trigger) return;
     if (Array.isArray(trigger) && !trigger.includes("onClick")) return;
     if (trigger != "onClick") return;
     setDisplay(false);
-  });
+  }, [trigger]);
 
   const toolTipRef = createRef<HTMLParagraphElement>();
 
@@ -131,143 +136,206 @@ export default function ToolTip({
       setDisplay(false);
   });
 
-  const unTriggerFunction = () => setDisplay(false);
-  const makeCoordinateStyle = useCallback<() => StyleProp>(() => {
-    const t = (ref as React.RefObject<HTMLDivElement>).current;
-    if (!t) return {} as StyleProp;
+  const [timer, _setTimer] = useState<Timer>();
+  const setTimer = useCallback(() => {
+    _setTimer((timer) => {
+      clearTimeout(timer);
+      return setTimeout(() => {
+        onClose && onClose();
+        if (open == undefined) setDisplay(false);
+      }, autoClose || 0);
+    });
+  }, [timer]);
 
-    const basePosition: StyleProp = {
-      top: t.offsetTop + t.offsetHeight,
-      left: t.offsetLeft + t.offsetWidth,
-    };
-    switch (position) {
-      case "top-left":
-        basePosition.top -=
-          t.offsetHeight + (toolTipRef.current?.offsetHeight || 0) + 5;
-        basePosition.left -= t.offsetWidth;
-        basePosition.transform = "translateX(-100%)";
-        break;
-      case "top":
-        basePosition.top -=
-          t.offsetHeight + (toolTipRef.current?.offsetHeight || 0) + 5;
-        basePosition.left -= t.offsetWidth / 2;
-        basePosition.transform = "translate(-50%, -100%)";
-        break;
-      case "top-right":
-        basePosition.top -=
-          t.offsetHeight + (toolTipRef.current?.offsetHeight || 0) + 5;
-        basePosition.transform = "translateX(-100%)";
-        break;
-      case "right":
-        basePosition.transform = "translateY(-50%)";
-        basePosition.top -= t.offsetHeight / 2;
-        basePosition.left += 5;
-        break;
-      case "bottom-right":
-        break;
-      case "bottom":
-        basePosition.left -= t.offsetWidth / 2;
-        basePosition.transform = "translateX(-50%)";
-        basePosition.top += 5;
-        break;
-      case "bottom-left":
-        basePosition.left -= t.offsetWidth;
-        basePosition.transform = "translateX(-100%)";
-        basePosition.top += 5;
-        break;
-      case "left":
-        basePosition.left -=
-          t.offsetWidth + (toolTipRef.current?.offsetWidth || 0) + 5;
-        basePosition.top -= t.offsetHeight / 2;
-        basePosition.transform = "translate(-100%,-50%)";
-        break;
-    }
+  const makeCoordinateStyle = useCallback<(t: HTMLDivElement) => StyleProp>(
+    (t: HTMLDivElement) => {
+      if (!t) return {} as StyleProp;
 
-    return basePosition;
-  }, []);
-  const triggerFunction = useCallback(() => {
-    const t = (ref as React.RefObject<HTMLDivElement>).current;
+      const basePosition: StyleProp = {
+        top: t.offsetTop + t.offsetHeight,
+        left: t.offsetLeft + t.offsetWidth,
+      };
+      switch (position) {
+        case "top-left":
+          basePosition.top -=
+            t.offsetHeight + (toolTipRef.current?.offsetHeight || 0) + 5;
+          basePosition.left -= t.offsetWidth;
+          basePosition.transform = "translateX(-100%)";
+          break;
+        case "top":
+          basePosition.top -=
+            t.offsetHeight + (toolTipRef.current?.offsetHeight || 0) + 5;
+          basePosition.left -= t.offsetWidth / 2;
+          basePosition.transform = "translate(-50%, -100%)";
+          break;
+        case "top-right":
+          basePosition.top -=
+            t.offsetHeight + (toolTipRef.current?.offsetHeight || 0) + 5;
+          basePosition.transform = "translateX(-100%)";
+          break;
+        case "right":
+          basePosition.transform = "translateY(-50%)";
+          basePosition.top -= t.offsetHeight / 2;
+          basePosition.left += 5;
+          break;
+        case "bottom-right":
+          break;
+        case "bottom":
+          basePosition.left -= t.offsetWidth / 2;
+          basePosition.transform = "translateX(-50%)";
+          basePosition.top += 5;
+          break;
+        case "bottom-left":
+          basePosition.left -= t.offsetWidth;
+          basePosition.transform = "translateX(-100%)";
+          basePosition.top += 5;
+          break;
+        case "left":
+          basePosition.left -=
+            t.offsetWidth + (toolTipRef.current?.offsetWidth || 0) + 5;
+          basePosition.top -= t.offsetHeight / 2;
+          basePosition.transform = "translate(-100%,-50%)";
+          break;
+      }
+
+      return basePosition;
+    },
+    [(ref as React.RefObject<HTMLDivElement>).current]
+  );
+  const triggerFunction = useCallback((t: HTMLDivElement) => {
     setDisplay(true);
     if (!t) return;
 
-    if (autoClose) {
-      setTimeout(() => unTriggerFunction, autoClose);
-    }
-    setCoordinate(makeCoordinateStyle());
-  }, [(ref as React.RefObject<HTMLDivElement>).current]);
+    if (autoClose && open == undefined) setTimer();
+    setCoordinate(
+      makeCoordinateStyle(
+        (ref as React.RefObject<HTMLDivElement>).current as HTMLDivElement
+      )
+    );
+  }, []);
 
   useEffect(() => {
     if (!open) return;
-    triggerFunction();
+    triggerFunction(
+      (ref as React.RefObject<HTMLDivElement>).current as HTMLDivElement
+    );
   }, []);
 
-  if (JSON.stringify(makeCoordinateStyle()) != JSON.stringify(coordinate))
-    setCoordinate(makeCoordinateStyle());
+  useEffect(() => {
+    if (open == undefined) return;
+    if (autoClose && open) setTimer();
+    if (!open) setDisplay(false);
+  }, [open]);
 
-  if (open != undefined && open != displayed) {
-    setDisplay(open);
-    triggerFunction();
-  }
+  if (
+    JSON.stringify(
+      makeCoordinateStyle(
+        (ref as React.RefObject<HTMLDivElement>).current as HTMLDivElement
+      )
+    ) != JSON.stringify(coordinate)
+  )
+    setCoordinate(
+      makeCoordinateStyle(
+        (ref as React.RefObject<HTMLDivElement>).current as HTMLDivElement
+      )
+    );
 
-  const root = new Root({
-    ..._style,
-    currentVariant: "default",
-    staticClassName: "MUI_ToolTip_Root",
-  }).setProps([displayed || open ? "diplay" : undefined]);
+  useEffect(() => {
+    if (open)
+      triggerFunction(
+        (ref as React.RefObject<HTMLDivElement>).current as HTMLDivElement
+      );
+  }, [open]);
 
-  let formatedTrigger: React.DetailedHTMLProps<
+  const root = useMemo(
+    () =>
+      new Root({
+        ..._style,
+        currentVariant: "default",
+        staticClassName: "MUI_ToolTip_Root",
+      }).setProps([displayed || open ? "diplay" : undefined]),
+    [displayed, open]
+  );
+
+  const formatedTrigger: React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLDivElement>,
     HTMLDivElement
-  > = {};
-
-  if (trigger && open == undefined) {
-    if (!Array.isArray(trigger)) trigger = [trigger];
-    for (const t of trigger) {
-      switch (t) {
-        case "onClick":
-          formatedTrigger.onClick = (e) => {
-            triggerFunction();
-            if (children.props.onClick) children.props.onClick(e);
-          };
-          break;
-        case "onFocus":
-          formatedTrigger.onFocus = (e) => {
-            triggerFunction();
-            if (children.props.onFocus) children.props.onFocus(e);
-          };
-          break;
-        case "onMouseEnter":
-          formatedTrigger.onMouseEnter = (e) => {
-            triggerFunction();
-            if (children.props.onMouseEnter) children.props.onMouseEnter(e);
-          };
-          formatedTrigger.onMouseLeave = (e) => {
-            unTriggerFunction();
-            if (children.props.onMouseLeave) children.props.onMouseLeave(e);
-          };
-          break;
-        case "onMouseDown":
-          formatedTrigger.onMouseDown = (e) => {
-            triggerFunction();
-            if (children.props.onMouseDown) children.props.onMouseDown(e);
-          };
-          break;
+  > = useMemo(() => {
+    let formatedTrigger: React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLDivElement>,
+      HTMLDivElement
+    > = {};
+    if (trigger && open == undefined) {
+      if (!Array.isArray(trigger)) trigger = [trigger];
+      for (const t of trigger) {
+        switch (t) {
+          case "onClick":
+            formatedTrigger.onClick = (e) => {
+              if (children.props.onClick) children.props.onClick(e);
+              if (!e.isPropagationStopped())
+                triggerFunction(
+                  (ref as React.RefObject<HTMLDivElement>)
+                    .current as HTMLDivElement
+                );
+            };
+            break;
+          case "onFocus":
+            formatedTrigger.onFocus = (e) => {
+              if (children.props.onFocus) children.props.onFocus(e);
+              if (!e.isPropagationStopped())
+                triggerFunction(
+                  (ref as React.RefObject<HTMLDivElement>)
+                    .current as HTMLDivElement
+                );
+            };
+            break;
+          case "onMouseEnter":
+            formatedTrigger.onMouseEnter = (e) => {
+              if (children.props.onMouseEnter) children.props.onMouseEnter(e);
+              if (!e.isPropagationStopped())
+                triggerFunction(
+                  (ref as React.RefObject<HTMLDivElement>)
+                    .current as HTMLDivElement
+                );
+            };
+            formatedTrigger.onMouseLeave = (e) => {
+              if (children.props.onMouseLeave) children.props.onMouseLeave(e);
+              if (!e.isPropagationStopped()) setDisplay(false);
+            };
+            break;
+          case "onMouseDown":
+            formatedTrigger.onMouseDown = (e) => {
+              if (children.props.onMouseDown) children.props.onMouseDown(e);
+              if (!e.isPropagationStopped())
+                triggerFunction(
+                  (ref as React.RefObject<HTMLDivElement>)
+                    .current as HTMLDivElement
+                );
+            };
+            break;
+        }
       }
+    } else if (open == undefined) {
+      formatedTrigger.onMouseEnter = (e) => {
+        triggerFunction(
+          (ref as React.RefObject<HTMLDivElement>).current as HTMLDivElement
+        );
+        if (children.props.onMouseEnter) children.props.onMouseEnter(e);
+      };
+      formatedTrigger.onMouseLeave = (e) => {
+        triggerFunction(
+          (ref as React.RefObject<HTMLDivElement>).current as HTMLDivElement
+        );
+        if (children.props.onMouseLeave) children.props.onMouseLeave(e);
+      };
     }
-  } else if (open == undefined) {
-    formatedTrigger.onMouseEnter = (e) => {
-      triggerFunction();
-      if (children.props.onMouseEnter) children.props.onMouseEnter(e);
-    };
-    formatedTrigger.onMouseLeave = (e) => {
-      triggerFunction();
-      if (children.props.onMouseLeave) children.props.onMouseLeave(e);
-    };
-  }
 
-  return (
-    <>
-      {cloneElement<
+    return formatedTrigger;
+  }, [trigger, ref]);
+
+  const _children = useMemo(
+    () =>
+      cloneElement<
         React.DetailedHTMLProps<
           React.HTMLAttributes<HTMLDivElement>,
           HTMLDivElement
@@ -275,7 +343,13 @@ export default function ToolTip({
       >(children, {
         ...formatedTrigger,
         ref: ref,
-      })}
+      }),
+    [ref, formatedTrigger, children]
+  );
+
+  return (
+    <>
+      {_children}
       <Typography
         className={root.createClassNames() + ` ${className || ""}`}
         style={{

@@ -4,7 +4,7 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import { forwardRef, type HTMLAttributes } from "react";
+import { forwardRef, useMemo, type HTMLAttributes } from "react";
 import type { MuiProps } from "../../utils/base";
 
 type MuiPaperProps = {
@@ -48,11 +48,11 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
 const Paper = forwardRef<HTMLDivElement, MuiPaperProps>(
   ({ children, className, style, sx, ...props }, ref) => {
     const _style = useStyle(sx, style);
-    const root = new Root({
+    const root = useMemo(() => new Root({
       ..._style,
       staticClassName: "MUI_Paper_Root",
       currentVariant: "default",
-    });
+    }), []);
 
     return (
       <div

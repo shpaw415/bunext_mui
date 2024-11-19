@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type LegacyRef,
-  type MutableRefObject,
-} from "react";
+import { useEffect, useRef, useState, type LegacyRef } from "react";
 import { MediaQueryValues, type MediaQueryType } from "../style";
 
 const makeRand = () => Math.random().toString(36).slice(2, -1);
@@ -49,7 +43,8 @@ export function specialCharToUnderScore(str: string) {
  * @returns the ref object to set to the element that do not trigger the callback
  */
 export function useClickAwayListener<RefType>(
-  callback: (ev: MouseEvent) => void
+  callback: (ev: MouseEvent) => void,
+  deps?: React.DependencyList
 ) {
   const ref = useRef<RefType & HTMLDivElement>(null);
 
@@ -73,7 +68,7 @@ export function useClickAwayListener<RefType>(
       ref.current?.removeEventListener("click", onElementClick);
       document.removeEventListener("click", onDocumentClick);
     };
-  }, []);
+  }, deps);
 
   return ref as LegacyRef<RefType> | undefined;
 }
@@ -117,14 +112,19 @@ export function useMediaQuery() {
   });
 
   useEffect(() => {
-    window.addEventListener("resize", () => {
+    const callback = () => {
       const w = window.innerWidth;
       for (const query of Object.keys(MediaQueryValues).reverse() as Array<
         keyof MediaQueryType
       >) {
         if (w >= MediaQueryValues[query]) return setSxType(query);
       }
-    });
+    };
+    window.addEventListener("resize", callback);
+
+    return () => {
+      window.removeEventListener("resize", callback);
+    };
   }, []);
 
   return currentSx;

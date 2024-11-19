@@ -4,21 +4,24 @@ import {
   useTheme,
   type CssProps,
   type MuiBaseStyleUtilsProps,
+  type SxProps,
 } from "../../style";
 import TextField, { type TextFieldProps } from "../TextField";
 import type { MuiProps } from "../../utils/base";
-import { forwardRef, useMemo, useRef, useState } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import ArrowDown from "@material-design-icons/svg/filled/arrow_drop_down.svg";
 import ListItems, { ListItemElement } from "../ListItems";
 
 export type SelectProps = {
   value?: string;
   name: string;
-  onSelect?: (name: string) => void;
+  onSelect?: (value: string, option: JSX.Element) => void;
   defaultValue?: string;
   children: JSX.Element[] | JSX.Element;
+  dropDownSx?: SxProps;
+  formatName?: (value: string | JSX.Element) => string;
 } & MuiProps &
-  Omit<TextFieldProps, "children" | "value">;
+  Omit<TextFieldProps, "children" | "value" | "onSelect">;
 type Variant = SelectProps["variant"];
 type SuffixType = "opened";
 
@@ -89,6 +92,8 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       name,
       onChange,
       required,
+      dropDownSx,
+      formatName,
       ...props
     },
     ref
@@ -97,17 +102,24 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
     const _style = useStyle(sx, style);
     const [focused, setFocus] = useState(false);
     const DefaultValueMemo = useMemo(() => {
-      if (defaultValue)
-        return children.find((e) => e.props?.value == defaultValue)?.props
-          .children as string;
-      return undefined;
-    }, []);
+      if (defaultValue) {
+        let val = children.find((e) => e.props?.value == defaultValue)?.props
+          .children as undefined | string;
+        if (val && formatName) val = formatName(val);
+        return val ? val : "";
+      }
+      return "";
+    }, [defaultValue]);
     const [_value, setValue] = useState(defaultValue || "");
-    const [displayedValue, setDisplayedValue] = useState<string | undefined>(
-      DefaultValueMemo
-    );
+    const [displayedValue, setDisplayedValue] =
+      useState<string>(DefaultValueMemo);
+    useEffect(() => {
+      setDisplayedValue(DefaultValueMemo);
+    }, [defaultValue]);
+
     const theme = useTheme();
     const _ref = useRef(null);
+
     const currentVariant = props.variant || "standard";
 
     const root = new Root({
@@ -159,6 +171,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
           onFocus={() => setFocus(true)}
           endIcon={() => <ArrowDown style={dropDownArrowStyle} />}
           sx={textFielSx}
+          readOnly
           {...props}
         />
         <input
@@ -167,11 +180,15 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
           name={name}
           value={value || _value}
           readOnly
+          onChange={() => {}}
         />
         <div className={dropDown.createClassNames()}>
           <ListItems
             sx={{
               background: theme.background[theme.theme],
+              overflow: "auto",
+              maxHeight: 150,
+              ...dropDownSx,
             }}
           >
             {children.map((child, index) => (
@@ -184,14 +201,25 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
                 onMouseDown={() => {
                   const toCall = onSelect
                     ? () => {
-                        onSelect(child.props?.value || index);
+                        onSelect(
+                          child.props?.value || index,
+                          child.props?.children
+                        );
                         if (!value) {
-                          setDisplayedValue(child.props?.children);
+                          setDisplayedValue(
+                            formatName
+                              ? formatName(child.props?.children)
+                              : child.props?.children
+                          );
                           setValue(child.props?.value);
                         }
                       }
                     : () => {
-                        setDisplayedValue(child.props?.children);
+                        setDisplayedValue(
+                          formatName
+                            ? formatName(child.props?.children)
+                            : child.props?.children
+                        );
                         setValue(child.props?.value);
                       };
 

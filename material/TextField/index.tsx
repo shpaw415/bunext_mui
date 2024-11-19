@@ -10,6 +10,8 @@ import {
   forwardRef,
   useCallback,
   useEffect,
+  useMemo,
+  useRef,
   useState,
   type DetailedHTMLProps,
   type InputHTMLAttributes,
@@ -779,26 +781,34 @@ const TextField = forwardRef<
       onChange,
       onReset,
       resetValue,
+      defaultValue,
       endIcon,
       children,
       style,
       sx,
       className,
+      autoFocus,
       ...props
     },
     textAreaRef
   ) => {
     const _style = useStyle(sx, style);
-    const [focused, setFocused] = useState(false);
-    const [currentValue, setValue] = useState(
-      props.defaultValue?.toString() || ""
-    );
+    const [focused, setFocused] = useState(Boolean(autoFocus));
+    const [currentValue, setValue] = useState(defaultValue?.toString() || "");
     const [hasReset, setHasReset] = useState(false);
+    const ref = useRef(textAreaRef);
+    useEffect(() => {
+      if (textAreaRef && autoFocus)
+        (
+          ref as { current: React.RefObject<HTMLDivElement> }
+        )?.current?.current?.focus();
+      else if (autoFocus)
+        (ref as React.RefObject<HTMLDivElement>)?.current?.focus();
+    }, []);
 
     if (props.value && currentValue != props.value) {
       setValue(props.value.toString());
     }
-
     if (resetValue && !hasReset) {
       setValue("");
       setHasReset(true);
@@ -809,87 +819,128 @@ const TextField = forwardRef<
     const setter: Record<
       Exclude<SuffixTypes, "color_success" | "color_error"> | "color",
       SuffixTypes | undefined
-    > = {
-      hasValue: currentValue.length > 0 ? "hasValue" : undefined,
-      focus: focused ? "focus" : undefined,
-      color: color ? `color_${color}` : undefined,
-      disabled: props.disabled ? "disabled" : undefined,
-      hasStartIcon: startIcon ? "hasStartIcon" : undefined,
-    };
+    > = useMemo(() => {
+      return {
+        hasValue: currentValue.length > 0 ? "hasValue" : undefined,
+        focus: focused ? "focus" : undefined,
+        color: color ? `color_${color}` : undefined,
+        disabled: props.disabled ? "disabled" : undefined,
+        hasStartIcon: startIcon ? "hasStartIcon" : undefined,
+      };
+    }, [startIcon, color, focused, props.disabled, currentValue.length]);
 
     if (props?.required && label) label = `${label} *`;
-    if (!variant) variant = "standard";
-    const currentVariant = variant;
+    const currentVariant = useMemo(() => variant || "standard", [variant]);
 
-    const WrapperStyle = new TextFieldStyleManager({
-      staticClassName: "MUI_TextField_Wrapper",
-      currentVariant,
-      ..._style,
-    });
+    const WrapperStyle = useMemo(
+      () =>
+        new TextFieldStyleManager({
+          staticClassName: "MUI_TextField_Wrapper",
+          currentVariant,
+          ..._style,
+        }),
+      [currentVariant]
+    );
 
-    const LabelStyle = new LabelTextFieldStyleManager({
-      staticClassName: "MUI_TextField_label",
-      currentVariant,
-      ..._style,
-    }).setProps([
-      setter.color,
-      setter.hasStartIcon && !setter.focus && !setter.hasValue
-        ? setter.hasStartIcon
-        : undefined,
-      setter.focus ? setter.focus : undefined,
-      setter.hasValue,
-    ]);
+    const LabelStyle = useMemo(
+      () =>
+        new LabelTextFieldStyleManager({
+          staticClassName: "MUI_TextField_label",
+          currentVariant,
+          ..._style,
+        }).setProps([
+          setter.color,
+          setter.hasStartIcon && !setter.focus && !setter.hasValue
+            ? setter.hasStartIcon
+            : undefined,
+          setter.focus ? setter.focus : undefined,
+          setter.hasValue,
+        ]),
+      [currentVariant, setter]
+    );
 
-    const animationWrapper = new AnimationWrapperStyle({
-      staticClassName: "MUI_TextField_AnimationWrapper",
-      currentVariant,
-      ..._style,
-    }).setProps([setter.color]);
+    const animationWrapper = useMemo(
+      () =>
+        new AnimationWrapperStyle({
+          staticClassName: "MUI_TextField_AnimationWrapper",
+          currentVariant,
+          ..._style,
+        }).setProps([setter.color]),
+      [currentVariant, setter.color]
+    );
 
-    const animationStyle = new AnimationStyle({
-      staticClassName: "MUI_TextField_AnimationStyle",
-      currentVariant,
-      ..._style,
-    }).setProps([setter.color, setter.focus]);
+    const animationStyle = useMemo(
+      () =>
+        new AnimationStyle({
+          staticClassName: "MUI_TextField_AnimationStyle",
+          currentVariant,
+          ..._style,
+        }).setProps([setter.color, setter.focus]),
+      [currentVariant, setter.color, setter.focus]
+    );
 
-    const BoxStyle = new BoxTextFieldStyleManager(
-      {
-        staticClassName: "MUI_TextField_Box",
-        currentVariant,
-        ..._style,
-      },
-      animationWrapper.staticClassName
-    ).setProps([setter.color, setter.disabled]);
+    const BoxStyle = useMemo(
+      () =>
+        new BoxTextFieldStyleManager(
+          {
+            staticClassName: "MUI_TextField_Box",
+            currentVariant,
+            ..._style,
+          },
+          animationWrapper.staticClassName
+        ).setProps([setter.color, setter.disabled]),
+      [currentVariant, setter.color, setter.disabled]
+    );
 
-    const helpTextStyle = new HelperTextStyleManager({
-      staticClassName: "MUI_TextField_helpText",
-      currentVariant,
-      ..._style,
-    }); // ok
+    const helpTextStyle = useMemo(
+      () =>
+        new HelperTextStyleManager({
+          staticClassName: "MUI_TextField_helpText",
+          currentVariant,
+          ..._style,
+        }),
+      [currentVariant]
+    );
 
-    const fieldSetStyle = new FieldSetStyleManager({
-      ..._style,
-      currentVariant,
-      staticClassName: "MUI_TextField_FieldSet",
-    }).setProps([setter.focus, setter.color]);
+    const fieldSetStyle = useMemo(
+      () =>
+        new FieldSetStyleManager({
+          ..._style,
+          currentVariant,
+          staticClassName: "MUI_TextField_FieldSet",
+        }).setProps([setter.focus, setter.color]),
+      [currentVariant, setter.focus, setter.color]
+    );
 
-    const legendStyle = new LegendStyleManager({
-      ..._style,
-      currentVariant,
-      staticClassName: "MUI_TextField_legend",
-    }).setProps([setter.hasValue, setter.focus]);
+    const legendStyle = useMemo(
+      () =>
+        new LegendStyleManager({
+          ..._style,
+          currentVariant,
+          staticClassName: "MUI_TextField_legend",
+        }).setProps([setter.hasValue, setter.focus]),
+      [currentVariant, setter.hasValue, setter.focus]
+    );
 
-    const InputStyle = new InputTextFieldStyleManager({
-      staticClassName: "MUI_TextField_Input",
-      currentVariant,
-      ..._style,
-    }).setProps([setter.focus, setter.disabled]);
+    const InputStyle = useMemo(
+      () =>
+        new InputTextFieldStyleManager({
+          staticClassName: "MUI_TextField_Input",
+          currentVariant,
+          ..._style,
+        }).setProps([setter.focus, setter.disabled]),
+      [currentVariant, setter.focus, setter.disabled]
+    );
 
-    const textArea = new TextAreaStyle({
-      staticClassName: "MUI_TextField_TextArea",
-      currentVariant: "default",
-      ..._style,
-    });
+    const textArea = useMemo(
+      () =>
+        new TextAreaStyle({
+          staticClassName: "MUI_TextField_TextArea",
+          currentVariant: "default",
+          ..._style,
+        }),
+      [currentVariant]
+    );
 
     const resizeTextArea = useCallback(() => {
       if (!multiline || !textAreaRef) return;
@@ -915,66 +966,78 @@ const TextField = forwardRef<
     }, []);
     useEffect(resizeTextArea, [currentValue]);
 
-    const commonProps = {
-      value: props.defaultValue ? undefined : currentValue,
-      defaultValue: props.defaultValue,
-      onFocus: (e: any) => {
-        onFocus && onFocus(e as any);
-        if (e.isDefaultPrevented()) return;
-        setFocused(true);
-      },
-      onBlur: (e: any) => {
-        onBlur && onBlur(e as any);
-        if (e.isDefaultPrevented()) return;
-        setFocused(false);
-      },
-      onInput: (e: any) => {
-        onInput && onInput(e as any);
-        if (e.isDefaultPrevented()) return;
-        setValue(e.target.value);
-      },
-      onChange: (e: any) => {
-        onChange && onChange(e as any);
-        if (e.isDefaultPrevented()) return;
-        setValue(e.target.value);
-      },
-      onReset: (e: any) => {
-        onReset && onReset(e as any);
-        if (e.isDefaultPrevented()) return;
-        setValue("");
-      },
-      placeholder: !focused ? undefined : props.placeholder,
-      ...(props as any),
-    };
+    const propsChecker = JSON.stringify(props);
 
-    const setInput = () => {
+    const commonProps = useMemo(() => {
+      return {
+        onFocus: (e: any) => {
+          onFocus && onFocus(e as any);
+          if (e.isDefaultPrevented()) return;
+          setFocused(true);
+        },
+        onBlur: (e: React.FocusEvent<HTMLInputElement, Element>) => {
+          onBlur && onBlur(e as any);
+          if (e.isDefaultPrevented()) return;
+          setFocused(false);
+        },
+        onInput: (e: React.FormEvent<HTMLInputElement>) => {
+          onInput && onInput(e as any);
+          if (e.isDefaultPrevented()) return;
+          setValue(e.currentTarget.value);
+        },
+        onChange: (e: any) => {
+          onChange && onChange(e as any);
+          if (e.isDefaultPrevented()) return;
+          setValue(e.target.value);
+        },
+        onReset: (e: any) => {
+          onReset && onReset(e as any);
+          if (e.isDefaultPrevented()) return;
+          setValue("");
+        },
+        placeholder: !focused ? undefined : props.placeholder,
+        ...props,
+      };
+    }, [onFocus, onBlur, onReset, onInput, onChange, focused, propsChecker]);
+
+    const setInput = useMemo(() => {
       if (multiline) {
-        return (
+        return ({ value, className }: { value: string; className: string }) => (
           <textarea
-            ref={textAreaRef as React.RefObject<HTMLTextAreaElement>}
-            className={textArea.createClassNames()}
+            ref={(textAreaRef as React.RefObject<HTMLTextAreaElement>) || ref}
+            className={className}
             rows={typeof multiline != "boolean" ? multiline?.minRows || 1 : 1}
-            {...commonProps}
+            {...(commonProps as any)}
+            value={value}
           />
         );
       } else if (children) {
-        return cloneElement<HTMLSelectElement>(children, {
-          className:
-            InputStyle.createClassNames() +
-            ` ${children.props.className || ""}`,
-          ref: textAreaRef,
-          ...commonProps,
-        });
+        return ({
+          value,
+          className,
+          childrenClassName,
+        }: {
+          value: string;
+          className: string;
+          childrenClassName?: string;
+        }) =>
+          cloneElement<any>(children as JSX.Element, {
+            className: className + ` ${childrenClassName || ""}`,
+            ref: textAreaRef,
+            value: value,
+            ...commonProps,
+          });
       } else {
-        return (
+        return ({ value, className }: { value: string; className: string }) => (
           <input
-            ref={textAreaRef as React.RefObject<HTMLInputElement>}
-            className={InputStyle.createClassNames()}
+            ref={(textAreaRef as any) || ref}
+            className={className}
             {...commonProps}
+            value={value}
           />
         );
       }
-    };
+    }, [multiline, textArea, children, textAreaRef, ref, commonProps]);
 
     return (
       <div
@@ -993,7 +1056,11 @@ const TextField = forwardRef<
               {startIcon()}
             </div>
           )}
-          {setInput()}
+          {setInput({
+            value: currentValue,
+            className: InputStyle.createClassNames(),
+            childrenClassName: children?.props.className,
+          })}
           {variant == "outlined" && (
             <fieldset className={fieldSetStyle.createClassNames()}>
               <legend className={legendStyle.createClassNames()}>

@@ -5,9 +5,9 @@ import {
   type MuiBaseStyleUtilsProps,
 } from "../../style";
 import Typography from "../Typography";
-import { cloneElement } from "react";
+import { cloneElement, forwardRef } from "react";
 
-type Props = {
+export type ListItemProps = {
   children: JSX.Element[] | JSX.Element;
   Header?: string;
   disablePadding?: boolean;
@@ -71,74 +71,71 @@ class _Header extends MuiBaseStyleUtils<Variant, SuffixType> {
   }
 }
 
-export default function ListItems({
-  children,
-  Header,
-  disablePadding,
-  sx,
-  style,
-  ...props
-}: Props) {
-  const _style = useStyle(sx, style);
+export const ListItems = forwardRef<HTMLDivElement, ListItemProps>(
+  ({ children, Header, disablePadding, sx, style, ...props }, ref) => {
+    const _style = useStyle(sx, style);
 
-  const ul = new Ul({
-    ..._style,
-    staticClassName: "MUI_ListItem_ul",
-    currentVariant: "default",
-  }).setProps([disablePadding ? "noPadding" : undefined]);
-
-  let groupedChildren: Array<JSX.Element[] | JSX.Element> = [];
-  let currentGroup: JSX.Element[] = [];
-
-  if (Header) {
-    const _Header_ = new _Header({
+    const ul = new Ul({
       ..._style,
-      staticClassName: "MUI_ListItem_subHeader",
+      staticClassName: "MUI_ListItem_ul",
       currentVariant: "default",
-    });
-    groupedChildren.push(
-      <div className={_Header_.createClassNames()} key="Mui-List-Header">
-        <Typography>{Header}</Typography>
+    }).setProps([disablePadding ? "noPadding" : undefined]);
+
+    let groupedChildren: Array<JSX.Element[] | JSX.Element> = [];
+    let currentGroup: JSX.Element[] = [];
+
+    if (Header) {
+      const _Header_ = new _Header({
+        ..._style,
+        staticClassName: "MUI_ListItem_subHeader",
+        currentVariant: "default",
+      });
+      groupedChildren.push(
+        <div className={_Header_.createClassNames()} key="Mui-List-Header">
+          <Typography>{Header}</Typography>
+        </div>
+      );
+    }
+
+    if (!Array.isArray(children)) children = [children];
+
+    for (const el of children) {
+      if (el.type.name != "Divier") {
+        currentGroup.push(el);
+        continue;
+      }
+      groupedChildren.push(currentGroup);
+      groupedChildren.push(el);
+      currentGroup = [];
+    }
+    groupedChildren.push(currentGroup);
+
+    return (
+      <div style={_style.styleFromSx} {...props} ref={ref}>
+        {groupedChildren.flatMap((elArrayORSeparator, index) => {
+          if (Array.isArray(elArrayORSeparator))
+            return (
+              <nav key={index}>
+                {(groupedChildren[index] as Array<JSX.Element>).flatMap(
+                  (elArray, index) => {
+                    return (
+                      <ul key={index} className={ul.createClassNames()}>
+                        {elArray}
+                      </ul>
+                    );
+                  }
+                )}
+              </nav>
+            );
+
+          return elArrayORSeparator;
+        })}
       </div>
     );
   }
+);
 
-  if (!Array.isArray(children)) children = [children];
-
-  for (const el of children) {
-    if (el.type.name != "Divier") {
-      currentGroup.push(el);
-      continue;
-    }
-    groupedChildren.push(currentGroup);
-    groupedChildren.push(el);
-    currentGroup = [];
-  }
-  groupedChildren.push(currentGroup);
-
-  return (
-    <div style={_style.styleFromSx} {...props}>
-      {groupedChildren.flatMap((elArrayORSeparator, index) => {
-        if (Array.isArray(elArrayORSeparator))
-          return (
-            <nav key={index}>
-              {(groupedChildren[index] as Array<JSX.Element>).flatMap(
-                (elArray, index) => {
-                  return (
-                    <ul key={index} className={ul.createClassNames()}>
-                      {elArray}
-                    </ul>
-                  );
-                }
-              )}
-            </nav>
-          );
-
-        return elArrayORSeparator;
-      })}
-    </div>
-  );
-}
+ListItems.displayName = "ListItems";
 
 type ListItemsElement = {
   StartElement?: JSX.Element;
@@ -352,7 +349,7 @@ export function ListItemElement({
   style,
   ...props
 }: ListItemsElement) {
-  const _style = useStyle();
+  const _style = useStyle(sx, style);
 
   const li = new Li({
     ..._style,
@@ -428,10 +425,7 @@ export function ListItemElement({
         )}
 
         {EndElement && (
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className={endIconRoot.createClassNames()}
-          >
+          <div className={endIconRoot.createClassNames()}>
             {cloneElement<HTMLElement>(EndElement, {
               className: `${IconSVG.createClassNames()} ${
                 EndElement.props.className || ""
@@ -443,3 +437,5 @@ export function ListItemElement({
     </li>
   );
 }
+
+export default ListItems;

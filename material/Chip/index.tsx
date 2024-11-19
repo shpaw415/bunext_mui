@@ -3,7 +3,7 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import { createRef, forwardRef, useRef } from "react";
+import { createRef, forwardRef, useMemo, useRef } from "react";
 import CloseSvgImage from "@material-design-icons/svg/filled/close.svg";
 import type { MuiProps } from "../../utils/base";
 
@@ -16,8 +16,7 @@ type MuiChipProps = {
    */
   onDelete?: (el: React.ForwardedRef<HTMLDivElement>) => void;
   deleteIcon?: () => JSX.Element;
-  icon?: () => JSX.Element;
-  avatar?: JSX.Element;
+  icon?: JSX.Element;
   color?: "success" | "error" | "primary" | "default" | "secondary";
 } & MuiProps &
   React.HTMLAttributes<HTMLDivElement>;
@@ -440,47 +439,54 @@ class SvgIcon extends MuiBaseStyleUtils<Variant, SuffixType> {
 
 const Chip = forwardRef<HTMLDivElement, MuiChipProps>(
   (
-    {
-      sx,
-      style,
-      className,
-      children,
-      onDelete,
-      deleteIcon,
-      icon,
-      avatar,
-      ...props
-    },
+    { sx, style, className, children, onDelete, deleteIcon, icon, ...props },
     ref
   ) => {
     const _style = useStyle(sx, style);
-    const currentVariant = props.variant || "filled";
+    const currentVariant = useMemo(
+      () => props.variant || "filled",
+      [props.variant]
+    );
 
-    const root = new Root({
-      ..._style,
-      staticClassName: "MUI_Chip_Root",
-      currentVariant,
-    }).setProps([props.onClick ? "clickable" : undefined, props.color]);
+    const root = useMemo(
+      () =>
+        new Root({
+          ..._style,
+          staticClassName: "MUI_Chip_Root",
+          currentVariant,
+        }).setProps([props.onClick ? "clickable" : undefined, props.color]),
+      [props.onClick, props.color, currentVariant]
+    );
 
-    const label = new Label({
-      ..._style,
-      staticClassName: "MUI_Chip_Label",
-      currentVariant,
-    }).setProps([props.color]);
+    const label = useMemo(
+      () =>
+        new Label({
+          ..._style,
+          staticClassName: "MUI_Chip_Label",
+          currentVariant,
+        }).setProps([props.color]),
+      [props.color, currentVariant]
+    );
 
-    const svgClose = new SvgClose({
-      ..._style,
-      staticClassName: "MUI_Chip_Close_Svg_Wrapper",
-      currentVariant,
-    }).setProps([props.color]);
+    const svgClose = useMemo(
+      () =>
+        new SvgClose({
+          ..._style,
+          staticClassName: "MUI_Chip_Close_Svg_Wrapper",
+          currentVariant,
+        }).setProps([props.color]),
+      [currentVariant, props.color]
+    );
 
-    const svgIcon = new SvgIcon({
-      ..._style,
-      staticClassName: "MUI_Chip_Icon_Svg_Wrapper",
-      currentVariant,
-    }).setProps([props.color]);
-
-    const Icon: JSX.Element | undefined = avatar || (icon && icon());
+    const svgIcon = useMemo(
+      () =>
+        new SvgIcon({
+          ..._style,
+          staticClassName: "MUI_Chip_Icon_Svg_Wrapper",
+          currentVariant,
+        }).setProps([props.color]),
+      [currentVariant, props.color]
+    );
 
     return (
       <div
@@ -489,13 +495,16 @@ const Chip = forwardRef<HTMLDivElement, MuiChipProps>(
         style={_style.styleFromSx}
         {...props}
       >
-        {Icon && <div className={svgIcon.createClassNames()}>{Icon}</div>}
+        {icon && <div className={svgIcon.createClassNames()}>{icon}</div>}
         <span className={label.createClassNames()}>{props.label}</span>
         {onDelete && (
           <div
             className={svgClose.createClassNames()}
             onClick={() => {
               onDelete && onDelete(ref);
+            }}
+            style={{
+              backgroundColor: _style.theme.primary[_style.theme.theme],
             }}
           >
             {deleteIcon ? deleteIcon() : <CloseSvgImage />}

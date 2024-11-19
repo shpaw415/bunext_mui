@@ -3,7 +3,7 @@ import {
   useStyle,
   type MuiBaseStyleUtilsProps,
 } from "../../style";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import type { MuiProps } from "../../utils/base";
 
 type MuiFormProps = {
@@ -11,6 +11,7 @@ type MuiFormProps = {
   maxInputWidth?: string;
 } & MuiProps &
   React.HTMLAttributes<HTMLFormElement>;
+
 type Variant = "default";
 type SuffixType = "";
 
@@ -58,28 +59,57 @@ class FormRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
 const Form = forwardRef<HTMLFormElement, MuiFormProps>(
   ({ className, style, sx, children, ...props }, ref) => {
     const _style = useStyle(sx, style);
-    const root = new Root({
-      staticClassName: "MUI_Form_Root",
-      currentVariant: "default",
-      ..._style,
-    });
-    const formRoot = new FormRoot({
-      ..._style,
-      staticClassName: "MUI_Form_Form_Root",
-      currentVariant: "default",
-    });
+    const [reset, setReset] = useState(false);
+    const [formHeight, setFormHeight] = useState(0);
+    const _ref = useRef<HTMLFormElement>(null);
+
+    const root = useMemo(
+      () =>
+        new Root({
+          staticClassName: "MUI_Form_Root",
+          currentVariant: "default",
+          ..._style,
+        }),
+      []
+    );
+    const formRoot = useMemo(
+      () =>
+        new FormRoot({
+          ..._style,
+          staticClassName: "MUI_Form_Form_Root",
+          currentVariant: "default",
+        }),
+      []
+    );
+
+    useEffect(() => {
+      reset && setReset(false);
+    }, [reset]);
+
+    useEffect(() => {
+      setFormHeight(
+        ((ref || _ref) as React.RefObject<HTMLFormElement>).current
+          ?.offsetHeight || 0
+      );
+    }, []);
+
     return (
       <div className={root.createClassNames()}>
         <form
-          ref={ref}
+          ref={ref || _ref}
           className={formRoot.createClassNames() + ` ${className || ""}`}
+          onReset={(e) => {
+            e.preventDefault();
+            setReset(true);
+          }}
           style={{
             gridTemplateColumns: `repeat(auto-fit,minmax(${props.maxInputWidth},1fr))`,
+            minHeight: formHeight,
             ..._style.styleFromSx,
           }}
           {...props}
         >
-          {children}
+          {!reset && children}
         </form>
       </div>
     );

@@ -159,14 +159,25 @@ const Menu = forwardRef<HTMLDivElement, MenuProps>(
 
       let refToUse = (ref || reRef) as React.RefObject<HTMLDivElement>;
 
-      setPosition({
+      const coord = {
         top:
           anchor.current.offsetTop -
           (refToUse.current as HTMLDivElement).offsetHeight / 4,
         left:
           anchor.current.offsetLeft -
           (refToUse.current as HTMLDivElement).offsetWidth / 2,
-      });
+      };
+      const RightX = (refToUse.current?.offsetWidth as number) + coord.left;
+      const BottomY = (refToUse.current?.offsetHeight as number) + coord.top;
+
+      if (RightX > window.innerWidth) {
+        coord.left -= (RightX - window.innerWidth) * 1.1;
+      }
+      if (BottomY > window.innerHeight) {
+        coord.top -= (BottomY - window.innerHeight) * 1.1;
+      }
+
+      setPosition(coord);
     }, [open, anchor]);
 
     return (
