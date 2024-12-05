@@ -507,6 +507,10 @@ export type MuiTheme = {
     light: Exclude<React.CSSProperties["color"], undefined>;
     dark: Exclude<React.CSSProperties["color"], undefined>;
   };
+  text: {
+    light: Exclude<React.CSSProperties["color"], undefined>;
+    dark: Exclude<React.CSSProperties["color"], undefined>;
+  };
   theme: "light" | "dark";
 };
 
@@ -548,6 +552,10 @@ const DefaultTheme: MuiTheme = {
   surface: {
     light: "linear-gradient(#FFF 0%, hsl(210, 100%, 96%) 10%)",
     dark: "#333",
+  },
+  text: {
+    light: "black",
+    dark: "white",
   },
   theme: "light",
 };

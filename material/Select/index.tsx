@@ -11,6 +11,7 @@ import type { MuiProps } from "../../utils/base";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import ArrowDown from "@material-design-icons/svg/filled/arrow_drop_down.svg";
 import ListItems, { ListItemElement } from "../ListItems";
+import Box from "@bunpmjs/bunext_material/material/Box";
 
 export type SelectProps = {
   value?: string;
@@ -94,6 +95,8 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       required,
       dropDownSx,
       formatName,
+      onFocus,
+      onBlur,
       ...props
     },
     ref
@@ -165,10 +168,14 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
         <TextField
           label={label}
           value={displayedValue || DefaultValueMemo}
-          onBlur={() => {
+          onBlur={(e) => {
             setTimeout(() => setFocus(false), 100);
+            onBlur && onBlur(e);
           }}
-          onFocus={() => setFocus(true)}
+          onFocus={(e) => {
+            setFocus(true);
+            onFocus && onFocus(e);
+          }}
           endIcon={() => <ArrowDown style={dropDownArrowStyle} />}
           sx={textFielSx}
           readOnly
@@ -182,13 +189,12 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
           readOnly
           onChange={() => {}}
         />
-        <div className={dropDown.createClassNames()}>
+        <Box className={dropDown.createClassNames()} sx={dropDownSx}>
           <ListItems
             sx={{
               background: theme.background[theme.theme],
               overflow: "auto",
               maxHeight: 150,
-              ...dropDownSx,
             }}
           >
             {children.map((child, index) => (
@@ -232,7 +238,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
               </ListItemElement>
             ))}
           </ListItems>
-        </div>
+        </Box>
       </div>
     );
   }

@@ -15,7 +15,10 @@ export type MuiIconButtonProps = {
   href?: string;
   color?: "primary" | "secondary";
   disabled?: boolean;
-} & React.HTMLAttributes<HTMLButtonElement> &
+} & React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+> &
   MuiProps;
 
 type Variants = "default";
@@ -206,7 +209,6 @@ const IconButton = forwardRef<HTMLButtonElement, MuiIconButtonProps>(
         }),
       [children.props.className, children]
     );
-
     return (
       <MuiBase
         element="button"
