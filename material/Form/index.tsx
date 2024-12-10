@@ -57,7 +57,7 @@ class FormRoot extends MuiBaseStyleUtils<Variant, SuffixType> {
 }
 
 const Form = forwardRef<HTMLFormElement, MuiFormProps>(
-  ({ className, style, sx, children, ...props }, ref) => {
+  ({ className, style, sx, children, onReset, ...props }, ref) => {
     const _style = useStyle(sx, style);
     const [reset, setReset] = useState(false);
     const [formHeight, setFormHeight] = useState(0);
@@ -100,6 +100,7 @@ const Form = forwardRef<HTMLFormElement, MuiFormProps>(
           className={formRoot.createClassNames() + ` ${className || ""}`}
           onReset={(e) => {
             e.preventDefault();
+            onReset && onReset(e);
             setReset(true);
           }}
           style={{
