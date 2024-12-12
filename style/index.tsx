@@ -664,13 +664,13 @@ export function ThemeProvider({
   const computedValue = useMemo(
     () =>
       filtered.map((val) => `${val.id}: ${val.values[currentTheme.theme]};`),
-    [filtered]
+    [filtered, currentTheme.theme]
   );
 
   const styleContent = useMemo(() => {
     return `
       html,body {
-        ${new _MuiStyleContext().styleToString({
+        ${styleContext.styleToString({
           background: currentTheme.background[currentTheme.theme],
         })}
       input:-webkit-autofill,
@@ -700,45 +700,13 @@ export function ThemeProvider({
   );
 }
 
-/** will update the variables */
-export function useVariableUpdater() {
-  const updaterContext = useContext(MuiVariableUpdater);
-
-  return () => {
-    const copy = structuredClone(MuiStyleVariables);
-    updaterContext(copy);
-  };
-}
-
-type ThemePropagationHook = React.Dispatch<
-  React.SetStateAction<MuiTheme["theme"]>
->;
-
-export const ThemePropagation = createContext<
-  Record<string, ThemePropagationHook>
->({});
-
-const genRand = (len: number) => {
-  return Math.random()
-    .toString(36)
-    .substring(2, len + 2);
-};
-
 /** set To light at first run or there will be hydration error */
 export function useTheme() {
   const colorContext = useContext(MuiColors);
   const [, set] = useState<MuiTheme["theme"]>("light");
-  const key = useMemo(() => genRand(8), []);
-  const propagation = useContext(ThemePropagation);
   useEffect(() => {
-    propagation[key] = set;
-    return () => {
-      delete propagation[key];
-    };
-  }, []);
-  const json = JSON.stringify(colorContext);
-  useEffect(() => {}, [json]);
-  //init();
+    set(colorContext.theme);
+  }, [colorContext.theme]);
   return colorContext;
 }
 
@@ -761,12 +729,6 @@ export function useSystemTheme(): [
   React.Dispatch<React.SetStateAction<MuiTheme["theme"]>>
 ] {
   const [current, set] = useState<MuiTheme["theme"]>("light");
-  const propagation = useContext(ThemePropagation);
-
-  useEffect(() => {
-    const hooks = Object.values(propagation) as ThemePropagationHook[];
-    for (let i = 0; i < hooks.length; i++) hooks[i](current);
-  }, [current]);
 
   useEffect(() => {
     set(SystemTheme());
@@ -778,34 +740,6 @@ export function useSystemTheme(): [
   }, []);
 
   return [current, set];
-}
-
-function init() {
-  if (typeof window == "undefined") return;
-  let head = document.querySelector("head") as HTMLHeadElement;
-  const alreadySet = document.querySelector("#MUI_PRIMARY_STYLE");
-  if (alreadySet) return;
-
-  if (!head) {
-    document
-      .querySelector("html")
-      ?.insertBefore(
-        document.querySelector("body") as Node,
-        document.createElement("head")
-      );
-    head = document.querySelector("head") as HTMLHeadElement;
-  }
-  const style = document.createElement("link");
-  const commonStyle = document.createElement("link");
-  style.setAttribute("rel", "stylesheet");
-  style.setAttribute("id", "MUI_PRIMARY_STYLE");
-  style.setAttribute("href", DefaultMUICssPath);
-
-  commonStyle.setAttribute("rel", "stylesheet");
-  commonStyle.setAttribute("id", "MUI_COMMON_STYLE");
-  commonStyle.setAttribute("href", CommonMUICssPath);
-  head.appendChild(style);
-  head.appendChild(commonStyle);
 }
 
 export function MuiStyleLinks() {

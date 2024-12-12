@@ -110,3 +110,8 @@ function MainLayout({children}:{children: JSX.Element}) {
 ## 0.1.15
 
 - many performance updates
+
+## 0.1.16
+
+- performance update when theme changes
+- cleanup of theme
