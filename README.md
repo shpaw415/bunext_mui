@@ -115,3 +115,4 @@ function MainLayout({children}:{children: JSX.Element}) {
 
 - performance update when theme changes
 - cleanup of theme
+- fix theme change regression
