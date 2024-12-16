@@ -120,6 +120,8 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       setDisplayedValue(DefaultValueMemo);
     }, [defaultValue]);
 
+    dropDownSx = { maxHeight: 150, ...dropDownSx };
+
     const theme = useTheme();
     const _ref = useRef(null);
 
@@ -194,7 +196,6 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
             sx={{
               background: theme.background[theme.theme],
               overflow: "auto",
-              maxHeight: 150,
             }}
           >
             {children.map((child, index) => (
