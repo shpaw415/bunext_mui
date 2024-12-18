@@ -120,7 +120,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       setDisplayedValue(DefaultValueMemo);
     }, [defaultValue]);
 
-    dropDownSx = { maxHeight: 150, ...dropDownSx };
+    dropDownSx = { maxHeight: 150, overflow: "auto", ...dropDownSx };
 
     const theme = useTheme();
     const _ref = useRef(null);
