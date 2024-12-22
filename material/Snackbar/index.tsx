@@ -61,6 +61,10 @@ class Root extends MuiBaseStyleUtils<Variant, SuffixType> {
         display: "none",
         transition: "ease-in-out 200ms",
         animationDuration: "1s",
+        background: this.colorFromTheme({
+          light: "white",
+          dark: "#333",
+        }),
       },
       fade: {
         ":customStyle": `

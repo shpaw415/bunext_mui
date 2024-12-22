@@ -1615,6 +1615,7 @@ position:fixed;
 display:none;
 transition:ease-in-out 200ms;
 animation-duration:1s;
+background:var(--MUI_Snackbar_root-0);
 
 }
 
