@@ -14,7 +14,7 @@ import {
 import type { MuiProps } from "../../utils/base";
 
 type MuiTypographyProps = {
-  children?: JSX.Element | string | string[];
+  children?: any;
   variant?: "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "span";
 } & MuiProps &
   HTMLAttributes<
@@ -71,22 +71,13 @@ const Typography = forwardRef<HTMLElement, MuiTypographyProps>(
     );
     const _className = useMemo(() => manager.createClassNames(), []);
 
-    if (typeof children == "string" || Array.isArray(children)) {
-      return createElement(variant || "p", {
-        ...props,
-        style: _style.styleFromSx,
-        children,
-        className: `${className || ""} ${_className}`,
-        ref,
-      });
-    } else if (children) {
-      return cloneElement(children, {
-        ...props,
-        style: _style.styleFromSx,
-        className: `${className || ""} ${_className}`,
-        ref,
-      });
-    }
+    return createElement(variant || "p", {
+      ...props,
+      style: _style.styleFromSx,
+      children,
+      className: `${className || ""} ${_className}`,
+      ref,
+    });
   }
 );
 Typography.displayName = "Typography";

@@ -5,11 +5,12 @@ import {
   type MuiBaseStyleUtilsProps,
 } from "../../style";
 import Typography from "../Typography";
+import Box from "../Box";
 import { cloneElement, forwardRef } from "react";
 
 export type ListItemProps = {
   children: JSX.Element[] | JSX.Element;
-  Header?: string;
+  Header?: JSX.Element;
   disablePadding?: boolean;
 } & MuiProps &
   React.HTMLAttributes<HTMLDivElement>;
@@ -91,9 +92,9 @@ export const ListItems = forwardRef<HTMLDivElement, ListItemProps>(
         currentVariant: "default",
       });
       groupedChildren.push(
-        <div className={_Header_.createClassNames()} key="Mui-List-Header">
-          <Typography>{Header}</Typography>
-        </div>
+        <Box className={_Header_.createClassNames()} key="Mui-List-Header">
+          {Header}
+        </Box>
       );
     }
 

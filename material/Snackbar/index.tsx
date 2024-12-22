@@ -4,9 +4,7 @@ import {
   useStyle,
   type CssProps,
   type MuiBaseStyleUtilsProps,
-  type MuiTheme,
 } from "../../style";
-import { useClickAwayListener } from "../../utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { MuiProps } from "../../utils/base";
 
@@ -38,24 +36,6 @@ type MuiSnackBarProps = {
   children: any;
 } & MuiProps &
   React.HTMLAttributes<HTMLDivElement>;
-
-const backgroundFromTheme = (theme: MuiTheme) => {
-  switch (theme.theme) {
-    case "light":
-      return "rgb(50, 50, 50)";
-    case "dark":
-      return "rgb(250, 250, 250)";
-  }
-};
-
-const fontColorsFromTheme = (theme: MuiTheme) => {
-  switch (theme.theme) {
-    case "light":
-      return "rgb(255, 255, 255)";
-    case "dark":
-      return "rgb(0, 0, 0)";
-  }
-};
 
 type Variant = MuiSnackBarProps["transition"];
 type SuffixType =
@@ -363,8 +343,8 @@ class Paper extends MuiBaseStyleUtils<Variant, SuffixType> {
         fontSize: "0.875rem",
         lineHeight: "1.43",
         letterSpacing: "0.01071em",
-        color: fontColorsFromTheme(this.theme),
-        backgroundColor: backgroundFromTheme(this.theme),
+        color: "inherit",
+        backgroundColor: "inherit",
         display: "flex",
         "--WebkitBoxAlign": "center",
         alignItems: "center",
