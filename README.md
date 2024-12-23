@@ -124,3 +124,7 @@ function MainLayout({children}:{children: JSX.Element}) {
 ## 0.1.18
 
 - change background for Snack
+
+## 0.1.19
+
+- Badge is forwarded

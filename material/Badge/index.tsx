@@ -1,5 +1,6 @@
 "use client";
 
+import { forwardRef } from "react";
 import {
   MuiBaseStyleUtils,
   useStyle,
@@ -11,7 +12,7 @@ type MUIBadgeProps = {
   variant?: "default" | "dot";
   side?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   children: JSX.Element;
-  badgeContent?: string | number;
+  badgeContent?: any;
 } & MuiProps &
   React.HTMLAttributes<HTMLSpanElement>;
 
@@ -115,38 +116,38 @@ class BadgeRoot extends MuiBaseStyleUtils<Variants, SuffixTypes> {
   }
 }
 
-export default function Badge({
-  className,
-  sx,
-  style,
-  badgeContent,
-  side,
-  ...props
-}: MUIBadgeProps) {
-  const _style = useStyle(sx, style);
+const Badge = forwardRef<HTMLDivElement, MUIBadgeProps>(
+  ({ className, sx, style, badgeContent, side, ...props }, ref) => {
+    const _style = useStyle(sx, style);
 
-  const currentVariant = props.variant || "default";
+    const currentVariant = props.variant || "default";
 
-  const root = new Root({
-    ..._style,
-    staticClassName: "MUI_Badge_Root",
-    currentVariant: currentVariant,
-  });
+    const root = new Root({
+      ..._style,
+      staticClassName: "MUI_Badge_Root",
+      currentVariant: currentVariant,
+    });
 
-  const badge = new BadgeRoot({
-    ..._style,
-    staticClassName: "MUI_Badge_Badge_Root",
-    currentVariant: currentVariant,
-  }).setProps([side ? side : "top-right"]);
-  return (
-    <span
-      className={root.createClassNames() + ` ${className || ""}`}
-      {...props}
-    >
-      {props.children}
-      <span className={badge.createClassNames()} style={_style.styleFromSx}>
-        {badgeContent && currentVariant == "default" && badgeContent}
+    const badge = new BadgeRoot({
+      ..._style,
+      staticClassName: "MUI_Badge_Badge_Root",
+      currentVariant: currentVariant,
+    }).setProps([side ? side : "top-right"]);
+    return (
+      <span className={root.createClassNames()} {...props}>
+        {props.children}
+        <span
+          className={badge.createClassNames() + ` ${className || ""}`}
+          ref={ref}
+          style={_style.styleFromSx}
+        >
+          {badgeContent && currentVariant == "default" && badgeContent}
+        </span>
       </span>
-    </span>
-  );
-}
+    );
+  }
+);
+
+Badge.displayName = "Badge";
+
+export default Badge;
