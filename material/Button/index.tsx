@@ -334,6 +334,7 @@ const Button = forwardRef<HTMLButtonElement, MuiButtonProps>(
       <MuiBase
         element="button"
         ref={ref}
+        disabled={disabled}
         className={styleManager + ` ${className || ""}`}
         style={_style.styleFromSx}
         {...props}
