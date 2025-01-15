@@ -3,6 +3,7 @@ import {
   MuiBaseStyleUtils,
   useStyle,
   type MuiBaseStyleUtilsProps,
+  type SxProps,
 } from "../../style";
 import Paper from "../Paper";
 import React, { useState } from "react";
@@ -15,6 +16,7 @@ type DrawerProps = {
   position?: "top" | "right" | "bottom" | "left";
   children: JSX.Element | JSX.Element[];
   width?: React.CSSProperties["width"];
+  wrapperSx?: SxProps;
 } & React.HTMLAttributes<HTMLDivElement> &
   MuiProps;
 
@@ -81,9 +83,11 @@ export default function Drawer({
   sx,
   className,
   width,
+  wrapperSx,
   ...props
 }: DrawerProps) {
   const _style = useStyle(sx, style);
+  const wrapperStyle = useStyle(wrapperSx);
   const [displayed, setDisplayed] = useState<"hidden" | "visible">("hidden");
   const currentVariant = position ?? "left";
 
@@ -104,9 +108,10 @@ export default function Drawer({
   else if (open && displayed == "hidden") setDisplayed("visible");
   return (
     <div
-      className={root.createClassNames()}
+      className={root.createClassNames() + ` `}
       style={{
         visibility: open ? "visible" : displayed,
+        ...wrapperStyle.styleFromSx,
       }}
     >
       <Backdrop

@@ -8,7 +8,6 @@ import {
 import {
   cloneElement,
   forwardRef,
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -942,30 +941,6 @@ const TextField = forwardRef<
       [currentVariant]
     );
 
-    const resizeTextArea = useCallback(() => {
-      if (!multiline || !textAreaRef) return;
-      const ref = textAreaRef as React.MutableRefObject<HTMLTextAreaElement>;
-      (ref as any).current.style.height = "auto";
-      const reductedHeight = ref.current.scrollHeight as number;
-      if (
-        typeof multiline != "boolean" &&
-        typeof multiline?.maxRows == "number" &&
-        reductedHeight > 23 * multiline.maxRows
-      ) {
-        (ref.current as any).style.overflow = "auto";
-        (ref.current as any).style.height = 23 * multiline.maxRows;
-        return;
-      } else if (
-        typeof multiline != "boolean" &&
-        typeof multiline?.minRows == "number" &&
-        reductedHeight < 23 * multiline.minRows
-      ) {
-        (ref.current as any).style.overflow = "auto";
-        (ref.current as any).style.height = 23 * multiline.minRows;
-      } else (ref.current as any).style.height = reductedHeight + "px";
-    }, []);
-    useEffect(resizeTextArea, [currentValue]);
-
     const propsChecker = JSON.stringify(props);
 
     const commonProps = useMemo(() => {
@@ -1002,7 +977,13 @@ const TextField = forwardRef<
 
     const setInput = useMemo(() => {
       if (multiline) {
-        return ({ value, className }: { value: string; className: string }) => (
+        return ({
+          value,
+          className,
+        }: {
+          value: string;
+          className?: string;
+        }) => (
           <textarea
             ref={(textAreaRef as React.RefObject<HTMLTextAreaElement>) || ref}
             className={className}
@@ -1012,23 +993,23 @@ const TextField = forwardRef<
           />
         );
       } else if (children) {
+        return ({ value, className }: { value: string; className: string }) => {
+          const newProps = {
+            ref: textAreaRef,
+            className: `${className} ${children.props.className || ""}`,
+            value: value,
+            ...commonProps,
+          };
+          return cloneElement<any>(children as JSX.Element, newProps);
+        };
+      } else {
         return ({
           value,
           className,
-          childrenClassName,
         }: {
           value: string;
-          className: string;
-          childrenClassName?: string;
-        }) =>
-          cloneElement<any>(children as JSX.Element, {
-            className: className + ` ${childrenClassName || ""}`,
-            ref: textAreaRef,
-            value: value,
-            ...commonProps,
-          });
-      } else {
-        return ({ value, className }: { value: string; className: string }) => (
+          className?: string;
+        }) => (
           <input
             ref={(textAreaRef as any) || ref}
             className={className}
@@ -1041,8 +1022,8 @@ const TextField = forwardRef<
 
     return (
       <div
-        className={WrapperStyle.createClassNames() + ` ${className || ""}`}
         style={_style.styleFromSx}
+        className={WrapperStyle.createClassNames() + ` ${className || ""}`}
       >
         <label className={LabelStyle.createClassNames()}>{label}</label>
         <div className={BoxStyle.createClassNames()}>
@@ -1059,7 +1040,6 @@ const TextField = forwardRef<
           {setInput({
             value: currentValue,
             className: InputStyle.createClassNames(),
-            childrenClassName: children?.props.className,
           })}
           {variant == "outlined" && (
             <fieldset className={fieldSetStyle.createClassNames()}>
